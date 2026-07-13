@@ -39,7 +39,7 @@
         #intro-screen h1 { font-size: 42px; color: var(--text-main); margin-bottom: 10px; letter-spacing: -1px; }
         #intro-screen p { font-size: 14px; color: var(--text-muted); font-weight: 500; letter-spacing: 2px; }
 
-        /* Telegram Баннер (ПРАВКА 1: Фиксированное позиционирование) */
+        /* Telegram Баннер */
         .glass-banner {
             position: fixed;
             top: calc(env(safe-area-inset-top) + 12px);
@@ -60,15 +60,14 @@
         /* Основной контейнер */
         #main-container {
             flex: 1; overflow-y: auto;
-            /* ПРАВКА 2: Отступ снизу с учетом новой высоты панелей */
-            padding-bottom: calc(var(--player-height) + var(--nav-height) + 40px + env(safe-area-inset-bottom));
+            /* Отступ снизу с учетом новой высоты панелей */
+            padding-bottom: calc(var(--player-height) + var(--nav-height) + env(safe-area-inset-bottom) + 24px);
         }
         #main-container::-webkit-scrollbar { display: none; }
 
-        .tab-content { display: none; padding: 20px 16px; }
+        /* ИСПРАВЛЕНИЕ: Безопасный отступ сверху для всех вкладок, чтобы избежать перекрытия статус-баром и телеграм-баннером */
+        .tab-content { display: none; padding: calc(env(safe-area-inset-top) + 65px) 16px 20px 16px; }
         .tab-content.active { display: block; }
-        
-        #tab-home { padding-top: 50px; } /* Отступ чтобы баннер не перекрывал контент */
 
         h2 { font-size: 24px; margin-bottom: 20px; font-weight: 700; }
 
@@ -170,7 +169,8 @@
             z-index: 1500; background-color: var(--bg-color);
             transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex; flex-direction: column;
-            padding-bottom: calc(var(--player-height) + 20px);
+            /* ИСПРАВЛЕНИЕ: Обновлен отступ снизу под опущенный мини-плеер */
+            padding-bottom: calc(var(--player-height) + env(safe-area-inset-bottom) + 32px);
             overflow-y: auto; overflow-x: hidden;
         }
         #playlist-view.active { transform: translateX(0); }
@@ -192,7 +192,6 @@
         .pv-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
         .pv-author { font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 24px; font-weight: 500;}
         
-        /* ПРАВКА 5: Симметричный блок элементов управления */
         .pv-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 30px; gap: 30px; }
         
         .pv-play-btn {
@@ -210,10 +209,11 @@
         
         .pv-tracks-container { padding: 0 16px; }
 
-        /* Нижний мини-плеер (ПРАВКА 2: Позиционирование) */
+        /* Нижний мини-плеер */
         #mini-player {
             position: fixed; 
-            bottom: calc(94px + env(safe-area-inset-bottom)); /* 12px(отступ) + 70px(нав) + 12px(зазор) */
+            /* ИСПРАВЛЕНИЕ: Точный расчет позиции над нижней навигацией */
+            bottom: calc(env(safe-area-inset-bottom) + 86px); /* 8px отступ нав + 70px нав + 8px зазор */
             left: 12px; right: 12px; height: var(--player-height);
             background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(20px); border-radius: 16px;
             display: flex; align-items: center; padding: 0 12px; z-index: 2000;
@@ -221,13 +221,19 @@
             transform: translateY(400px); 
             opacity: 0;
             pointer-events: none;
-            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+            /* ИСПРАВЛЕНИЕ: Добавлена плавная анимация движения вверх/вниз */
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease, bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             border: 1px solid rgba(255,255,255,0.1);
         }
         #mini-player.visible { 
             transform: translateY(0); 
             opacity: 1; 
             pointer-events: auto; 
+        }
+        
+        /* ИСПРАВЛЕНИЕ: Опускаем мини-плеер вниз, когда открыта вкладка плейлиста */
+        body.playlist-active #mini-player {
+            bottom: calc(env(safe-area-inset-bottom) + 12px);
         }
         
         #mp-cover { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; margin-right: 12px; }
@@ -313,13 +319,13 @@
         .qp-header button { background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: #fff; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center;}
         .qp-header svg { width: 20px; height: 20px; fill: currentColor; }
         #qp-list { overflow-y: auto; flex: 1; padding-bottom: 30px; }
-        /* ПРАВКА 4: Иконка в очереди */
         .qp-playing-icon { width: 24px; height: 24px; fill: var(--accent-color); margin-left: auto; margin-right: 16px; flex-shrink: 0; }
 
-        /* НИЖНЯЯ НАВИГАЦИЯ (ПРАВКА 2: Позиционирование) */
+        /* НИЖНЯЯ НАВИГАЦИЯ */
         #bottom-nav {
             position: fixed; 
-            bottom: calc(12px + env(safe-area-inset-bottom)); 
+            /* ИСПРАВЛЕНИЕ: Уменьшена граница под панелью */
+            bottom: calc(env(safe-area-inset-bottom) + 8px); 
             left: 50%;
             transform: translateX(-50%);
             width: 92%;
@@ -620,7 +626,7 @@
         let isRepeat = false;
         let currentFilter = 'all';
         let currentOpenPlaylistId = null;
-        let currentEditTrackId = null; // Для редактирования трека
+        let currentEditTrackId = null; 
         let isDraggingProgress = false; 
         
         let currentContextName = '"Все треки"';
@@ -631,8 +637,6 @@
         const iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
         const defaultCover = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjwvc3ZnPg==';
 
-        // ПРАВКА 3: Фикс Shake to Undo на iOS.
-        // Снимаем фокус с инпутов при нажатии Enter и при касании вне полей.
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && document.activeElement && document.activeElement.tagName === 'INPUT') {
                 document.activeElement.blur();
@@ -775,7 +779,7 @@
             };
             playlists.push(playlist);
             nameInput.value = '';
-            nameInput.blur(); // Фикс клавы
+            nameInput.blur(); 
             await saveData();
             updateLibraryUI();
         }
@@ -792,10 +796,12 @@
             renderPlaylistTracks(pl);
             updatePlayPauseIcon(); 
             document.getElementById('playlist-view').classList.add('active');
+            document.body.classList.add('playlist-active'); // ИСПРАВЛЕНИЕ: Добавляем класс для опускания мини-плеера
         }
 
         function closePlaylistView() {
             document.getElementById('playlist-view').classList.remove('active');
+            document.body.classList.remove('playlist-active'); // ИСПРАВЛЕНИЕ: Убираем класс
             currentOpenPlaylistId = null;
         }
 
@@ -881,7 +887,6 @@
             closeModals(); closePlaylistView(); updateLibraryUI();
         }
 
-        // НОВОЕ: Функции для редактирования отдельного трека
         function openEditTrackModal(e, id) {
             e.stopPropagation();
             currentEditTrackId = id;
@@ -913,7 +918,6 @@
             closeModals();
             updateLibraryUI();
             
-            // Если этот трек сейчас играет, обновляем UI плеера на лету
             if (currentTrackId === track.id) {
                 document.getElementById('mp-title').innerText = track.title;
                 document.getElementById('mp-author').innerText = track.author;
