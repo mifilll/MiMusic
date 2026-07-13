@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>MiMusic</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --surface-color: #1a1a1a;
+            --surface-light: #2a2a2a;
+            --accent-color: #ffcc00; 
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --player-height: 64px;
+            --nav-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color); color: var(--text-main);
+            height: 100dvh; overflow: hidden; overscroll-behavior-y: none;
+            display: flex; flex-direction: column;
+        }
+
+        /* Интро */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-color); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        #intro-screen h1 { font-size: 42px; color: var(--text-main); margin-bottom: 10px; letter-spacing: -1px; }
+        #intro-screen p { font-size: 14px; color: var(--text-muted); font-weight: 500; letter-spacing: 2px; }
+
+        /* Telegram Баннер */
+        .glass-banner {
+            margin: calc(env(safe-area-inset-top) + 16px) auto 0 auto; 
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 600; font-size: 14px; text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            align-self: center; 
+        }
+        .glass-banner svg { width: 18px; height: 18px; margin-right: 8px; fill: #fff; }
+
+        /* Основной контейнер */
+        #main-container {
+            flex: 1; overflow-y: auto;
+            padding-bottom: calc(var(--player-height) + 140px + env(safe-area-inset-bottom));
+        }
+        #main-container::-webkit-scrollbar { display: none; }
+
+        .tab-content { display: none; padding: 20px 16px; }
+        .tab-content.active { display: block; }
+        
+        h2 { font-size: 24px; margin-bottom: 20px; font-weight: 700; }
+
+        /* Главная: Анимация "Моя волна" */
+        .vibe-container {
+            height: 35vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; position: relative;
+            margin-bottom: 20px;
+        }
+        .vibe-glow {
+            position: absolute; width: 260px; height: 260px;
+            background: radial-gradient(circle, rgba(255, 204, 0, 0.3) 0%, transparent 60%);
+            border-radius: 50%; animation: breathe 4s ease-in-out infinite alternate; z-index: 0;
+        }
+        .vibe-ring {
+            position: absolute; width: 220px; height: 220px;
+            border: 2px solid rgba(255, 204, 0, 0.4);
+            border-radius: 40% 60% 65% 35% / 45% 55% 45% 55%;
+            animation: spin-distort 12s linear infinite; z-index: 0; filter: blur(4px);
+        }
+        @keyframes breathe { 0% { transform: scale(0.85); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
+        @keyframes spin-distort {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.05); border-radius: 60% 40% 35% 65% / 55% 45% 55% 45%; }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .vibe-btn {
+            position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;
+            font-size: 32px; font-weight: 800; color: #fff; background: none; border: none; cursor: pointer;
+        }
+        .vibe-btn-top { display: flex; align-items: center; }
+        .vibe-btn svg { width: 32px; height: 32px; fill: #fff; margin-right: 12px; }
+        .vibe-sub { font-size: 13px; color: var(--text-muted); margin-top: 16px; font-weight: 500; text-align: center; max-width: 200px; line-height: 1.4; }
+
+        /* Карточки на главной */
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .h-scroll { display: flex; gap: 16px; padding-bottom: 10px; }
+        .card {
+            flex: 1; background: var(--surface-color); padding: 16px;
+            border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .card:active { background: var(--surface-light); }
+        .card-icon {
+            width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.08);
+            display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+        }
+        .card-icon svg { width: 24px; height: 24px; fill: #fff; }
+        .card-title { font-size: 15px; font-weight: 600; text-align: center; }
+
+        /* Списки треков (Библиотека) */
+        .lib-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .lib-tabs::-webkit-scrollbar { display: none; }
+        .lib-tab { padding: 10px 18px; border-radius: 20px; background: var(--surface-color); font-size: 14px; font-weight: 600; color: var(--text-muted); border: none; white-space: nowrap; transition: 0.3s; }
+        .lib-tab.active { background: #fff; color: #000; }
+        
+        .track-list { display: flex; flex-direction: column; gap: 16px; }
+        .track-item { display: flex; align-items: center; background: transparent; transition: opacity 0.2s; cursor: pointer; border-radius: 12px; padding: 4px; }
+        .track-item:active { opacity: 0.6; }
+        .track-cover { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: var(--surface-light); margin-right: 14px; flex-shrink: 0;}
+        .track-info { flex: 1; overflow: hidden; }
+        .track-title { font-size: 16px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 4px;}
+        .track-author { font-size: 13px; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;}
+        .action-btn-small { background: none; border: none; color: var(--text-muted); padding: 10px; cursor:pointer;}
+        .action-btn-small.active { color: var(--accent-color); }
+        .action-btn-small svg { width: 20px; height: 20px; fill: currentColor; }
+
+        /* Формы */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 14px; border-radius: 12px; border: none;
+            background: var(--surface-color); color: var(--text-main); font-size: 16px; outline: none; -webkit-appearance: none;
+        }
+        .btn-primary {
+            width: 100%; padding: 16px; border-radius: 16px; border: none;
+            background: #fff; color: #000; font-size: 16px; font-weight: 700; margin-top: 10px; cursor: pointer;
+        }
+        .btn-primary:active { opacity: 0.8; transform: scale(0.98); }
+        
+        .btn-danger { background: #ff4444; color: #fff; }
+
+        /* Модальные окна */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); z-index: 4000; display: none;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--surface-color); border-radius: 20px; padding: 20px;
+            width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center;}
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+        /* ЭКРАН ПЛЕЙЛИСТА */
+        #playlist-view {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 1500; background-color: var(--bg-color);
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column;
+            padding-bottom: calc(var(--player-height) + 20px);
+            overflow-y: auto; overflow-x: hidden;
+        }
+        #playlist-view.active { transform: translateX(0); }
+        
+        .pv-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: calc(env(safe-area-inset-top) + 20px) 20px 10px 20px;
+        }
+        .pv-header button { background: none; border: none; color: #fff; padding: 10px; cursor: pointer;}
+        .pv-header svg { width: 28px; height: 28px; fill: currentColor; }
+        
+        .pv-info-container {
+            display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px 20px 20px 20px;
+        }
+        .pv-cover {
+            width: 240px; height: 240px; border-radius: 12px; object-fit: cover;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4); margin-bottom: 24px; background: var(--surface-light);
+        }
+        .pv-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+        .pv-author { font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 24px; font-weight: 500;}
+        
+        .pv-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 30px; gap: 20px; }
+        
+        /* Кнопка Play в плейлисте (Исправлена центровка и смена иконки) */
+        .pv-play-btn {
+            width: 64px; height: 64px; border-radius: 50%; background: var(--accent-color);
+            border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,204,0,0.3); transition: transform 0.2s;
+            padding-left: 4px; /* Отступ для оптического центрирования треугольника */
+        }
+        .pv-play-btn:active { transform: scale(0.95); }
+        .pv-play-btn svg { width: 32px; height: 32px; fill: #000; }
+        /* Состояние паузы */
+        .pv-play-btn.playing { padding-left: 0; /* Убираем отступ, т.к. пауза симметрична */ }
+        .pv-play-btn .icon-pause { display: none; }
+        .pv-play-btn.playing .icon-play { display: none; }
+        .pv-play-btn.playing .icon-pause { display: block; }
+        
+        .pv-tracks-container { padding: 0 16px; }
+
+
+        /* Нижний мини-плеер */
+        #mini-player {
+            position: fixed; 
+            /* Поднимаем над Liquid Glass панелью */
+            bottom: calc(110px + env(safe-area-inset-bottom)); 
+            left: 12px; right: 12px; height: var(--player-height);
+            background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(20px); border-radius: 16px;
+            display: flex; align-items: center; padding: 0 12px; z-index: 2000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(300%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #mini-player.visible { transform: translateY(0); }
+        #mp-cover { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; margin-right: 12px; }
+        #mp-info { flex: 1; overflow: hidden; }
+        #mp-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #mp-author { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mp-controls { display: flex; align-items: center; gap: 8px; }
+        .control-btn { background: none; border: none; color: var(--text-main); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;}
+        .control-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* Полноэкранный плеер */
+        #full-player {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 2500; background-color: var(--bg-color);
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column;
+            padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom) 24px;
+            overflow: hidden;
+        }
+        #full-player.active { transform: translateY(0); }
+        
+        .fp-bg {
+            position: absolute; top: -10%; left: -10%; width: 120%; height: 120%;
+            background-size: cover; background-position: center;
+            filter: blur(60px) brightness(0.3); z-index: -1;
+        }
+        
+        .fp-header {
+            display: flex; justify-content: space-between; align-items: center;
+            height: 60px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
+        }
+        .fp-header button { background: none; border: none; color: #fff; padding: 10px; cursor: pointer;}
+        .fp-header svg { width: 24px; height: 24px; fill: currentColor; }
+        
+        /* Блок "Сейчас играет" с названием плейлиста */
+        .fp-now-playing { display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
+        .fp-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .fp-playlist-name { font-size: 14px; font-weight: 700; color: #ffffff; text-align: center; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .fp-cover-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; }
+        #fp-cover { width: 100%; max-width: 340px; aspect-ratio: 1; border-radius: 20px; object-fit: cover; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        
+        .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .fp-text { flex: 1; overflow: hidden; padding-right: 16px; }
+        #fp-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #fp-author { font-size: 16px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        #fp-like-btn svg { width: 28px; height: 28px; fill: currentColor; }
+        #fp-like-btn.active { color: var(--accent-color); }
+
+        .fp-progress-row { margin-bottom: 30px; }
+        .fp-progress-bar-wrap { position: relative; height: 24px; display: flex; align-items: center; }
+        #fp-progress {
+            -webkit-appearance: none; width: 100%; height: 6px; 
+            background: linear-gradient(to right, #fff 0%, rgba(255,255,255,0.2) 0%);
+            border-radius: 3px; outline: none; z-index: 2; position: relative;
+        }
+        #fp-progress::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 14px; height: 14px; background: #fff; border-radius: 50%; cursor: pointer; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+        }
+        .fp-time-labels { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 8px; font-weight: 500;}
+
+        .fp-controls-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 30px; }
+        .fp-controls-row button { background: none; border: none; color: #fff; transition: color 0.2s; cursor: pointer;}
+        .fp-controls-row svg { width: 32px; height: 32px; fill: currentColor; }
+        
+        .btn-play-large { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; }
+        .btn-play-large svg { width: 64px; height: 64px; fill: #fff; }
+        
+        #fp-repeat-btn.active { color: var(--accent-color); }
+
+        /* ОЧЕРЕДЬ ТРЕКОВ (Выезжает поверх полноэкранного плеера) */
+        #queue-panel {
+            position: absolute; top: 100%; left: 0; right: 0; height: 80%;
+            background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(30px);
+            border-radius: 30px 30px 0 0; border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 24px; z-index: 3000; transition: top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+        }
+        #queue-panel.active { top: 20%; }
+        .qp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .qp-header h3 { font-size: 20px; font-weight: 800; margin: 0; }
+        .qp-header button { background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: #fff; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center;}
+        .qp-header svg { width: 20px; height: 20px; fill: currentColor; }
+        #qp-list { overflow-y: auto; flex: 1; padding-bottom: 30px; }
+
+        /* НИЖНЯЯ НАВИГАЦИЯ (Стиль Liquid Glass) */
+        #bottom-nav {
+            position: fixed; 
+            bottom: calc(20px + env(safe-area-inset-bottom)); 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 400px;
+            height: 70px;
+            /* Полупрозрачный белый светлый фон + сильный блюр */
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            /* Белый блик по краям */
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 40px; /* Форма пилюли */
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 8px;
+            z-index: 101;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.05);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.5); text-decoration: none; font-size: 11px; font-weight: 600;
+            flex: 1;
+            height: 56px; 
+            border-radius: 28px; /* Внутренняя таблетка для активного */
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin: 0 4px;
+        }
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.22); /* Светлая подложка */
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px;}
+
+        .empty-state { text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <!-- Интро -->
+    <div id="intro-screen">
+        <h1>MiMusic</h1>
+        <p>prod.mifilll</p>
+    </div>
+
+    <!-- Баннер Telegram -->
+    <a href="https://t.me/MiFMusic" target="_blank" class="glass-banner">
+        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.896-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.888-.662 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        @MiFMusic
+    </a>
+
+    <!-- Основной контент -->
+    <div id="main-container">
+        <!-- Главная -->
+        <div id="tab-home" class="tab-content active">
+            <div class="vibe-container">
+                <div class="vibe-glow"></div>
+                <div class="vibe-ring"></div>
+                <button class="vibe-btn" onclick="playVibe()">
+                    <div class="vibe-btn-top">
+                        <span id="vibe-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+                        MiВолна
+                    </div>
+                    <div class="vibe-sub">На основе добавленных вами треков</div>
+                </button>
+            </div>
+
+            <div class="section-title">Библиотека</div>
+            <div class="h-scroll">
+                <div class="card" onclick="goToLibrary('favorites')">
+                    <div class="card-icon" style="background: rgba(255, 204, 0, 0.15);">
+                        <svg style="fill: var(--accent-color);" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </div>
+                    <div class="card-title">Избранное</div>
+                </div>
+                <div class="card" onclick="goToLibrary('playlists')">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M3 10h11v2H3v-2zm0-4h11v2H3V6zm0 8h7v2H3v-2z"/></svg>
+                    </div>
+                    <div class="card-title">Плейлисты</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Библиотека -->
+        <div id="tab-library" class="tab-content">
+            <h2>Библиотека</h2>
+            <div class="lib-tabs">
+                <button class="lib-tab active" onclick="setFilter('all', this)">Все треки</button>
+                <button class="lib-tab" id="lib-tab-favorites" onclick="setFilter('favorites', this)">Избранное</button>
+                <button class="lib-tab" id="lib-tab-playlists" onclick="setFilter('playlists', this)">Плейлисты</button>
+            </div>
+            
+            <div id="playlist-creator" style="display: none; margin-bottom: 20px;">
+                <div class="form-group">
+                    <input type="text" id="new-playlist-name" placeholder="Название плейлиста">
+                </div>
+                <button class="btn-primary" onclick="createPlaylist()">Создать плейлист</button>
+            </div>
+
+            <div id="track-list" class="track-list">
+                <div class="empty-state">Пока нет треков. Загрузите их во вкладке "Добавить".</div>
+            </div>
+        </div>
+
+        <!-- Добавление трека -->
+        <div id="tab-add" class="tab-content">
+            <h2>Добавить музыку</h2>
+            <div class="form-group">
+                <label>Аудио файл (MP3, WAV)</label>
+                <input type="file" id="track-file" accept="audio/*">
+            </div>
+            <div class="form-group">
+                <label>Обложка (Картинка)</label>
+                <input type="file" id="track-cover-file" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Название трека</label>
+                <input type="text" id="track-title-input" placeholder="Например: Shape of You">
+            </div>
+            <div class="form-group">
+                <label>Автор</label>
+                <input type="text" id="track-author-input" placeholder="Имя артиста">
+            </div>
+            <button class="btn-primary" onclick="addTrack()">Загрузить трек</button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН ПЛЕЙЛИСТА (Оверлей) -->
+    <div id="playlist-view">
+        <div class="pv-header">
+            <button onclick="closePlaylistView()">
+                <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+            </button>
+            <button onclick="openEditPlaylistModal()">
+                <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            </button>
+        </div>
+        
+        <div class="pv-info-container">
+            <img id="pv-cover" class="pv-cover" src="" alt="">
+            <div id="pv-title" class="pv-title">Название плейлиста</div>
+            <div id="pv-author" class="pv-author">Автор</div>
+        </div>
+
+        <div class="pv-controls">
+            <!-- Кнопка Play с двумя иконками -->
+            <button class="pv-play-btn" id="pv-play-btn" onclick="togglePlaylistPlay()">
+                <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+        </div>
+
+        <div id="pv-track-list" class="pv-tracks-container track-list">
+            <!-- Треки плейлиста генерируются здесь -->
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ПЛЕЙЛИСТА -->
+    <div id="edit-playlist-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Настройки плейлиста</div>
+            <div class="form-group">
+                <label>Обложка (Картинка)</label>
+                <input type="file" id="edit-pl-cover" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" id="edit-pl-name">
+            </div>
+            <div class="form-group">
+                <label>Автор</label>
+                <input type="text" id="edit-pl-author">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="savePlaylistEdit()">Сохранить</button>
+                <button class="btn-primary btn-danger" onclick="deleteCurrentPlaylist()">Удалить</button>
+            </div>
+            <button class="btn-primary" style="background:var(--surface-light); color:#fff; margin-top:10px;" onclick="closeModals()">Отмена</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ТРЕКОВ В ПЛЕЙЛИСТ -->
+    <div id="add-tracks-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Добавить треки</div>
+            <div id="atm-list" class="track-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Список треков -->
+            </div>
+            <button class="btn-primary" style="background:var(--surface-light); color:#fff;" onclick="closeModals()">Готово</button>
+        </div>
+    </div>
+
+    <!-- Мини-плеер -->
+    <div id="mini-player" onclick="openFullPlayer(event)">
+        <img id="mp-cover" src="" alt="">
+        <div id="mp-info">
+            <div id="mp-title">Название</div>
+            <div id="mp-author">Автор</div>
+        </div>
+        <div class="mp-controls">
+            <button class="control-btn" id="mp-like-btn" onclick="toggleFavoriteCurrent(event)">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </button>
+            <button class="control-btn" onclick="togglePlay(event)" id="mp-play-btn">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Полноэкранный плеер -->
+    <div id="full-player">
+        <div class="fp-bg" id="fp-bg"></div>
+        <div class="fp-header">
+            <button onclick="closeFullPlayer()">
+                <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </button>
+            <div class="fp-now-playing">
+                <div class="fp-subtitle">Сейчас играет</div>
+                <!-- Сюда подставляется название плейлиста -->
+                <div class="fp-playlist-name" id="fp-playlist-name">"Все треки"</div>
+            </div>
+            <button onclick="toggleQueue()"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+        </div>
+        
+        <div class="fp-cover-wrapper">
+            <img id="fp-cover" src="" alt="">
+        </div>
+        
+        <div class="fp-info-row">
+            <div class="fp-text">
+                <div id="fp-title">Название</div>
+                <div id="fp-author">Автор</div>
+            </div>
+            <button class="control-btn" id="fp-like-btn" onclick="toggleFavoriteCurrent(event)">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </button>
+        </div>
+
+        <div class="fp-progress-row">
+            <div class="fp-progress-bar-wrap">
+                <input type="range" id="fp-progress" value="0" min="0" max="100" step="0.1">
+            </div>
+            <div class="fp-time-labels">
+                <span id="fp-time-current">0:00</span>
+                <span id="fp-time-total">0:00</span>
+            </div>
+        </div>
+
+        <div class="fp-controls-row">
+            <button id="fp-repeat-btn" onclick="toggleRepeat()"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+            <button onclick="playPrev()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="btn-play-large" id="fp-play-btn" onclick="togglePlay(event)">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button onclick="playNext()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+            <button><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
+        </div>
+
+        <!-- ОЧЕРЕДЬ ТРЕКОВ -->
+        <div id="queue-panel">
+            <div class="qp-header">
+                <h3>Очередь</h3>
+                <button onclick="toggleQueue()"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+            </div>
+            <div id="qp-list" class="track-list"></div>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация Liquid Glass -->
+    <div id="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="switchTab('home', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Главная
+        </div>
+        <div class="nav-item" id="nav-library" onclick="switchTab('library', this)">
+            <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+            Библиотека
+        </div>
+        <div class="nav-item" id="nav-add" onclick="switchTab('add', this)">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Добавить
+        </div>
+    </div>
+
+    <script>
+        let tracks = [];
+        let playlists = [];
+        let currentAudio = new Audio();
+        let currentTrackId = null;
+        let currentQueue = []; 
+        let isPlaying = false;
+        let isRepeat = false;
+        let currentFilter = 'all';
+        let currentOpenPlaylistId = null;
+        
+        // Новые переменные для отслеживания текущего названия и плейлиста
+        let currentContextName = '"Все треки"';
+        let currentPlayingPlaylistId = null;
+        let isQueueOpen = false;
+
+        const iconPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        const iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        const defaultCover = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzMzMyIvPjwvc3ZnPg==';
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('intro-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 500);
+            }, 1500);
+            
+            currentAudio.addEventListener('timeupdate', () => {
+                if(currentAudio.duration) {
+                    const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+                    const progress = document.getElementById('fp-progress');
+                    progress.value = percent;
+                    progress.style.background = `linear-gradient(to right, #fff ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+                    document.getElementById('fp-time-current').innerText = formatTime(currentAudio.currentTime);
+                }
+            });
+
+            currentAudio.addEventListener('loadedmetadata', () => {
+                document.getElementById('fp-time-total').innerText = formatTime(currentAudio.duration);
+            });
+
+            currentAudio.addEventListener('ended', () => {
+                if(!isRepeat) playNext();
+            });
+
+            document.getElementById('fp-progress').addEventListener('input', (e) => {
+                if(currentAudio.duration) {
+                    const time = (e.target.value / 100) * currentAudio.duration;
+                    currentAudio.currentTime = time;
+                }
+            });
+        });
+
+        function formatTime(seconds) {
+            if(isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            if(element) element.classList.add('active');
+            if(tabId === 'library') updateLibraryUI();
+        }
+
+        function goToLibrary(filter) {
+            const navLib = document.getElementById('nav-library');
+            switchTab('library', navLib);
+            const tabBtn = document.getElementById('lib-tab-' + filter);
+            if(tabBtn) setFilter(filter, tabBtn);
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.lib-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('playlist-creator').style.display = (filter === 'playlists') ? 'block' : 'none';
+            updateLibraryUI();
+        }
+
+        function createPlaylist() {
+            const nameInput = document.getElementById('new-playlist-name');
+            const name = nameInput.value.trim();
+            if(!name) return alert('Введите название!');
+            
+            const playlist = { 
+                id: Date.now(), name: name, author: "Собственный плейлист", 
+                coverUrl: defaultCover, tracks: [] 
+            };
+            playlists.push(playlist);
+            nameInput.value = '';
+            updateLibraryUI();
+        }
+
+        function openPlaylistView(plId) {
+            currentOpenPlaylistId = plId;
+            const pl = playlists.find(p => p.id === plId);
+            if(!pl) return;
+
+            document.getElementById('pv-cover').src = pl.coverUrl;
+            document.getElementById('pv-title').innerText = pl.name;
+            document.getElementById('pv-author').innerText = pl.author;
+
+            renderPlaylistTracks(pl);
+            updatePlayPauseIcon(); // Обновляем состояние кнопки play в плейлисте
+            document.getElementById('playlist-view').classList.add('active');
+        }
+
+        function closePlaylistView() {
+            document.getElementById('playlist-view').classList.remove('active');
+            currentOpenPlaylistId = null;
+        }
+
+        function renderPlaylistTracks(pl) {
+            const list = document.getElementById('pv-track-list');
+            list.innerHTML = '';
+
+            if(pl.tracks.length === 0) {
+                list.innerHTML = `<div class="empty-state">Пока нет треков. Добавьте их кнопкой ниже.</div>`;
+            } else {
+                pl.tracks.forEach(trackId => {
+                    const track = tracks.find(t => t.id === trackId);
+                    if(track) {
+                        const div = document.createElement('div');
+                        div.className = 'track-item';
+                        div.onclick = () => { 
+                            playTrack(track.id, pl.tracks, `"${pl.name}"`, pl.id); 
+                            openFullPlayer(); 
+                        };
+                        div.innerHTML = `
+                            <img src="${track.coverUrl}" class="track-cover">
+                            <div class="track-info">
+                                <div class="track-title">${track.title}</div>
+                                <div class="track-author">${track.author}</div>
+                            </div>
+                            <button class="action-btn-small" onclick="removeTrackFromPlaylist(event, ${pl.id}, ${track.id})">
+                                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                            </button>
+                        `;
+                        list.appendChild(div);
+                    }
+                });
+            }
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-primary';
+            addBtn.innerText = '+ Добавить треки';
+            addBtn.style.marginTop = '20px';
+            addBtn.onclick = () => openAddTracksModal();
+            list.appendChild(addBtn);
+        }
+
+        function removeTrackFromPlaylist(e, plId, trackId) {
+            e.stopPropagation();
+            const pl = playlists.find(p => p.id === plId);
+            if(pl) {
+                pl.tracks = pl.tracks.filter(id => id !== trackId);
+                renderPlaylistTracks(pl);
+                updateLibraryUI();
+            }
+        }
+
+        // --- МОДАЛЬНЫЕ ОКНА ---
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+
+        function openEditPlaylistModal() {
+            const pl = playlists.find(p => p.id === currentOpenPlaylistId);
+            if(!pl) return;
+            document.getElementById('edit-pl-name').value = pl.name;
+            document.getElementById('edit-pl-author').value = pl.author;
+            document.getElementById('edit-pl-cover').value = '';
+            document.getElementById('edit-playlist-modal').classList.add('active');
+        }
+
+        function savePlaylistEdit() {
+            const pl = playlists.find(p => p.id === currentOpenPlaylistId);
+            if(!pl) return;
+
+            const newName = document.getElementById('edit-pl-name').value.trim();
+            const newAuthor = document.getElementById('edit-pl-author').value.trim();
+            const newCoverFile = document.getElementById('edit-pl-cover').files[0];
+
+            if(newName) pl.name = newName;
+            if(newAuthor) pl.author = newAuthor;
+            if(newCoverFile) pl.coverUrl = URL.createObjectURL(newCoverFile);
+
+            closeModals();
+            openPlaylistView(pl.id);
+            updateLibraryUI();
+        }
+
+        function deleteCurrentPlaylist() {
+            if(!confirm('Удалить этот плейлист?')) return;
+            playlists = playlists.filter(p => p.id !== currentOpenPlaylistId);
+            closeModals(); closePlaylistView(); updateLibraryUI();
+        }
+
+        function openAddTracksModal() {
+            const pl = playlists.find(p => p.id === currentOpenPlaylistId);
+            if(!pl) return;
+            
+            const list = document.getElementById('atm-list');
+            list.innerHTML = '';
+            
+            let availableTracks = tracks.filter(t => !pl.tracks.includes(t.id));
+            if(availableTracks.length === 0) {
+                list.innerHTML = `<div class="empty-state">Нет доступных треков для добавления.</div>`;
+            } else {
+                availableTracks.forEach(track => {
+                    const div = document.createElement('div');
+                    div.className = 'track-item';
+                    div.innerHTML = `
+                        <img src="${track.coverUrl}" class="track-cover" style="width:40px; height:40px;">
+                        <div class="track-info">
+                            <div class="track-title" style="font-size:14px;">${track.title}</div>
+                            <div class="track-author" style="font-size:12px;">${track.author}</div>
+                        </div>
+                        <button class="action-btn-small" onclick="addExistingTrackToPlaylist(${track.id})">
+                            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                        </button>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+            document.getElementById('add-tracks-modal').classList.add('active');
+        }
+
+        function addExistingTrackToPlaylist(trackId) {
+            const pl = playlists.find(p => p.id === currentOpenPlaylistId);
+            if(pl && !pl.tracks.includes(trackId)) {
+                pl.tracks.push(trackId);
+                renderPlaylistTracks(pl);
+                openAddTracksModal();
+                updateLibraryUI();
+            }
+        }
+
+        // --- ДОБАВЛЕНИЕ И БИБЛИОТЕКА ---
+        function addTrack() {
+            const audioFile = document.getElementById('track-file').files[0];
+            const coverFile = document.getElementById('track-cover-file').files[0];
+            const title = document.getElementById('track-title-input').value.trim();
+            const author = document.getElementById('track-author-input').value.trim();
+
+            if(!audioFile || !title || !author) return alert('Добавьте аудио, название и автора!');
+
+            const audioUrl = URL.createObjectURL(audioFile);
+            const coverUrl = coverFile ? URL.createObjectURL(coverFile) : defaultCover;
+
+            const track = { id: Date.now(), title, author, audioUrl, coverUrl, isFavorite: false };
+            tracks.push(track);
+
+            document.getElementById('track-file').value = '';
+            document.getElementById('track-cover-file').value = '';
+            document.getElementById('track-title-input').value = '';
+            document.getElementById('track-author-input').value = '';
+
+            alert('Трек добавлен!');
+            goToLibrary('all');
+        }
+
+        function updateLibraryUI() {
+            const list = document.getElementById('track-list');
+            
+            if(currentFilter === 'playlists') {
+                if(playlists.length === 0) {
+                    list.innerHTML = `<div class="empty-state">Нет плейлистов. Создайте первый выше.</div>`;
+                    return;
+                }
+                list.innerHTML = '';
+                playlists.forEach(pl => {
+                    const div = document.createElement('div');
+                    div.className = 'track-item';
+                    div.onclick = () => openPlaylistView(pl.id);
+                    div.innerHTML = `
+                        <img src="${pl.coverUrl}" class="track-cover">
+                        <div class="track-info">
+                            <div class="track-title">${pl.name}</div>
+                            <div class="track-author">Треков: ${pl.tracks.length}</div>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+                return;
+            }
+
+            let displayTracks = currentFilter === 'favorites' ? tracks.filter(t => t.isFavorite) : tracks;
+            if(displayTracks.length === 0) {
+                list.innerHTML = `<div class="empty-state">${currentFilter === 'favorites' ? 'Нет любимых треков.' : 'Пусто. Добавьте музыку.'}</div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            displayTracks.forEach(track => {
+                const div = document.createElement('div');
+                div.className = 'track-item';
+                div.onclick = () => { 
+                    let q = currentFilter === 'favorites' ? tracks.filter(t=>t.isFavorite).map(t=>t.id) : tracks.map(t=>t.id);
+                    let ctxName = currentFilter === 'favorites' ? '"Избранное"' : '"Все треки"';
+                    playTrack(track.id, q, ctxName, null); 
+                    openFullPlayer(); 
+                };
+                div.innerHTML = `
+                    <img src="${track.coverUrl}" class="track-cover">
+                    <div class="track-info">
+                        <div class="track-title">${track.title}</div>
+                        <div class="track-author">${track.author}</div>
+                    </div>
+                    <button class="action-btn-small ${track.isFavorite ? 'active' : ''}" onclick="toggleFavoriteList(event, ${track.id})">
+                        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // --- ЛОГИКА ПЛЕЕРА ---
+        function playTrack(id, queue = null, contextName = undefined, playlistId = undefined) {
+            const track = tracks.find(t => t.id === id);
+            if(!track) return;
+
+            if (queue) currentQueue = queue;
+            else if (!currentQueue.includes(id)) currentQueue = tracks.map(t => t.id);
+
+            // Обновляем контекст (название плейлиста)
+            if (playlistId !== undefined) currentPlayingPlaylistId = playlistId;
+            if (contextName !== undefined) {
+                currentContextName = contextName;
+                document.getElementById('fp-playlist-name').innerText = currentContextName;
+            }
+
+            if(currentTrackId !== id) {
+                currentTrackId = id;
+                currentAudio.src = track.audioUrl;
+            }
+            
+            currentAudio.play();
+            isPlaying = true;
+
+            document.getElementById('mini-player').classList.add('visible');
+            document.getElementById('mp-cover').src = track.coverUrl;
+            document.getElementById('mp-title').innerText = track.title;
+            document.getElementById('mp-author').innerText = track.author;
+
+            document.getElementById('fp-cover').src = track.coverUrl;
+            document.getElementById('fp-bg').style.backgroundImage = `url(${track.coverUrl})`;
+            document.getElementById('fp-title').innerText = track.title;
+            document.getElementById('fp-author').innerText = track.author;
+
+            updatePlayPauseIcon();
+            updateLikeIcons();
+        }
+
+        function togglePlaylistPlay() {
+            if(!currentOpenPlaylistId) return;
+            
+            // Если мы уже играем ЭТОТ плейлист, просто ставим на паузу / запускаем
+            if(currentPlayingPlaylistId === currentOpenPlaylistId) {
+                togglePlay();
+            } else {
+                const pl = playlists.find(p => p.id === currentOpenPlaylistId);
+                if(pl && pl.tracks.length > 0) {
+                    playTrack(pl.tracks[0], pl.tracks, `"${pl.name}"`, pl.id);
+                    openFullPlayer();
+                } else {
+                    alert('Плейлист пуст!');
+                }
+            }
+        }
+
+        function togglePlay(e) {
+            if(e) e.stopPropagation();
+            if(!currentTrackId) return;
+            
+            isPlaying ? currentAudio.pause() : currentAudio.play();
+            isPlaying = !isPlaying;
+            updatePlayPauseIcon();
+        }
+
+        function playNext() {
+            if(currentQueue.length === 0 || !currentTrackId) return;
+            let idx = currentQueue.indexOf(currentTrackId);
+            if (idx === -1) {
+                currentQueue = tracks.map(t=>t.id);
+                idx = currentQueue.indexOf(currentTrackId);
+            }
+            let nextIdx = (idx + 1) % currentQueue.length;
+            playTrack(currentQueue[nextIdx], currentQueue);
+        }
+
+        function playPrev() {
+            if(currentQueue.length === 0 || !currentTrackId) return;
+            let idx = currentQueue.indexOf(currentTrackId);
+            if (idx === -1) {
+                currentQueue = tracks.map(t=>t.id);
+                idx = currentQueue.indexOf(currentTrackId);
+            }
+            let prevIdx = (idx - 1 + currentQueue.length) % currentQueue.length;
+            playTrack(currentQueue[prevIdx], currentQueue);
+        }
+
+        function playVibe() {
+            if(tracks.length === 0) return alert('Добавьте хотя бы один трек!');
+            if (isPlaying && currentContextName === '"MiВолна"') {
+                togglePlay();
+            } else {
+                let randomIdx = Math.floor(Math.random() * tracks.length);
+                playTrack(tracks[randomIdx].id, tracks.map(t=>t.id), '"MiВолна"', null);
+            }
+        }
+
+        function updatePlayPauseIcon() {
+            const icon = isPlaying ? iconPause : iconPlay;
+            const mpBtn = document.getElementById('mp-play-btn');
+            const fpBtn = document.getElementById('fp-play-btn');
+            const pvBtn = document.getElementById('pv-play-btn');
+            
+            if(mpBtn) mpBtn.innerHTML = icon;
+            if(fpBtn) fpBtn.innerHTML = icon;
+
+            // Кнопка в плейлисте
+            if(pvBtn) {
+                if(isPlaying && currentPlayingPlaylistId === currentOpenPlaylistId) {
+                    pvBtn.classList.add('playing');
+                } else {
+                    pvBtn.classList.remove('playing');
+                }
+            }
+        }
+
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            currentAudio.loop = isRepeat;
+            const btn = document.getElementById('fp-repeat-btn');
+            if(isRepeat) btn.classList.add('active');
+            else btn.classList.remove('active');
+        }
+
+        // ОЧЕРЕДЬ ТРЕКОВ
+        function toggleQueue() {
+            const panel = document.getElementById('queue-panel');
+            isQueueOpen = !isQueueOpen;
+            if(isQueueOpen) {
+                renderQueue();
+                panel.classList.add('active');
+            } else {
+                panel.classList.remove('active');
+            }
+        }
+
+        function renderQueue() {
+            const list = document.getElementById('qp-list');
+            list.innerHTML = '';
+            currentQueue.forEach(trackId => {
+                const track = tracks.find(t => t.id === trackId);
+                if(track) {
+                    const isCurrent = trackId === currentTrackId;
+                    const div = document.createElement('div');
+                    div.className = 'track-item';
+                    if (isCurrent) div.style.backgroundColor = 'rgba(255,255,255,0.08)';
+                    div.onclick = () => {
+                        playTrack(track.id, currentQueue); // Играем трек без изменения контекста
+                        renderQueue(); // Обновляем выделение
+                    };
+                    div.innerHTML = `
+                        <img src="${track.coverUrl}" class="track-cover" style="width: 44px; height: 44px;">
+                        <div class="track-info">
+                            <div class="track-title" style="color: ${isCurrent ? 'var(--accent-color)' : '#fff'};">${track.title}</div>
+                            <div class="track-author">${track.author}</div>
+                        </div>
+                        ${isCurrent ? '<svg style="width:24px;height:24px;fill:var(--accent-color);"><path d="M8 5v14l11-7z"/></svg>' : ''}
+                    `;
+                    list.appendChild(div);
+                }
+            });
+        }
+
+        // Избранное
+        function toggleFavoriteList(e, id) {
+            e.stopPropagation();
+            const track = tracks.find(t => t.id === id);
+            if(track) {
+                track.isFavorite = !track.isFavorite;
+                updateLibraryUI();
+                if(currentTrackId === id) updateLikeIcons();
+            }
+        }
+
+        function toggleFavoriteCurrent(e) {
+            if(e) e.stopPropagation();
+            if(!currentTrackId) return;
+            const track = tracks.find(t => t.id === currentTrackId);
+            if(track) {
+                track.isFavorite = !track.isFavorite;
+                updateLikeIcons();
+                updateLibraryUI();
+            }
+        }
+
+        function updateLikeIcons() {
+            const track = tracks.find(t => t.id === currentTrackId);
+            if(!track) return;
+            
+            const fpBtn = document.getElementById('fp-like-btn');
+            const mpBtn = document.getElementById('mp-like-btn');
+            
+            if(track.isFavorite) {
+                fpBtn.classList.add('active'); mpBtn.classList.add('active');
+            } else {
+                fpBtn.classList.remove('active'); mpBtn.classList.remove('active');
+            }
+        }
+
+        function openFullPlayer(e) {
+            if(e && (e.target.closest('button') || !currentTrackId)) return;
+            document.getElementById('full-player').classList.add('active');
+        }
+
+        function closeFullPlayer() {
+            document.getElementById('full-player').classList.remove('active');
+            // При закрытии плеера закрываем и очередь, если она открыта
+            isQueueOpen = false;
+            document.getElementById('queue-panel').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
