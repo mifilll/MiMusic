@@ -13,7 +13,9 @@
             --bg-color: #000000;
             --surface-color: #1a1a1a;
             --surface-light: #2a2a2a;
+            /* Динамическая тема */
             --accent-color: #ffcc00; 
+            --accent-rgb: 255, 204, 0; 
             --text-main: #ffffff;
             --text-muted: #888888;
             --player-height: 64px;
@@ -54,13 +56,14 @@
             color: #fff; font-weight: 600; font-size: 13px; text-decoration: none;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             z-index: 1000;
+            transition: transform 0.2s, opacity 0.2s;
         }
+        .glass-banner:active { transform: scale(0.95); opacity: 0.8; }
         .glass-banner svg { width: 16px; height: 16px; margin-right: 6px; fill: #fff; }
 
         /* Основной контейнер */
         #main-container {
             flex: 1; overflow-y: auto;
-            /* Обновленный отступ снизу */
             padding-bottom: calc(var(--player-height) + var(--nav-height) + 40px);
         }
         #main-container::-webkit-scrollbar { display: none; }
@@ -77,17 +80,22 @@
             margin-bottom: 30px;
         }
         .vibe-glow {
-            position: absolute; width: 260px; height: 260px;
-            background: radial-gradient(circle, rgba(255, 204, 0, 0.3) 0%, transparent 60%);
+            position: absolute; width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(var(--accent-rgb), 0.6) 0%, transparent 65%);
             border-radius: 50%; animation: breathe 4s ease-in-out infinite alternate; z-index: 0;
+            filter: blur(20px);
         }
         .vibe-ring {
             position: absolute; width: 220px; height: 220px;
-            border: 2px solid rgba(255, 204, 0, 0.4);
+            border: 2px solid rgba(var(--accent-rgb), 0.5);
+            box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.2);
             border-radius: 40% 60% 65% 35% / 45% 55% 45% 55%;
-            animation: spin-distort 12s linear infinite; z-index: 0; filter: blur(4px);
+            animation: spin-distort 12s linear infinite; z-index: 0; filter: blur(2px);
         }
-        @keyframes breathe { 0% { transform: scale(0.85); opacity: 0.6; } 100% { transform: scale(1.1); opacity: 1; } }
+        @keyframes breathe { 
+            0% { transform: scale(0.85); opacity: 0.6; } 
+            100% { transform: scale(1.15); opacity: 1; } 
+        }
         @keyframes spin-distort {
             0% { transform: rotate(0deg) scale(1); }
             50% { transform: rotate(180deg) scale(1.05); border-radius: 60% 40% 35% 65% / 55% 45% 55% 45%; }
@@ -96,10 +104,12 @@
         .vibe-btn {
             position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;
             font-size: 32px; font-weight: 800; color: #fff; background: none; border: none; cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
+        .vibe-btn:active { transform: scale(0.95); }
         .vibe-btn-top { display: flex; align-items: center; }
         .vibe-btn svg { width: 32px; height: 32px; fill: #fff; margin-right: 12px; }
-        .vibe-sub { font-size: 13px; color: var(--text-muted); margin-top: 16px; font-weight: 500; text-align: center; max-width: 200px; line-height: 1.4; }
+        .vibe-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 16px; font-weight: 500; text-align: center; max-width: 200px; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
         /* Карточки на главной */
         .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
@@ -108,9 +118,9 @@
         .card {
             flex: 1; min-width: 140px; background: var(--surface-color); padding: 16px;
             border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
+            cursor: pointer; transition: background 0.2s, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .card:active { background: var(--surface-light); }
+        .card:active { background: var(--surface-light); transform: scale(0.96); }
         .card-icon {
             width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.08);
             display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
@@ -122,9 +132,9 @@
         .recent-card {
             min-width: 120px; width: 120px;
             display: flex; flex-direction: column; gap: 8px;
-            cursor: pointer; transition: opacity 0.2s;
+            cursor: pointer; transition: opacity 0.2s, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .recent-card:active { opacity: 0.7; }
+        .recent-card:active { opacity: 0.7; transform: scale(0.96); }
         .recent-cover {
             width: 120px; height: 120px; border-radius: 16px; object-fit: cover;
             background: var(--surface-light); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -132,23 +142,46 @@
         .recent-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .recent-author { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* Выбор темы */
+        .theme-selector { display: flex; gap: 12px; margin-bottom: 24px; padding-bottom: 10px; overflow-x: auto; }
+        .theme-btn { 
+            width: 44px; height: 44px; border-radius: 50%; cursor: pointer; flex-shrink: 0;
+            border: 3px solid transparent; transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .theme-btn:active { transform: scale(0.85); }
+        .theme-btn.active { border-color: #fff; transform: scale(1.1); }
+
         /* Списки треков (Библиотека) */
         .lib-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
         .lib-tabs::-webkit-scrollbar { display: none; }
-        .lib-tab { padding: 10px 18px; border-radius: 20px; background: var(--surface-color); font-size: 14px; font-weight: 600; color: var(--text-muted); border: none; white-space: nowrap; transition: 0.3s; }
+        .lib-tab { padding: 10px 18px; border-radius: 20px; background: var(--surface-color); font-size: 14px; font-weight: 600; color: var(--text-muted); border: none; white-space: nowrap; transition: transform 0.2s, background 0.3s; cursor: pointer; }
         .lib-tab.active { background: #fff; color: #000; }
+        .lib-tab:active { transform: scale(0.95); }
         
         .track-list { display: flex; flex-direction: column; gap: 16px; }
-        .track-item { display: flex; align-items: center; background: transparent; transition: opacity 0.2s; cursor: pointer; border-radius: 12px; padding: 4px; }
-        .track-item:active { opacity: 0.6; }
+        .track-item { display: flex; align-items: center; background: transparent; transition: transform 0.2s, background-color 0.2s; cursor: pointer; border-radius: 12px; padding: 6px; }
+        .track-item:active { transform: scale(0.98); background-color: rgba(255,255,255,0.05); }
         .track-cover { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: var(--surface-light); margin-right: 14px; flex-shrink: 0;}
         .track-info { flex: 1; overflow: hidden; }
-        .track-title { font-size: 16px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 4px;}
+        .track-title { font-size: 16px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 4px; transition: color 0.2s; }
         .track-author { font-size: 13px; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;}
         .track-duration { font-size: 12px; color: var(--text-muted); margin-right: 12px; font-weight: 500; }
-        .action-btn-small { background: none; border: none; color: var(--text-muted); padding: 10px; cursor:pointer;}
+        .action-btn-small { background: none; border: none; color: var(--text-muted); padding: 10px; cursor:pointer; transition: transform 0.2s, color 0.2s; }
+        .action-btn-small:active { transform: scale(0.8); }
         .action-btn-small.active { color: var(--accent-color); }
         .action-btn-small svg { width: 20px; height: 20px; fill: currentColor; }
+
+        /* Подсветка играющего трека */
+        .track-item.playing-active {
+            background: rgba(var(--accent-rgb), 0.12);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 8px;
+            padding-left: 10px; /* Компенсация бордера */
+        }
+        .track-item.playing-active .track-title {
+            color: var(--accent-color);
+        }
 
         /* Формы */
         .form-group { margin-bottom: 16px; }
@@ -160,8 +193,9 @@
         .btn-primary {
             width: 100%; padding: 16px; border-radius: 16px; border: none;
             background: #fff; color: #000; font-size: 16px; font-weight: 700; margin-top: 10px; cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.2s;
         }
-        .btn-primary:active { opacity: 0.8; transform: scale(0.98); }
+        .btn-primary:active { opacity: 0.8; transform: scale(0.96); }
         .btn-danger { background: #ff4444; color: #fff; }
 
         /* Модальные окна */
@@ -193,7 +227,8 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: calc(env(safe-area-inset-top) + 20px) 20px 10px 20px;
         }
-        .pv-header button { background: none; border: none; color: #fff; padding: 10px; cursor: pointer;}
+        .pv-header button { background: none; border: none; color: #fff; padding: 10px; cursor: pointer; transition: transform 0.2s; }
+        .pv-header button:active { transform: scale(0.85); }
         .pv-header svg { width: 28px; height: 28px; fill: currentColor; }
         
         .pv-info-container {
@@ -211,10 +246,10 @@
         .pv-play-btn {
             width: 64px; height: 64px; border-radius: 50%; background: var(--accent-color);
             border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255,204,0,0.3); transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3); transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             padding-left: 4px; 
         }
-        .pv-play-btn:active { transform: scale(0.95); }
+        .pv-play-btn:active { transform: scale(0.9); }
         .pv-play-btn svg { width: 32px; height: 32px; fill: #000; }
         .pv-play-btn.playing { padding-left: 0; }
         .pv-play-btn .icon-pause { display: none; }
@@ -226,7 +261,6 @@
         /* Нижний мини-плеер */
         #mini-player {
             position: fixed; 
-            /* ИСПРАВЛЕНИЕ: Отталкиваемся от жестко заданных 16px панели навигации */
             bottom: calc(16px + var(--nav-height) + 8px); 
             left: 12px; right: 12px; height: var(--player-height);
             background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(20px); border-radius: 16px;
@@ -244,7 +278,6 @@
             pointer-events: auto; 
         }
         
-        /* ИСПРАВЛЕНИЕ: Плеер падает ровно на место навигации */
         body.playlist-active #mini-player {
             bottom: 16px;
         }
@@ -254,7 +287,8 @@
         #mp-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #mp-author { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mp-controls { display: flex; align-items: center; gap: 8px; }
-        .control-btn { background: none; border: none; color: var(--text-main); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;}
+        .control-btn { background: none; border: none; color: var(--text-main); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s, color 0.2s; }
+        .control-btn:active { transform: scale(0.8); }
         .control-btn svg { width: 24px; height: 24px; fill: currentColor; }
 
         /* Полноэкранный плеер */
@@ -278,15 +312,26 @@
             display: flex; justify-content: space-between; align-items: center;
             height: 60px; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
         }
-        .fp-header button { background: none; border: none; color: #fff; padding: 10px; cursor: pointer;}
+        .fp-header button { background: none; border: none; color: #fff; padding: 10px; cursor: pointer; transition: transform 0.2s; }
+        .fp-header button:active { transform: scale(0.85); }
         .fp-header svg { width: 24px; height: 24px; fill: currentColor; }
         
         .fp-now-playing { display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
         .fp-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
         .fp-playlist-name { font-size: 14px; font-weight: 700; color: #ffffff; text-align: center; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .fp-cover-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; }
-        #fp-cover { width: 100%; max-width: 340px; aspect-ratio: 1; border-radius: 20px; object-fit: cover; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .fp-cover-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px; overflow: hidden; }
+        
+        /* ИСПРАВЛЕНИЕ: Черные рамки убраны за счет строгого border-radius, mask-image и border */
+        #fp-cover { 
+            width: 100%; max-width: 340px; aspect-ratio: 1 / 1; 
+            border-radius: 20px; object-fit: cover; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6); 
+            background-color: var(--surface-light);
+            border: 1px solid rgba(255,255,255,0.05);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            margin: auto; display: block;
+        }
         
         .fp-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .fp-text { flex: 1; overflow: hidden; padding-right: 16px; }
@@ -309,11 +354,13 @@
         .fp-time-labels { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 8px; font-weight: 500;}
 
         .fp-controls-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 30px; }
-        .fp-controls-row button { background: none; border: none; color: #fff; transition: color 0.2s; cursor: pointer;}
+        .fp-controls-row button { background: none; border: none; color: #fff; transition: color 0.2s, transform 0.2s; cursor: pointer;}
+        .fp-controls-row button:active { transform: scale(0.85); }
         .fp-controls-row button.active { color: var(--accent-color); }
         .fp-controls-row svg { width: 32px; height: 32px; fill: currentColor; }
         
-        .btn-play-large { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; }
+        .btn-play-large { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .btn-play-large:active { transform: scale(0.85); }
         .btn-play-large svg { width: 64px; height: 64px; fill: #fff; }
 
         /* ОЧЕРЕДЬ ТРЕКОВ */
@@ -328,7 +375,8 @@
         #queue-panel.active { top: 20%; }
         .qp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .qp-header h3 { font-size: 20px; font-weight: 800; margin: 0; }
-        .qp-header button { background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: #fff; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center;}
+        .qp-header button { background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: #fff; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .qp-header button:active { transform: scale(0.85); }
         .qp-header svg { width: 20px; height: 20px; fill: currentColor; }
         #qp-list { overflow-y: auto; flex: 1; padding-bottom: 30px; }
         .qp-playing-icon { width: 24px; height: 24px; fill: var(--accent-color); margin-left: auto; margin-right: 16px; flex-shrink: 0; }
@@ -336,7 +384,6 @@
         /* НИЖНЯЯ НАВИГАЦИЯ */
         #bottom-nav {
             position: fixed; 
-            /* ИСПРАВЛЕНИЕ: Жестко заданный отступ вместо проблемного env() */
             bottom: 16px; 
             left: 50%;
             transform: translateX(-50%);
@@ -362,6 +409,7 @@
             cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             margin: 0 4px;
         }
+        .nav-item:active { transform: scale(0.9); }
         .nav-item.active {
             background: rgba(255, 255, 255, 0.22); 
             color: #ffffff;
@@ -401,7 +449,7 @@
             <div class="section-title">Быстрый доступ</div>
             <div class="h-scroll" style="margin-bottom: 24px;">
                 <div class="card" onclick="goToLibrary('favorites')">
-                    <div class="card-icon" style="background: rgba(255, 204, 0, 0.15);">
+                    <div class="card-icon" style="background: rgba(var(--accent-rgb), 0.15);">
                         <svg style="fill: var(--accent-color);" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </div>
                     <div class="card-title">Избранное</div>
@@ -414,10 +462,19 @@
                 </div>
             </div>
 
-            <!-- ИСПРАВЛЕНИЕ: Добавлена новая секция на главную -->
             <div class="section-title">Недавно добавленные</div>
-            <div class="h-scroll" id="recent-tracks-scroll">
+            <div class="h-scroll" id="recent-tracks-scroll" style="margin-bottom: 24px;">
                 <div class="empty-state" style="margin-top: 0;">Нет треков</div>
+            </div>
+
+            <!-- ИСПРАВЛЕНИЕ: Выбор цветовой темы -->
+            <div class="section-title">Оформление</div>
+            <div class="theme-selector">
+                <div class="theme-btn" style="background: #ffcc00;" onclick="setTheme('#ffcc00', '255, 204, 0', this)" data-hex="#ffcc00"></div>
+                <div class="theme-btn" style="background: #00e676;" onclick="setTheme('#00e676', '0, 230, 118', this)" data-hex="#00e676"></div>
+                <div class="theme-btn" style="background: #00bfff;" onclick="setTheme('#00bfff', '0, 191, 255', this)" data-hex="#00bfff"></div>
+                <div class="theme-btn" style="background: #b266ff;" onclick="setTheme('#b266ff', '178, 102, 255', this)" data-hex="#b266ff"></div>
+                <div class="theme-btn" style="background: #ff4d4d;" onclick="setTheme('#ff4d4d', '255, 77, 77', this)" data-hex="#ff4d4d"></div>
             </div>
         </div>
 
@@ -607,7 +664,6 @@
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </button>
             <button onclick="playNext()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-            <!-- ИСПРАВЛЕНИЕ: Добавлен id и onclick для перемешки -->
             <button id="fp-shuffle-btn" onclick="toggleShuffle()"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
         </div>
 
@@ -643,8 +699,8 @@
         let currentQueue = []; 
         let isPlaying = false;
         let isRepeat = false;
-        let isShuffle = false; // ИСПРАВЛЕНИЕ: Флаг перемешки
-        let originalQueue = []; // ИСПРАВЛЕНИЕ: Сохранение исходной очереди
+        let isShuffle = false;
+        let originalQueue = []; 
         let currentFilter = 'all';
         let currentOpenPlaylistId = null;
         let currentEditTrackId = null; 
@@ -653,6 +709,10 @@
         let currentContextName = '"Все треки"';
         let currentPlayingPlaylistId = null;
         let isQueueOpen = false;
+
+        // ИСПРАВЛЕНИЕ: Очередь сохранений, чтобы LocalForage не задыхался и ничего не терял
+        let isSaving = false;
+        let saveQueued = false;
 
         const iconPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
         const iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
@@ -672,6 +732,11 @@
         }, {passive: true});
 
         async function saveData() {
+            if (isSaving) {
+                saveQueued = true;
+                return;
+            }
+            isSaving = true;
             try {
                 await localforage.setItem('mi_tracks', tracks.map(t => ({
                     id: t.id, title: t.title, author: t.author, 
@@ -683,11 +748,27 @@
                 })));
             } catch (err) {
                 console.error("Ошибка при сохранении данных:", err);
+            } finally {
+                isSaving = false;
+                if (saveQueued) {
+                    saveQueued = false;
+                    saveData();
+                }
             }
         }
 
         async function initApp() {
             try {
+                // ИСПРАВЛЕНИЕ: Загрузка темы
+                const savedTheme = await localforage.getItem('mi_theme');
+                if (savedTheme) {
+                    setTheme(savedTheme.hex, savedTheme.rgb, null);
+                } else {
+                    // Установка дефолтной активной кнопки темы
+                    const defaultBtn = document.querySelector('.theme-btn[data-hex="#ffcc00"]');
+                    if (defaultBtn) defaultBtn.classList.add('active');
+                }
+
                 const storedTracks = await localforage.getItem('mi_tracks');
                 const storedPlaylists = await localforage.getItem('mi_playlists');
 
@@ -706,15 +787,29 @@
                     }));
                 }
                 
-                await ensureDurations(); // Подгружаем длительность, если не было
+                await ensureDurations(); 
                 updateLibraryUI();
-                updateHomeUI(); // ИСПРАВЛЕНИЕ: Обновляем главную
+                updateHomeUI(); 
             } catch (err) {
                 console.error("Ошибка при загрузке данных:", err);
             }
         }
 
-        // ИСПРАВЛЕНИЕ: Функция получения длительности
+        async function setTheme(hex, rgb, element) {
+            document.documentElement.style.setProperty('--accent-color', hex);
+            document.documentElement.style.setProperty('--accent-rgb', rgb);
+            
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            } else {
+                const btn = document.querySelector(`.theme-btn[data-hex="${hex}"]`);
+                if (btn) btn.classList.add('active');
+            }
+            
+            await localforage.setItem('mi_theme', { hex, rgb });
+        }
+
         async function fetchDuration(url) {
             return new Promise(resolve => {
                 const audio = new Audio(url);
@@ -723,7 +818,6 @@
             });
         }
 
-        // ИСПРАВЛЕНИЕ: Подтягиваем длительность старых треков
         async function ensureDurations() {
             let updated = false;
             for(let t of tracks) {
@@ -796,7 +890,7 @@
             document.getElementById('tab-' + tabId).classList.add('active');
             if(element) element.classList.add('active');
             if(tabId === 'library') updateLibraryUI();
-            if(tabId === 'home') updateHomeUI(); // ИСПРАВЛЕНИЕ
+            if(tabId === 'home') updateHomeUI(); 
         }
 
         function goToLibrary(filter) {
@@ -862,7 +956,10 @@
                     const track = tracks.find(t => t.id === trackId);
                     if(track) {
                         const div = document.createElement('div');
-                        div.className = 'track-item';
+                        const isTrackPlaying = track.id === currentTrackId;
+                        div.className = `track-item ${isTrackPlaying ? 'playing-active' : ''}`;
+                        div.dataset.trackId = track.id; // Для быстрого поиска при переключении
+                        
                         div.onclick = () => { 
                             playTrack(track.id, pl.tracks, `"${pl.name}"`, pl.id); 
                             openFullPlayer(); 
@@ -1058,7 +1155,7 @@
             if(!audioFile || !title || !author) return alert('Добавьте аудио, название и автора!');
 
             const url = URL.createObjectURL(audioFile);
-            const duration = await fetchDuration(url); // ИСПРАВЛЕНИЕ: вычисление длительности
+            const duration = await fetchDuration(url);
 
             const track = { 
                 id: Date.now(), 
@@ -1081,11 +1178,10 @@
             document.getElementById('track-author-input').value = '';
 
             alert('Трек добавлен!');
-            updateHomeUI(); // Обновляем недавние на главной
+            updateHomeUI(); 
             goToLibrary('all');
         }
 
-        // ИСПРАВЛЕНИЕ: Логика заполнения свежих треков на Главной
         function updateHomeUI() {
             const recentContainer = document.getElementById('recent-tracks-scroll');
             if(!recentContainer) return;
@@ -1144,7 +1240,10 @@
             list.innerHTML = '';
             displayTracks.forEach(track => {
                 const div = document.createElement('div');
-                div.className = 'track-item';
+                const isTrackPlaying = track.id === currentTrackId;
+                div.className = `track-item ${isTrackPlaying ? 'playing-active' : ''}`;
+                div.dataset.trackId = track.id; // Для подсветки
+                
                 div.onclick = () => { 
                     let q = currentFilter === 'favorites' ? tracks.filter(t=>t.isFavorite).map(t=>t.id) : tracks.map(t=>t.id);
                     let ctxName = currentFilter === 'favorites' ? '"Избранное"' : '"Все треки"';
@@ -1152,7 +1251,7 @@
                     openFullPlayer(); 
                 };
                 
-                const durText = track.duration ? formatTime(track.duration) : '--:--'; // ИСПРАВЛЕНИЕ
+                const durText = track.duration ? formatTime(track.duration) : '--:--';
                 
                 div.innerHTML = `
                     <img src="${track.coverUrl}" class="track-cover">
@@ -1172,13 +1271,24 @@
             });
         }
 
+        // ИСПРАВЛЕНИЕ: Обновление цвета в списках при переключении
+        function updateActiveTrackHighlight() {
+            document.querySelectorAll('.track-item').forEach(el => {
+                if (el.dataset.trackId == currentTrackId) {
+                    el.classList.add('playing-active');
+                } else {
+                    el.classList.remove('playing-active');
+                }
+            });
+        }
+
         function playTrack(id, queue = null, contextName = undefined, playlistId = undefined) {
             const track = tracks.find(t => t.id === id);
             if(!track) return;
 
             if (queue) {
                 currentQueue = queue;
-                originalQueue = [...queue]; // Сброс перемешки при смене очереди
+                originalQueue = [...queue];
                 if(isShuffle) {
                     let remaining = currentQueue.filter(tid => tid !== id);
                     remaining.sort(() => Math.random() - 0.5);
@@ -1216,6 +1326,8 @@
 
             updatePlayPauseIcon();
             updateLikeIcons();
+            updateActiveTrackHighlight(); // Применяем класс выделения
+
             if(isQueueOpen) renderQueue();
 
             if ('mediaSession' in navigator) {
@@ -1258,7 +1370,7 @@
             isPlaying ? currentAudio.pause() : currentAudio.play();
             isPlaying = !isPlaying;
             updatePlayPauseIcon();
-            if(isQueueOpen) renderQueue(); // Обновление иконки в очереди при паузе
+            if(isQueueOpen) renderQueue();
         }
 
         function playNext() {
@@ -1269,7 +1381,7 @@
                 idx = currentQueue.indexOf(currentTrackId);
             }
             let nextIdx = (idx + 1) % currentQueue.length;
-            playTrack(currentQueue[nextIdx], null); // queue=null чтобы не сбросить shuffle
+            playTrack(currentQueue[nextIdx], null); 
         }
 
         function playPrev() {
@@ -1283,7 +1395,6 @@
             playTrack(currentQueue[prevIdx], null);
         }
 
-        // ИСПРАВЛЕНИЕ: Логика кнопки перемешки
         function toggleShuffle() {
             isShuffle = !isShuffle;
             const btn = document.getElementById('fp-shuffle-btn');
@@ -1377,10 +1488,9 @@
                         renderQueue(); 
                     };
                     
-                    // ИСПРАВЛЕНИЕ: Вывод двух палочек (пауза), если трек играет
-                    let qpIconPath = "M8 5v14l11-7z"; // Треугольник (Play)
+                    let qpIconPath = "M8 5v14l11-7z"; 
                     if (isCurrent && isPlaying) {
-                        qpIconPath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z"; // Две палочки (Pause)
+                        qpIconPath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z"; 
                     }
 
                     div.innerHTML = `
