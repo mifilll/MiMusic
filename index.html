@@ -60,12 +60,11 @@
         /* Основной контейнер */
         #main-container {
             flex: 1; overflow-y: auto;
-            /* Отступ снизу с учетом новой высоты панелей */
-            padding-bottom: calc(var(--player-height) + var(--nav-height) + env(safe-area-inset-bottom) + 24px);
+            /* Обновленный отступ снизу */
+            padding-bottom: calc(var(--player-height) + var(--nav-height) + 40px);
         }
         #main-container::-webkit-scrollbar { display: none; }
 
-        /* ИСПРАВЛЕНИЕ: Безопасный отступ сверху для всех вкладок, чтобы избежать перекрытия статус-баром и телеграм-баннером */
         .tab-content { display: none; padding: calc(env(safe-area-inset-top) + 65px) 16px 20px 16px; }
         .tab-content.active { display: block; }
 
@@ -73,9 +72,9 @@
 
         /* Главная: Анимация "Моя волна" */
         .vibe-container {
-            height: 35vh; display: flex; flex-direction: column;
+            height: 30vh; display: flex; flex-direction: column;
             align-items: center; justify-content: center; position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         .vibe-glow {
             position: absolute; width: 260px; height: 260px;
@@ -104,9 +103,10 @@
 
         /* Карточки на главной */
         .section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-        .h-scroll { display: flex; gap: 16px; padding-bottom: 10px; }
+        .h-scroll { display: flex; gap: 16px; padding-bottom: 10px; overflow-x: auto; }
+        .h-scroll::-webkit-scrollbar { display: none; }
         .card {
-            flex: 1; background: var(--surface-color); padding: 16px;
+            flex: 1; min-width: 140px; background: var(--surface-color); padding: 16px;
             border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; transition: background 0.2s;
         }
@@ -117,6 +117,20 @@
         }
         .card-icon svg { width: 24px; height: 24px; fill: #fff; }
         .card-title { font-size: 15px; font-weight: 600; text-align: center; }
+
+        /* Недавно добавленные карточки */
+        .recent-card {
+            min-width: 120px; width: 120px;
+            display: flex; flex-direction: column; gap: 8px;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .recent-card:active { opacity: 0.7; }
+        .recent-cover {
+            width: 120px; height: 120px; border-radius: 16px; object-fit: cover;
+            background: var(--surface-light); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .recent-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .recent-author { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Списки треков (Библиотека) */
         .lib-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
@@ -131,6 +145,7 @@
         .track-info { flex: 1; overflow: hidden; }
         .track-title { font-size: 16px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; margin-bottom: 4px;}
         .track-author { font-size: 13px; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;}
+        .track-duration { font-size: 12px; color: var(--text-muted); margin-right: 12px; font-weight: 500; }
         .action-btn-small { background: none; border: none; color: var(--text-muted); padding: 10px; cursor:pointer;}
         .action-btn-small.active { color: var(--accent-color); }
         .action-btn-small svg { width: 20px; height: 20px; fill: currentColor; }
@@ -169,8 +184,7 @@
             z-index: 1500; background-color: var(--bg-color);
             transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex; flex-direction: column;
-            /* ИСПРАВЛЕНИЕ: Обновлен отступ снизу под опущенный мини-плеер */
-            padding-bottom: calc(var(--player-height) + env(safe-area-inset-bottom) + 32px);
+            padding-bottom: calc(var(--player-height) + 32px);
             overflow-y: auto; overflow-x: hidden;
         }
         #playlist-view.active { transform: translateX(0); }
@@ -212,8 +226,8 @@
         /* Нижний мини-плеер */
         #mini-player {
             position: fixed; 
-            /* ИСПРАВЛЕНИЕ: Точный расчет позиции над нижней навигацией */
-            bottom: calc(env(safe-area-inset-bottom) + 86px); /* 8px отступ нав + 70px нав + 8px зазор */
+            /* ИСПРАВЛЕНИЕ: Отталкиваемся от жестко заданных 16px панели навигации */
+            bottom: calc(16px + var(--nav-height) + 8px); 
             left: 12px; right: 12px; height: var(--player-height);
             background: rgba(40, 40, 40, 0.95); backdrop-filter: blur(20px); border-radius: 16px;
             display: flex; align-items: center; padding: 0 12px; z-index: 2000;
@@ -221,7 +235,6 @@
             transform: translateY(400px); 
             opacity: 0;
             pointer-events: none;
-            /* ИСПРАВЛЕНИЕ: Добавлена плавная анимация движения вверх/вниз */
             transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease, bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             border: 1px solid rgba(255,255,255,0.1);
         }
@@ -231,9 +244,9 @@
             pointer-events: auto; 
         }
         
-        /* ИСПРАВЛЕНИЕ: Опускаем мини-плеер вниз, когда открыта вкладка плейлиста */
+        /* ИСПРАВЛЕНИЕ: Плеер падает ровно на место навигации */
         body.playlist-active #mini-player {
-            bottom: calc(env(safe-area-inset-bottom) + 12px);
+            bottom: 16px;
         }
         
         #mp-cover { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; margin-right: 12px; }
@@ -297,12 +310,11 @@
 
         .fp-controls-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 30px; }
         .fp-controls-row button { background: none; border: none; color: #fff; transition: color 0.2s; cursor: pointer;}
+        .fp-controls-row button.active { color: var(--accent-color); }
         .fp-controls-row svg { width: 32px; height: 32px; fill: currentColor; }
         
         .btn-play-large { width: 72px; height: 72px; display: flex; align-items: center; justify-content: center; }
         .btn-play-large svg { width: 64px; height: 64px; fill: #fff; }
-        
-        #fp-repeat-btn.active { color: var(--accent-color); }
 
         /* ОЧЕРЕДЬ ТРЕКОВ */
         #queue-panel {
@@ -324,8 +336,8 @@
         /* НИЖНЯЯ НАВИГАЦИЯ */
         #bottom-nav {
             position: fixed; 
-            /* ИСПРАВЛЕНИЕ: Уменьшена граница под панелью */
-            bottom: calc(env(safe-area-inset-bottom) + 8px); 
+            /* ИСПРАВЛЕНИЕ: Жестко заданный отступ вместо проблемного env() */
+            bottom: 16px; 
             left: 50%;
             transform: translateX(-50%);
             width: 92%;
@@ -386,8 +398,8 @@
                 </button>
             </div>
 
-            <div class="section-title">Библиотека</div>
-            <div class="h-scroll">
+            <div class="section-title">Быстрый доступ</div>
+            <div class="h-scroll" style="margin-bottom: 24px;">
                 <div class="card" onclick="goToLibrary('favorites')">
                     <div class="card-icon" style="background: rgba(255, 204, 0, 0.15);">
                         <svg style="fill: var(--accent-color);" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -400,6 +412,12 @@
                     </div>
                     <div class="card-title">Плейлисты</div>
                 </div>
+            </div>
+
+            <!-- ИСПРАВЛЕНИЕ: Добавлена новая секция на главную -->
+            <div class="section-title">Недавно добавленные</div>
+            <div class="h-scroll" id="recent-tracks-scroll">
+                <div class="empty-state" style="margin-top: 0;">Нет треков</div>
             </div>
         </div>
 
@@ -589,7 +607,8 @@
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </button>
             <button onclick="playNext()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
-            <button><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
+            <!-- ИСПРАВЛЕНИЕ: Добавлен id и onclick для перемешки -->
+            <button id="fp-shuffle-btn" onclick="toggleShuffle()"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
         </div>
 
         <div id="queue-panel">
@@ -624,6 +643,8 @@
         let currentQueue = []; 
         let isPlaying = false;
         let isRepeat = false;
+        let isShuffle = false; // ИСПРАВЛЕНИЕ: Флаг перемешки
+        let originalQueue = []; // ИСПРАВЛЕНИЕ: Сохранение исходной очереди
         let currentFilter = 'all';
         let currentOpenPlaylistId = null;
         let currentEditTrackId = null; 
@@ -654,7 +675,7 @@
             try {
                 await localforage.setItem('mi_tracks', tracks.map(t => ({
                     id: t.id, title: t.title, author: t.author, 
-                    audioBlob: t.audioBlob, coverBlob: t.coverBlob, isFavorite: t.isFavorite
+                    audioBlob: t.audioBlob, coverBlob: t.coverBlob, isFavorite: t.isFavorite, duration: t.duration
                 })));
                 await localforage.setItem('mi_playlists', playlists.map(p => ({
                     id: p.id, name: p.name, author: p.author, 
@@ -684,10 +705,34 @@
                         coverUrl: p.coverBlob ? URL.createObjectURL(p.coverBlob) : defaultCover
                     }));
                 }
+                
+                await ensureDurations(); // Подгружаем длительность, если не было
                 updateLibraryUI();
+                updateHomeUI(); // ИСПРАВЛЕНИЕ: Обновляем главную
             } catch (err) {
                 console.error("Ошибка при загрузке данных:", err);
             }
+        }
+
+        // ИСПРАВЛЕНИЕ: Функция получения длительности
+        async function fetchDuration(url) {
+            return new Promise(resolve => {
+                const audio = new Audio(url);
+                audio.addEventListener('loadedmetadata', () => resolve(audio.duration));
+                audio.addEventListener('error', () => resolve(0));
+            });
+        }
+
+        // ИСПРАВЛЕНИЕ: Подтягиваем длительность старых треков
+        async function ensureDurations() {
+            let updated = false;
+            for(let t of tracks) {
+                if(!t.duration && t.audioUrl) {
+                    t.duration = await fetchDuration(t.audioUrl);
+                    if(t.duration > 0) updated = true;
+                }
+            }
+            if(updated) await saveData();
         }
 
         window.addEventListener('load', () => {
@@ -739,7 +784,7 @@
         });
 
         function formatTime(seconds) {
-            if(isNaN(seconds)) return "0:00";
+            if(isNaN(seconds) || seconds === 0) return "0:00";
             const m = Math.floor(seconds / 60);
             const s = Math.floor(seconds % 60);
             return `${m}:${s < 10 ? '0' : ''}${s}`;
@@ -751,6 +796,7 @@
             document.getElementById('tab-' + tabId).classList.add('active');
             if(element) element.classList.add('active');
             if(tabId === 'library') updateLibraryUI();
+            if(tabId === 'home') updateHomeUI(); // ИСПРАВЛЕНИЕ
         }
 
         function goToLibrary(filter) {
@@ -796,12 +842,12 @@
             renderPlaylistTracks(pl);
             updatePlayPauseIcon(); 
             document.getElementById('playlist-view').classList.add('active');
-            document.body.classList.add('playlist-active'); // ИСПРАВЛЕНИЕ: Добавляем класс для опускания мини-плеера
+            document.body.classList.add('playlist-active'); 
         }
 
         function closePlaylistView() {
             document.getElementById('playlist-view').classList.remove('active');
-            document.body.classList.remove('playlist-active'); // ИСПРАВЛЕНИЕ: Убираем класс
+            document.body.classList.remove('playlist-active'); 
             currentOpenPlaylistId = null;
         }
 
@@ -821,12 +867,14 @@
                             playTrack(track.id, pl.tracks, `"${pl.name}"`, pl.id); 
                             openFullPlayer(); 
                         };
+                        const durText = track.duration ? formatTime(track.duration) : '--:--';
                         div.innerHTML = `
                             <img src="${track.coverUrl}" class="track-cover">
                             <div class="track-info">
                                 <div class="track-title">${track.title}</div>
                                 <div class="track-author">${track.author}</div>
                             </div>
+                            <div class="track-duration">${durText}</div>
                             <button class="action-btn-small" onclick="removeTrackFromPlaylist(event, ${pl.id}, ${track.id})">
                                 <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                             </button>
@@ -917,6 +965,7 @@
             await saveData();
             closeModals();
             updateLibraryUI();
+            updateHomeUI();
             
             if (currentTrackId === track.id) {
                 document.getElementById('mp-title').innerText = track.title;
@@ -948,6 +997,7 @@
             await saveData();
             closeModals();
             updateLibraryUI();
+            updateHomeUI();
             
             if (currentTrackId === currentEditTrackId) {
                 currentAudio.pause();
@@ -1007,6 +1057,9 @@
 
             if(!audioFile || !title || !author) return alert('Добавьте аудио, название и автора!');
 
+            const url = URL.createObjectURL(audioFile);
+            const duration = await fetchDuration(url); // ИСПРАВЛЕНИЕ: вычисление длительности
+
             const track = { 
                 id: Date.now(), 
                 title, 
@@ -1014,8 +1067,9 @@
                 audioBlob: audioFile,
                 coverBlob: coverFile || null,
                 isFavorite: false,
-                audioUrl: URL.createObjectURL(audioFile), 
-                coverUrl: coverFile ? URL.createObjectURL(coverFile) : defaultCover
+                audioUrl: url, 
+                coverUrl: coverFile ? URL.createObjectURL(coverFile) : defaultCover,
+                duration: duration
             };
             
             tracks.push(track);
@@ -1027,7 +1081,33 @@
             document.getElementById('track-author-input').value = '';
 
             alert('Трек добавлен!');
+            updateHomeUI(); // Обновляем недавние на главной
             goToLibrary('all');
+        }
+
+        // ИСПРАВЛЕНИЕ: Логика заполнения свежих треков на Главной
+        function updateHomeUI() {
+            const recentContainer = document.getElementById('recent-tracks-scroll');
+            if(!recentContainer) return;
+
+            const recentTracks = [...tracks].reverse().slice(0, 10);
+            if(recentTracks.length === 0) {
+                recentContainer.innerHTML = '<div class="empty-state" style="margin-top:0;">Нет треков</div>';
+                return;
+            }
+            
+            recentContainer.innerHTML = '';
+            recentTracks.forEach(track => {
+                const div = document.createElement('div');
+                div.className = 'recent-card';
+                div.onclick = () => { playTrack(track.id, recentTracks.map(t=>t.id), '"Недавно добавленные"'); openFullPlayer(); };
+                div.innerHTML = `
+                    <img src="${track.coverUrl}" class="recent-cover">
+                    <div class="recent-title">${track.title}</div>
+                    <div class="recent-author">${track.author}</div>
+                `;
+                recentContainer.appendChild(div);
+            });
         }
 
         function updateLibraryUI() {
@@ -1071,12 +1151,16 @@
                     playTrack(track.id, q, ctxName, null); 
                     openFullPlayer(); 
                 };
+                
+                const durText = track.duration ? formatTime(track.duration) : '--:--'; // ИСПРАВЛЕНИЕ
+                
                 div.innerHTML = `
                     <img src="${track.coverUrl}" class="track-cover">
                     <div class="track-info">
                         <div class="track-title">${track.title}</div>
                         <div class="track-author">${track.author}</div>
                     </div>
+                    <div class="track-duration">${durText}</div>
                     <button class="action-btn-small" onclick="openEditTrackModal(event, ${track.id})">
                         <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                     </button>
@@ -1092,8 +1176,19 @@
             const track = tracks.find(t => t.id === id);
             if(!track) return;
 
-            if (queue) currentQueue = queue;
-            else if (!currentQueue.includes(id)) currentQueue = tracks.map(t => t.id);
+            if (queue) {
+                currentQueue = queue;
+                originalQueue = [...queue]; // Сброс перемешки при смене очереди
+                if(isShuffle) {
+                    let remaining = currentQueue.filter(tid => tid !== id);
+                    remaining.sort(() => Math.random() - 0.5);
+                    remaining.unshift(id);
+                    currentQueue = remaining;
+                }
+            } else if (!currentQueue.includes(id)) {
+                currentQueue = tracks.map(t => t.id);
+                originalQueue = [...currentQueue];
+            }
 
             if (playlistId !== undefined) currentPlayingPlaylistId = playlistId;
             if (contextName !== undefined) {
@@ -1121,6 +1216,7 @@
 
             updatePlayPauseIcon();
             updateLikeIcons();
+            if(isQueueOpen) renderQueue();
 
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -1162,6 +1258,7 @@
             isPlaying ? currentAudio.pause() : currentAudio.play();
             isPlaying = !isPlaying;
             updatePlayPauseIcon();
+            if(isQueueOpen) renderQueue(); // Обновление иконки в очереди при паузе
         }
 
         function playNext() {
@@ -1172,7 +1269,7 @@
                 idx = currentQueue.indexOf(currentTrackId);
             }
             let nextIdx = (idx + 1) % currentQueue.length;
-            playTrack(currentQueue[nextIdx], currentQueue);
+            playTrack(currentQueue[nextIdx], null); // queue=null чтобы не сбросить shuffle
         }
 
         function playPrev() {
@@ -1183,7 +1280,30 @@
                 idx = currentQueue.indexOf(currentTrackId);
             }
             let prevIdx = (idx - 1 + currentQueue.length) % currentQueue.length;
-            playTrack(currentQueue[prevIdx], currentQueue);
+            playTrack(currentQueue[prevIdx], null);
+        }
+
+        // ИСПРАВЛЕНИЕ: Логика кнопки перемешки
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            const btn = document.getElementById('fp-shuffle-btn');
+            
+            if(isShuffle) {
+                btn.classList.add('active');
+                if(currentQueue.length > 0) {
+                    originalQueue = [...currentQueue];
+                    let remaining = currentQueue.filter(id => id !== currentTrackId);
+                    remaining.sort(() => Math.random() - 0.5);
+                    if(currentTrackId) remaining.unshift(currentTrackId);
+                    currentQueue = remaining;
+                }
+            } else {
+                btn.classList.remove('active');
+                if(originalQueue.length > 0) {
+                    currentQueue = [...originalQueue];
+                }
+            }
+            if(isQueueOpen) renderQueue();
         }
 
         function playVibe() {
@@ -1256,13 +1376,20 @@
                         playTrack(track.id, currentQueue);
                         renderQueue(); 
                     };
+                    
+                    // ИСПРАВЛЕНИЕ: Вывод двух палочек (пауза), если трек играет
+                    let qpIconPath = "M8 5v14l11-7z"; // Треугольник (Play)
+                    if (isCurrent && isPlaying) {
+                        qpIconPath = "M6 19h4V5H6v14zm8-14v14h4V5h-4z"; // Две палочки (Pause)
+                    }
+
                     div.innerHTML = `
                         <img src="${track.coverUrl}" class="track-cover" style="width: 44px; height: 44px;">
                         <div class="track-info">
                             <div class="track-title" style="color: ${isCurrent ? 'var(--accent-color)' : '#fff'};">${track.title}</div>
                             <div class="track-author">${track.author}</div>
                         </div>
-                        ${isCurrent ? '<svg class="qp-playing-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' : ''}
+                        ${isCurrent ? `<svg class="qp-playing-icon" viewBox="0 0 24 24"><path d="${qpIconPath}"/></svg>` : ''}
                     `;
                     list.appendChild(div);
                 }
