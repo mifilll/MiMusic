@@ -36,10 +36,43 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background-color: var(--bg-color); display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            transition: opacity 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        #intro-screen h1 { font-size: 42px; color: var(--text-main); margin-bottom: 10px; letter-spacing: -1px; }
-        #intro-screen p { font-size: 14px; color: var(--text-muted); font-weight: 500; letter-spacing: 2px; }
+        
+        .intro-logo {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 24px; height: 50px;
+        }
+        
+        .intro-logo .bar {
+            width: 8px; border-radius: 4px; background-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.6);
+            animation: eq-bounce 0.8s ease-in-out infinite alternate;
+        }
+        
+        .intro-logo .bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .intro-logo .bar:nth-child(2) { height: 50px; animation-delay: 0.2s; }
+        .intro-logo .bar:nth-child(3) { height: 35px; animation-delay: 0.4s; }
+        .intro-logo .bar:nth-child(4) { height: 25px; animation-delay: 0.1s; }
+
+        .intro-title { 
+            font-size: 46px; color: var(--text-main); margin-bottom: 8px; font-weight: 800; letter-spacing: -1px; 
+            opacity: 0; transform: translateY(20px);
+            animation: fadeUpIn 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards 0.3s;
+        }
+        
+        .intro-subtitle { 
+            font-size: 13px; color: var(--text-muted); font-weight: 600; letter-spacing: 4px; text-transform: uppercase;
+            opacity: 0; transform: translateY(20px);
+            animation: fadeUpIn 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards 0.5s;
+        }
+
+        @keyframes eq-bounce { 
+            0% { height: 15px; } 
+            100% { height: 50px; } 
+        }
+        @keyframes fadeUpIn { 
+            to { opacity: 1; transform: translateY(0); } 
+        }
 
         /* Telegram Баннер */
         .glass-banner {
@@ -60,6 +93,34 @@
         }
         .glass-banner:active { transform: scale(0.95); opacity: 0.8; }
         .glass-banner svg { width: 16px; height: 16px; margin-right: 6px; fill: #fff; }
+
+        /* Кнопка настройки цвета (перенесена в верхний левый угол) */
+        .theme-settings-btn {
+            position: fixed;
+            top: calc(env(safe-area-inset-top) + 12px);
+            left: 16px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .theme-settings-btn:active {
+            transform: scale(0.85);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .theme-settings-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #fff;
+        }
 
         /* Основной контейнер */
         #main-container {
@@ -110,31 +171,6 @@
         .vibe-btn:active { transform: scale(0.95); }
         .vibe-btn-top { display: flex; align-items: center; position: relative; }
         .vibe-btn-top > span svg { width: 32px; height: 32px; fill: #fff; margin-right: 12px; }
-        
-        /* Кнопка настройки цвета */
-        .theme-settings-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 12px;
-            cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .theme-settings-btn:active {
-            transform: scale(0.85);
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .theme-settings-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: #fff;
-        }
 
         /* ИСПРАВЛЕНИЕ: Увеличен max-width и добавлены отступы для текста под Волной */
         .vibe-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 16px; font-weight: 500; text-align: center; max-width: 250px; padding: 0 10px; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
@@ -507,14 +543,26 @@
 <body>
 
     <div id="intro-screen">
-        <h1>MiMusic</h1>
-        <p>prod.mifilll</p>
+        <div class="intro-logo">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <h1 class="intro-title">MiMusic</h1>
+        <p class="intro-subtitle">prod.mifilll</p>
     </div>
 
     <a href="https://t.me/MiFMusic" target="_blank" class="glass-banner">
         <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.896-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.888-.662 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
         @MiFMusic
     </a>
+
+    <!-- Кнопка вынесена из волны в левый верхний угол -->
+    <div class="theme-settings-btn" onclick="openThemePicker(event)" title="Настроить цвет">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S15.67 9 16.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+    </div>
+    <input type="color" id="custom-theme-picker" style="opacity: 0; position: absolute; width: 0; height: 0; pointer-events: none;" onchange="applyCustomTheme(event)">
 
     <div id="main-container">
         <div id="tab-home" class="tab-content active">
@@ -526,11 +574,6 @@
                     <div class="vibe-btn-top">
                         <span id="vibe-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
                         MiВолна
-                        <!-- ИСПРАВЛЕНИЕ: Кнопка выбора кастомного цвета -->
-                        <div class="theme-settings-btn" onclick="openThemePicker(event)" title="Настроить цвет">
-                            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S15.67 9 16.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                        </div>
-                        <input type="color" id="custom-theme-picker" style="opacity: 0; position: absolute; width: 0; height: 0; pointer-events: none;" onchange="applyCustomTheme(event)">
                     </div>
                     <div class="vibe-sub">На основе добавленных вами треков</div>
                 </div>
@@ -932,9 +975,11 @@
             initApp(); 
 
             setTimeout(() => {
-                document.getElementById('intro-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('intro-screen').style.display = 'none', 500);
-            }, 1500);
+                const intro = document.getElementById('intro-screen');
+                intro.style.opacity = '0';
+                intro.style.transform = 'scale(1.05)';
+                setTimeout(() => intro.style.display = 'none', 600);
+            }, 2200);
             
             const progressEl = document.getElementById('fp-progress');
 
