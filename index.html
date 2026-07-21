@@ -162,7 +162,7 @@
             50% { transform: rotate(180deg) scale(1.05); border-radius: 60% 40% 35% 65% / 55% 45% 55% 45%; }
             100% { transform: rotate(360deg) scale(1); }
         }
-        /* ИСПРАВЛЕНИЕ: Кнопка заменена на div для предотвращения проблем со всплытием кликов */
+        
         .vibe-btn {
             position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;
             font-size: 32px; font-weight: 800; color: #fff; background: none; border: none; cursor: pointer;
@@ -172,7 +172,6 @@
         .vibe-btn-top { display: flex; align-items: center; position: relative; }
         .vibe-btn-top > span svg { width: 32px; height: 32px; fill: #fff; margin-right: 12px; }
 
-        /* ИСПРАВЛЕНИЕ: Увеличен max-width и добавлены отступы для текста под Волной */
         .vibe-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 16px; font-weight: 500; text-align: center; max-width: 250px; padding: 0 10px; line-height: 1.4; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
         /* Карточки на главной */
@@ -252,7 +251,6 @@
         .btn-primary:active { opacity: 0.8; transform: scale(0.96); }
         .btn-danger { background: #ff4444; color: #fff; }
 
-        /* ИСПРАВЛЕНИЕ: Новый дизайн для вкладки Добавить */
         .add-tab-container {
             display: flex;
             flex-direction: column;
@@ -541,6 +539,17 @@
             z-index: 1000;
             box-shadow: 0 15px 40px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.05);
         }
+        .nav-indicator {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 56px;
+            background: rgba(255, 255, 255, 0.22);
+            border-radius: 28px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 0;
+        }
         .nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: rgba(255,255,255,0.5); text-decoration: none; font-size: 11px; font-weight: 600;
@@ -549,12 +558,11 @@
             border-radius: 28px; 
             cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             margin: 0 4px;
+            z-index: 1;
         }
         .nav-item:active { transform: scale(0.9); }
         .nav-item.active {
-            background: rgba(255, 255, 255, 0.22); 
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px;}
 
@@ -851,6 +859,7 @@
     </div>
 
     <div id="bottom-nav">
+        <div class="nav-indicator" id="nav-indicator"></div>
         <div class="nav-item active" id="nav-home" onclick="switchTab('home', this)">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             Главная
@@ -1001,6 +1010,110 @@
             if(updated) await saveData();
         }
 
+        // --- Обработчики Свайпов (Полноэкранный плеер) ---
+        const fullPlayer = document.getElementById('full-player');
+        let fpStartY = 0;
+        let fpCurrentY = 0;
+        let isFpSwiping = false;
+
+        fullPlayer.addEventListener('touchstart', e => {
+            if(e.target.closest('#fp-progress') || e.target.closest('#queue-panel')) return;
+            fpStartY = e.touches[0].clientY;
+            fpCurrentY = fpStartY;
+            isFpSwiping = true;
+            fullPlayer.style.transition = 'none';
+        }, {passive: true});
+
+        fullPlayer.addEventListener('touchmove', e => {
+            if(!isFpSwiping) return;
+            fpCurrentY = e.touches[0].clientY;
+            const diffY = fpCurrentY - fpStartY;
+            if(diffY > 0) { // Свайп только вниз
+                fullPlayer.style.transform = `translateY(${diffY}px)`;
+            }
+        }, {passive: true});
+
+        fullPlayer.addEventListener('touchend', e => {
+            if(!isFpSwiping) return;
+            isFpSwiping = false;
+            fullPlayer.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            const diffY = fpCurrentY - fpStartY;
+            
+            if(diffY > 120) {
+                closeFullPlayer();
+            } else {
+                fullPlayer.style.transform = '';
+            }
+        });
+
+        // --- Обработчики Свайпов (Мини-плеер) ---
+        const miniPlayer = document.getElementById('mini-player');
+        let mpStartX = 0;
+        let mpCurrentX = 0;
+        let isMpSwiping = false;
+        let isMpDragged = false;
+
+        miniPlayer.addEventListener('touchstart', e => {
+            if(e.target.closest('.control-btn')) return;
+            mpStartX = e.touches[0].clientX;
+            mpCurrentX = mpStartX;
+            isMpSwiping = true;
+            isMpDragged = false;
+            miniPlayer.style.transition = 'none';
+        }, {passive: true});
+
+        miniPlayer.addEventListener('touchmove', e => {
+            if(!isMpSwiping) return;
+            mpCurrentX = e.touches[0].clientX;
+            const diffX = mpCurrentX - mpStartX;
+            if (Math.abs(diffX) > 10) isMpDragged = true;
+            miniPlayer.style.transform = `translateX(${diffX}px)`;
+            miniPlayer.style.opacity = 1 - Math.abs(diffX) / (window.innerWidth / 1.5);
+        }, {passive: true});
+
+        miniPlayer.addEventListener('touchend', e => {
+            if(!isMpSwiping) return;
+            isMpSwiping = false;
+            const diffX = mpCurrentX - mpStartX;
+            
+            if(Math.abs(diffX) > 100 && isMpDragged) {
+                miniPlayer.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                miniPlayer.style.transform = `translateX(${diffX > 0 ? window.innerWidth : -window.innerWidth}px)`;
+                miniPlayer.style.opacity = '0';
+                
+                currentAudio.pause();
+                isPlaying = false;
+                currentTrackId = null;
+                updatePlayPauseIcon();
+                updateActiveTrackHighlight();
+                
+                setTimeout(() => {
+                    miniPlayer.classList.remove('visible');
+                    miniPlayer.style.transform = '';
+                    miniPlayer.style.opacity = '';
+                }, 300);
+                setTimeout(() => isMpDragged = false, 50);
+            } else {
+                miniPlayer.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease, bottom 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                miniPlayer.style.transform = '';
+                miniPlayer.style.opacity = '';
+                setTimeout(() => isMpDragged = false, 50);
+            }
+        });
+
+        // Функция обновления индикатора навигации
+        function updateNavIndicator(element) {
+            const indicator = document.getElementById('nav-indicator');
+            if(indicator && element) {
+                indicator.style.width = element.offsetWidth + 'px';
+                indicator.style.left = element.offsetLeft + 'px';
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            updateNavIndicator(document.querySelector('.nav-item.active'));
+        });
+
         window.addEventListener('load', () => {
             initApp(); 
 
@@ -1010,6 +1123,8 @@
                 intro.style.transform = 'scale(1.05)';
                 setTimeout(() => intro.style.display = 'none', 600);
             }, 2200);
+
+            setTimeout(() => updateNavIndicator(document.querySelector('.nav-item.active')), 100);
             
             const progressEl = document.getElementById('fp-progress');
 
@@ -1062,7 +1177,10 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
-            if(element) element.classList.add('active');
+            if(element) {
+                element.classList.add('active');
+                updateNavIndicator(element);
+            }
             if(tabId === 'library') updateLibraryUI();
             if(tabId === 'home') updateHomeUI(); 
         }
@@ -1346,7 +1464,6 @@
             tracks.push(track);
             await saveData();
 
-            // ИСПРАВЛЕНИЕ: Очищаем новые элементы UI
             document.getElementById('track-file').value = '';
             document.getElementById('track-cover-file').value = '';
             document.getElementById('track-title-input').value = '';
@@ -1720,11 +1837,14 @@
         }
 
         function openFullPlayer(e) {
+            if (isMpDragged) return; // Игнорируем клик, если это был свайп
             if(e && (e.target.closest('button') || !currentTrackId)) return;
+            document.getElementById('full-player').style.transform = ''; 
             document.getElementById('full-player').classList.add('active');
         }
 
         function closeFullPlayer() {
+            document.getElementById('full-player').style.transform = '';
             document.getElementById('full-player').classList.remove('active');
             isQueueOpen = false;
             document.getElementById('queue-panel').classList.remove('active');
