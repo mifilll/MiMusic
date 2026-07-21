@@ -340,6 +340,27 @@
         .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center;}
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
+        /* Выбор цвета */
+        .theme-colors-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            justify-items: center;
+            margin-top: 10px;
+        }
+        .color-dot {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .color-dot:active {
+            transform: scale(0.85);
+        }
+
         /* ЭКРАН ПЛЕЙЛИСТА */
         #playlist-view {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -558,18 +579,16 @@
         @MiFMusic
     </a>
 
-    <!-- Кнопка вынесена из волны в левый верхний угол и превращена в label -->
-    <label class="theme-settings-btn" title="Настроить цвет" style="overflow: hidden;">
+    <!-- Кнопка настройки цвета (открывает модальное окно) -->
+    <button class="theme-settings-btn" title="Настроить цвет" onclick="document.getElementById('theme-modal').classList.add('active')">
         <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S15.67 9 16.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-        <input type="color" id="custom-theme-picker" onchange="applyCustomTheme(event)" style="opacity: 0; position: absolute; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; border: none; padding: 0; outline: none;">
-    </label>
+    </button>
 
     <div id="main-container">
         <div id="tab-home" class="tab-content active">
             <div class="vibe-container">
                 <div class="vibe-glow"></div>
                 <div class="vibe-ring"></div>
-                <!-- ИСПРАВЛЕНИЕ: button изменен на div -->
                 <div class="vibe-btn" onclick="playVibe()">
                     <div class="vibe-btn-top">
                         <span id="vibe-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
@@ -624,7 +643,6 @@
         <div id="tab-add" class="tab-content">
             <h2 style="margin-bottom: 24px; text-align: center;">Добавить музыку</h2>
             
-            <!-- ИСПРАВЛЕНИЕ: Новый, современный дизайн вкладки -->
             <div class="add-tab-container">
                 
                 <div class="file-upload-wrapper">
@@ -681,6 +699,28 @@
         </div>
 
         <div id="pv-track-list" class="pv-tracks-container track-list">
+        </div>
+    </div>
+
+    <!-- Модальное окно выбора цвета (темы) -->
+    <div id="theme-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Выберите цвет</div>
+            <div class="theme-colors-grid">
+                <div class="color-dot" style="background: #ffcc00;" onclick="applyPredefinedTheme('#ffcc00')"></div>
+                <div class="color-dot" style="background: #ff3b30;" onclick="applyPredefinedTheme('#ff3b30')"></div>
+                <div class="color-dot" style="background: #ff9500;" onclick="applyPredefinedTheme('#ff9500')"></div>
+                <div class="color-dot" style="background: #4cd964;" onclick="applyPredefinedTheme('#4cd964')"></div>
+                <div class="color-dot" style="background: #5ac8fa;" onclick="applyPredefinedTheme('#5ac8fa')"></div>
+                <div class="color-dot" style="background: #007aff;" onclick="applyPredefinedTheme('#007aff')"></div>
+                <div class="color-dot" style="background: #5856d6;" onclick="applyPredefinedTheme('#5856d6')"></div>
+                <div class="color-dot" style="background: #ff2d55;" onclick="applyPredefinedTheme('#ff2d55')"></div>
+                <div class="color-dot" style="background: #ffffff;" onclick="applyPredefinedTheme('#ffffff')"></div>
+                <div class="color-dot" style="background: #12c2e9;" onclick="applyPredefinedTheme('#12c2e9')"></div>
+                <div class="color-dot" style="background: #b620e0;" onclick="applyPredefinedTheme('#b620e0')"></div>
+                <div class="color-dot" style="background: #f7b733;" onclick="applyPredefinedTheme('#f7b733')"></div>
+            </div>
+            <button class="btn-primary" style="background:var(--surface-light); color:#fff; margin-top:20px;" onclick="closeModals()">Отмена</button>
         </div>
     </div>
 
@@ -893,12 +933,8 @@
         async function initApp() {
             try {
                 const savedTheme = await localforage.getItem('mi_theme');
-                const picker = document.getElementById('custom-theme-picker');
                 if (savedTheme) {
                     setTheme(savedTheme.hex, savedTheme.rgb);
-                    if (picker) picker.value = savedTheme.hex;
-                } else {
-                    if (picker) picker.value = '#ffcc00';
                 }
 
                 const storedTracks = await localforage.getItem('mi_tracks');
@@ -940,10 +976,10 @@
             return `${r}, ${g}, ${b}`;
         }
 
-        function applyCustomTheme(e) {
-            const hex = e.target.value;
+        function applyPredefinedTheme(hex) {
             const rgb = hexToRgb(hex);
             setTheme(hex, rgb);
+            closeModals();
         }
 
         async function fetchDuration(url) {
