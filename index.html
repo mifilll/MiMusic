@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#08090d">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -972,25 +974,31 @@
         body.theme-halloween .glass-banner, body.theme-halloween .theme-settings-btn { border-color:rgba(255,134,35,.24); }
         @media (max-width:360px) { .halloween-theme-icons {font-size:20px;} .halloween-theme-button {gap:8px;padding:12px;} }
 
-        /* --- Final mobile viewport correction: no body padding that can expose an unpainted iOS strip. --- */
+        /* iPhone/iPad viewport fix.
+           Do NOT pin body to a JS-measured innerHeight: in iOS standalone mode that height can
+           exclude part of the lower viewport, moving every fixed child (including the nav) upward.
+           Keep the app root in normal flow and let fixed controls anchor to the actual viewport. */
         html {
             position:relative; width:100%; height:100%; min-height:100%; margin:0; padding:0;
-            background:var(--bg-color) !important; overflow:hidden; overscroll-behavior:none;
+            background:radial-gradient(ellipse at 50% -20%, rgba(var(--accent-rgb), .13), transparent 46%), linear-gradient(180deg,#0b0c12 0%,var(--bg-color) 60%) !important;
+            overflow:hidden; overscroll-behavior:none;
+        }
+        html.theme-halloween {
+            background:radial-gradient(ellipse at 50% -12%,rgba(255,111,18,.18),transparent 42%),radial-gradient(ellipse at 90% 80%,rgba(94,44,135,.15),transparent 45%),linear-gradient(180deg,#100b12 0%,#08090d 62%) !important;
         }
         body {
-            position:fixed !important; inset:0 !important; width:100% !important; height:var(--app-viewport-height, 100dvh) !important;
+            position:relative !important; inset:auto !important; width:100% !important;
+            height:100vh !important; height:100dvh !important;
             min-height:0 !important; max-height:none !important; margin:0 !important; padding:0 !important;
             overflow:hidden !important; background-color:var(--bg-color) !important;
         }
-        #viewport-bottom-fill {
-            position:fixed; left:0; right:0; bottom:0;
-            height:max(36px, env(safe-area-inset-bottom, 0px));
-            background:var(--bg-color); z-index:700; pointer-events:none;
-        }
+        /* The previous artificial 36px filler created a visible bottom panel. Root background paints it. */
+        #viewport-bottom-fill { display:none !important; }
         #main-container { min-height:0; height:auto; padding-bottom:calc(var(--player-height) + var(--nav-height) + 72px); }
-        #bottom-nav { bottom:max(12px, env(safe-area-inset-bottom, 0px)); }
-        #mini-player { bottom:calc(max(12px, env(safe-area-inset-bottom, 0px)) + var(--nav-height) + 12px); }
-        body.playlist-active #mini-player { bottom:max(12px, env(safe-area-inset-bottom, 0px)); }
+        /* Anchor to the device's safe-area once; don't add a second fake bottom strip. */
+        #bottom-nav { bottom:max(8px, env(safe-area-inset-bottom, 0px)) !important; }
+        #mini-player { bottom:calc(max(8px, env(safe-area-inset-bottom, 0px)) + var(--nav-height) + 12px) !important; }
+        body.playlist-active #mini-player { bottom:max(8px, env(safe-area-inset-bottom, 0px)) !important; }
         #full-player { padding-bottom:max(28px, env(safe-area-inset-bottom, 0px)); }
         #artist-profile-view { padding-bottom:calc(var(--player-height) + var(--nav-height) + max(45px, env(safe-area-inset-bottom, 0px))); }
 
@@ -1926,6 +1934,7 @@
             document.documentElement.style.setProperty('--accent-color', hex);
             document.documentElement.style.setProperty('--accent-rgb', rgb);
             document.body.classList.toggle('theme-halloween', mode === 'halloween');
+            document.documentElement.classList.toggle('theme-halloween', mode === 'halloween');
             document.querySelectorAll('.color-dot[data-hex]').forEach(dot => {
                 dot.classList.toggle('selected', mode !== 'halloween' && dot.dataset.hex.toLowerCase() === String(hex).toLowerCase());
             });
@@ -2073,9 +2082,7 @@
 
         window.addEventListener('resize', () => {
             updateNavIndicator(document.querySelector('.nav-item.active'));
-            document.documentElement.style.setProperty('--app-viewport-height', `${window.innerHeight}px`);
         });
-        document.documentElement.style.setProperty('--app-viewport-height', `${window.innerHeight}px`);
         ['mp-author', 'fp-author'].forEach(id => {
             const authorButton = document.getElementById(id);
             if (authorButton) authorButton.addEventListener('keydown', event => {
