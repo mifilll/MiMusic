@@ -22,6 +22,11 @@
             --nav-height: 70px;
         }
 
+        html {
+            height: 100%; min-height: 100%;
+            background: var(--bg-color);
+            overscroll-behavior: none;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
@@ -917,9 +922,76 @@
         .artist-row-count { max-width:112px; white-space:nowrap; }
         @media (prefers-reduced-motion: reduce) { .vibe-cloud-canvas { opacity:.8; } }
 
+        /* iOS Safari draws the home-indicator safe area from the root canvas. Keep it dark. */
+        html, body { background-color:var(--bg-color) !important; }
+        body { min-height:100svh; padding-bottom:env(safe-area-inset-bottom); }
+        #bottom-nav { bottom:calc(env(safe-area-inset-bottom) + 10px); }
+        #mini-player { bottom:calc(16px + var(--nav-height) + 8px + env(safe-area-inset-bottom)); }
+        body.playlist-active #mini-player { bottom:calc(10px + env(safe-area-inset-bottom)); }
+        #main-container { padding-bottom:calc(var(--player-height) + var(--nav-height) + env(safe-area-inset-bottom) + 48px); }
+        #artist-profile-view { padding-bottom:calc(var(--player-height) + var(--nav-height) + env(safe-area-inset-bottom) + 45px); }
+        .artist-profile-header-spacer { width:40px; flex:0 0 40px; }
+        .artist-profile-change { display:none !important; }
+        .artist-count-hint { color:var(--text-muted); font-size:11px; line-height:1.4; margin:7px 4px 0; min-height:15px; }
+
+        /* Seasonal Halloween theme: warm orange accent, moonlit panels, corner cobwebs and pumpkins. */
+        #halloween-decor { display:none; position:fixed; inset:0; z-index:850; overflow:hidden; pointer-events:none; color:#ff8a24; }
+        body.theme-halloween #halloween-decor { display:block; }
+        .halloween-web { position:absolute; width:clamp(105px, 29vw, 165px); height:auto; opacity:.25; filter:drop-shadow(0 0 5px rgba(255,126,24,.18)); }
+        .halloween-web-left { top:0; left:0; }
+        .halloween-web-right { top:0; right:0; transform:scaleX(-1); }
+        .halloween-pumpkin, .halloween-bat { position:absolute; line-height:1; user-select:none; filter:drop-shadow(0 4px 12px rgba(255,101,0,.18)); }
+        .halloween-pumpkin { font-size:clamp(34px, 8vw, 58px); opacity:.30; bottom:calc(env(safe-area-inset-bottom) + 104px); }
+        .halloween-pumpkin-left { left:-8px; transform:rotate(-12deg); }
+        .halloween-pumpkin-right { right:-7px; transform:rotate(12deg); }
+        .halloween-bat { top:22%; right:9%; font-size:25px; opacity:.28; transform:rotate(-12deg); }
+        body.theme-halloween {
+            background:radial-gradient(ellipse at 50% -12%, rgba(255,111,18,.17), transparent 42%), radial-gradient(ellipse at 90% 80%, rgba(94,44,135,.13), transparent 45%), linear-gradient(180deg,#100b12 0%,#08090d 62%) !important;
+        }
+        body.theme-halloween .card,
+        body.theme-halloween #mini-player,
+        body.theme-halloween #bottom-nav {
+            border-color:rgba(255,132,32,.20);
+            box-shadow:0 12px 34px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,153,54,.035);
+        }
+        body.theme-halloween .lib-tab.active,
+        body.theme-halloween .nav-indicator { background:rgba(255,122,24,.23); }
+        body.theme-halloween .intro-mi { background-image:linear-gradient(135deg,#ff7a18,#ffd18a 70%); }
+        .halloween-theme-button {
+            display:flex; align-items:center; width:100%; gap:12px; text-align:left; margin-top:17px; padding:14px;
+            border:1px solid rgba(255,135,35,.24); border-radius:16px; color:var(--text-main); cursor:pointer;
+            background:linear-gradient(110deg,rgba(255,122,24,.15),rgba(100,51,137,.12));
+        }
+        .halloween-theme-icons { font-size:24px; white-space:nowrap; }
+        .halloween-theme-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+        .halloween-theme-copy strong { font-size:14px; }
+        .halloween-theme-copy small { color:var(--text-muted); font-size:11px; line-height:1.35; }
+        .halloween-theme-check { display:none; color:#ff8a24; font-size:19px; font-weight:900; }
+        .halloween-theme-button.selected { border-color:#ff8a24; box-shadow:0 0 0 2px rgba(255,138,36,.12); }
+        .halloween-theme-button.selected .halloween-theme-check { display:block; }
+        body.theme-halloween .glass-banner, body.theme-halloween .theme-settings-btn { border-color:rgba(255,134,35,.24); }
+        @media (max-width:360px) { .halloween-theme-icons {font-size:20px;} .halloween-theme-button {gap:8px;padding:12px;} }
+
     </style>
 </head>
 <body>
+    <div id="halloween-decor" aria-hidden="true">
+        <svg class="halloween-web halloween-web-left" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M0 0 L145 145 M42 0 L150 108 M80 0 L150 70 M0 42 L108 150 M0 82 L68 150 M0 0 Q5 76 145 145 M0 0 Q78 4 145 145 M0 0 Q2 42 145 145 M0 0 Q48 4 145 145 M0 0 Q4 112 145 145"/>
+                <path d="M0 24 Q55 16 72 72 M0 48 Q40 42 58 92 M0 74 Q26 70 43 112 M24 0 Q17 47 72 72 M50 0 Q40 37 92 58 M78 0 Q70 26 112 43"/>
+            </g>
+        </svg>
+        <svg class="halloween-web halloween-web-right" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M0 0 L145 145 M42 0 L150 108 M80 0 L150 70 M0 42 L108 150 M0 82 L68 150 M0 0 Q5 76 145 145 M0 0 Q78 4 145 145 M0 0 Q2 42 145 145 M0 0 Q48 4 145 145 M0 0 Q4 112 145 145"/>
+                <path d="M0 24 Q55 16 72 72 M0 48 Q40 42 58 92 M0 74 Q26 70 43 112 M24 0 Q17 47 72 72 M50 0 Q40 37 92 58 M78 0 Q70 26 112 43"/>
+            </g>
+        </svg>
+        <span class="halloween-pumpkin halloween-pumpkin-left">🎃</span>
+        <span class="halloween-bat halloween-bat-right">🦇</span>
+        <span class="halloween-pumpkin halloween-pumpkin-right">🎃</span>
+    </div>
 
     <div id="intro-screen">
         <div class="intro-logo">
@@ -1024,8 +1096,9 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label style="margin-left: 4px;">Артисты <span class="field-hint">· несколько через запятую</span></label>
-                    <input type="text" id="track-author-input" class="input-glass" placeholder="Например: MiFilll, Artist 2" autocomplete="off">
+                    <label style="margin-left: 4px;">Артисты <span class="field-hint">· количество не ограничено</span></label>
+                    <input type="text" id="track-author-input" class="input-glass" placeholder="MiFilll, Artist 2, Artist 3, Artist 4…" autocomplete="off">
+                    <div class="artist-count-hint" id="track-artist-count-hint">Можно добавить любое количество артистов через запятую</div>
                 </div>
 
                 <button class="btn-primary btn-glow" onclick="addTrack()" style="margin-top: 10px;">Загрузить трек</button>
@@ -1039,7 +1112,7 @@
                 <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
             </button>
             <span class="artist-profile-header-label">ПРОФИЛЬ АРТИСТА</span>
-            <button type="button" class="artist-profile-change" onclick="changeArtistAvatar()">Изменить фото</button>
+            <span class="artist-profile-header-spacer" aria-hidden="true"></span>
         </div>
         <div class="artist-profile-hero">
             <button type="button" class="artist-profile-avatar-button" onclick="changeArtistAvatar()" aria-label="Изменить аватар артиста">
@@ -1112,7 +1185,12 @@
                 <button type="button" class="color-dot" data-hex="#75d66b" title="Зелёный" aria-label="Зелёный" style="background:#75d66b" onclick="applyPredefinedTheme('#75d66b')"></button>
                 <button type="button" class="color-dot" data-hex="#ffffff" title="Белый" aria-label="Белый" style="background:#ffffff" onclick="applyPredefinedTheme('#ffffff')"></button>
             </div>
-            <button class="btn-primary" style="background:var(--surface-light); color:#fff; margin-top:20px;" onclick="closeModals()">Отмена</button>
+            <button type="button" id="halloween-theme-button" class="halloween-theme-button" onclick="applyHalloweenTheme()">
+                <span class="halloween-theme-icons" aria-hidden="true">🎃 🕸️ 🦇</span>
+                <span class="halloween-theme-copy"><strong>Хэллоуин</strong><small>Тыквы, паутина и ночные оттенки</small></span>
+                <span class="halloween-theme-check" aria-hidden="true">✓</span>
+            </button>
+            <button class="btn-primary" style="background:var(--surface-light); color:#fff; margin-top:14px;" onclick="closeModals()">Отмена</button>
         </div>
     </div>
 
@@ -1151,8 +1229,9 @@
                 <input type="text" id="edit-tr-title">
             </div>
             <div class="form-group">
-                <label>Артисты <span class="field-hint">· несколько через запятую</span></label>
-                <input type="text" id="edit-tr-author" placeholder="Имя артиста или несколько через запятую" autocomplete="off">
+                <label>Артисты <span class="field-hint">· количество не ограничено</span></label>
+                <input type="text" id="edit-tr-author" placeholder="Artist 1, Artist 2, Artist 3, …" autocomplete="off">
+                <div class="artist-count-hint" id="edit-artist-count-hint">Можно добавить любое количество артистов через запятую</div>
             </div>
             <div class="modal-actions">
                 <button class="btn-primary" onclick="saveTrackEdit()">Сохранить</button>
@@ -1312,6 +1391,8 @@
         }, {passive: true});
 
         function parseArtists(value) {
+            // Unlimited credits: commas, semicolons and line breaks all separate artist names.
+            // Normalization also removes duplicate names without imposing a maximum count.
             const seen = new Set();
             return String(value || '').split(/[,;\n]+/).map(name => name.trim()).filter(name => {
                 if (!name) return false;
@@ -1324,17 +1405,13 @@
 
         function getTrackArtists(track) {
             if (!track) return [];
-            const raw = Array.isArray(track.artists) && track.artists.length
-                ? track.artists
-                : (track.author ? [String(track.author)] : []);
-            const seen = new Set();
-            return raw.map(name => String(name || '').trim()).filter(name => {
-                if (!name) return false;
-                const key = name.toLocaleLowerCase('ru-RU');
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-            });
+            // Merge both modern artist arrays and legacy author text, so a partial old array
+            // can never silently hide the third/fourth/etc. artist from the author field.
+            const raw = [
+                ...(Array.isArray(track.artists) ? track.artists.flatMap(name => parseArtists(name)) : []),
+                ...(track.author ? parseArtists(String(track.author)) : [])
+            ];
+            return parseArtists(raw.join(', '));
         }
 
         function artistLine(track) {
@@ -1562,7 +1639,7 @@
             try {
                 const savedTheme = await localforage.getItem('mi_theme');
                 if (savedTheme) {
-                    setTheme(savedTheme.hex, savedTheme.rgb);
+                    setTheme(savedTheme.hex, savedTheme.rgb, savedTheme.mode || 'standard');
                 }
 
                 const storedTracks = await localforage.getItem('mi_tracks');
@@ -1590,7 +1667,7 @@
                         return {
                             ...t,
                             // Legacy tracks have no artists/playCount; preserve their existing credit as one artist.
-                            artists: Array.isArray(t.artists) && t.artists.length ? t.artists : (t.author ? [String(t.author)] : []),
+                            artists: getTrackArtists(t),
                             playCount: Math.max(0, Number(t.playCount) || 0),
                             listenSeconds: Math.max(0, Number(t.listenSeconds) || 0, Number(savedStat) || 0),
                             audioUrl: t.audioBlob ? URL.createObjectURL(t.audioBlob) : null,
@@ -1614,13 +1691,16 @@
             }
         }
 
-        async function setTheme(hex, rgb) {
+        async function setTheme(hex, rgb, mode = 'standard') {
             document.documentElement.style.setProperty('--accent-color', hex);
             document.documentElement.style.setProperty('--accent-rgb', rgb);
+            document.body.classList.toggle('theme-halloween', mode === 'halloween');
             document.querySelectorAll('.color-dot[data-hex]').forEach(dot => {
-                dot.classList.toggle('selected', dot.dataset.hex.toLowerCase() === String(hex).toLowerCase());
+                dot.classList.toggle('selected', mode !== 'halloween' && dot.dataset.hex.toLowerCase() === String(hex).toLowerCase());
             });
-            await localforage.setItem('mi_theme', { hex, rgb });
+            const halloweenButton = document.getElementById('halloween-theme-button');
+            if (halloweenButton) halloweenButton.classList.toggle('selected', mode === 'halloween');
+            await localforage.setItem('mi_theme', { hex, rgb, mode });
         }
 
         function hexToRgb(hex) {
@@ -1632,7 +1712,12 @@
 
         function applyPredefinedTheme(hex) {
             const rgb = hexToRgb(hex);
-            setTheme(hex, rgb);
+            setTheme(hex, rgb, 'standard');
+            closeModals();
+        }
+
+        function applyHalloweenTheme() {
+            setTheme('#ff7a18', '255, 122, 24', 'halloween');
             closeModals();
         }
 
@@ -1779,6 +1864,20 @@
                 renderArtistProfile();
                 if (currentFilter === 'artists') updateLibraryUI();
             });
+
+            function bindArtistCount(inputId, hintId) {
+                const input = document.getElementById(inputId);
+                const hint = document.getElementById(hintId);
+                if (!input || !hint) return;
+                const refresh = () => {
+                    const count = parseArtists(input.value).length;
+                    hint.textContent = count ? `${count} ${count === 1 ? 'артист' : count < 5 ? 'артиста' : 'артистов'} будет добавлено к треку` : 'Можно добавить любое количество артистов через запятую';
+                };
+                input.addEventListener('input', refresh);
+                refresh();
+            }
+            bindArtistCount('track-author-input', 'track-artist-count-hint');
+            bindArtistCount('edit-tr-author', 'edit-artist-count-hint');
 
             setTimeout(() => {
                 const intro = document.getElementById('intro-screen');
@@ -2181,6 +2280,7 @@
             
             document.getElementById('edit-tr-title').value = track.title;
             document.getElementById('edit-tr-author').value = artistLine(track);
+            document.getElementById('edit-tr-author').dispatchEvent(new Event('input', { bubbles: true }));
             currentEditOriginalArtistsValue = artistLine(track);
             document.getElementById('edit-tr-cover').value = '';
             document.getElementById('edit-track-modal').classList.add('active');
