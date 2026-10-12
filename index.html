@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>MiMusic</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root {
             --bg-color: #000000;
@@ -974,33 +975,37 @@
         body.theme-halloween .glass-banner, body.theme-halloween .theme-settings-btn { border-color:rgba(255,134,35,.24); }
         @media (max-width:360px) { .halloween-theme-icons {font-size:20px;} .halloween-theme-button {gap:8px;padding:12px;} }
 
-        /* iPhone/iPad viewport fix.
-           Do NOT pin body to a JS-measured innerHeight: in iOS standalone mode that height can
-           exclude part of the lower viewport, moving every fixed child (including the nav) upward.
-           Keep the app root in normal flow and let fixed controls anchor to the actual viewport. */
-        html {
-            position:relative; width:100%; height:100%; min-height:100%; margin:0; padding:0;
-            background:radial-gradient(ellipse at 50% -20%, rgba(var(--accent-rgb), .13), transparent 46%), linear-gradient(180deg,#0b0c12 0%,var(--bg-color) 60%) !important;
-            overflow:hidden; overscroll-behavior:none;
+        /* iOS standalone viewport: compensate WebKit's safe-area offset only when installed. */
+        :root { --mm-shell-background: radial-gradient(ellipse at 50% -20%, rgba(var(--accent-rgb), .13), transparent 46%), linear-gradient(180deg,#0b0c12 0%,#08090d 70%); }
+        html, body { background:var(--mm-shell-background) !important; background-color:#08090d !important; }
+        html.theme-halloween, body.theme-halloween {
+            --mm-shell-background: radial-gradient(ellipse at 50% -12%,rgba(255,111,18,.18),transparent 42%),radial-gradient(ellipse at 90% 80%,rgba(94,44,135,.15),transparent 45%),linear-gradient(180deg,#100b12 0%,#08090d 72%);
+            background:var(--mm-shell-background) !important; background-color:#08090d !important;
         }
-        html.theme-halloween {
-            background:radial-gradient(ellipse at 50% -12%,rgba(255,111,18,.18),transparent 42%),radial-gradient(ellipse at 90% 80%,rgba(94,44,135,.15),transparent 45%),linear-gradient(180deg,#100b12 0%,#08090d 62%) !important;
-        }
-        body {
-            position:relative !important; inset:auto !important; width:100% !important;
-            height:100vh !important; height:100dvh !important;
-            min-height:0 !important; max-height:none !important; margin:0 !important; padding:0 !important;
-            overflow:hidden !important; background-color:var(--bg-color) !important;
-        }
-        /* The previous artificial 36px filler created a visible bottom panel. Root background paints it. */
+        html { position:relative; width:100%; height:100%; min-height:100%; margin:0; padding:0; overflow:hidden; overscroll-behavior:none; }
+        body { position:relative !important; inset:auto !important; width:100% !important; height:100vh !important; height:100dvh !important; min-height:0 !important; max-height:none !important; margin:0 !important; padding:0 !important; overflow:hidden !important; }
         #viewport-bottom-fill { display:none !important; }
         #main-container { min-height:0; height:auto; padding-bottom:calc(var(--player-height) + var(--nav-height) + 72px); }
-        /* Anchor to the device's safe-area once; don't add a second fake bottom strip. */
-        #bottom-nav { bottom:max(8px, env(safe-area-inset-bottom, 0px)) !important; }
-        #mini-player { bottom:calc(max(8px, env(safe-area-inset-bottom, 0px)) + var(--nav-height) + 12px) !important; }
-        body.playlist-active #mini-player { bottom:max(8px, env(safe-area-inset-bottom, 0px)) !important; }
+        /* With black-translucent status bar, some iOS versions offset fixed children by the top+bottom inset. */
+        #bottom-nav { bottom:8px !important; }
+        #mini-player { bottom:calc(8px + var(--nav-height) + 12px) !important; }
+        body.playlist-active #mini-player { bottom:8px !important; }
+        html.ios-standalone-app #bottom-nav { bottom:calc(8px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important; }
+        html.ios-standalone-app #mini-player { bottom:calc(8px + var(--nav-height) + 12px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important; }
+        html.ios-standalone-app body.playlist-active #mini-player { bottom:calc(8px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important; }
         #full-player { padding-bottom:max(28px, env(safe-area-inset-bottom, 0px)); }
         #artist-profile-view { padding-bottom:calc(var(--player-height) + var(--nav-height) + max(45px, env(safe-area-inset-bottom, 0px))); }
+        .backup-panel { margin:0 0 19px; padding:14px; border-radius:19px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.08); }
+        .backup-panel-copy { display:flex; gap:11px; align-items:flex-start; }
+        .backup-panel-icon { flex:0 0 38px; height:38px; border-radius:13px; display:grid; place-items:center; font-size:21px; background:rgba(var(--accent-rgb),.12); }
+        .backup-panel-copy strong { font-size:13px; font-weight:800; }
+        .backup-panel-copy p { margin-top:5px; color:var(--text-muted); font-size:11px; line-height:1.45; }
+        .backup-panel-actions { display:flex; gap:8px; margin-top:12px; }
+        .backup-action { flex:1; min-width:0; padding:11px 9px; border-radius:12px; color:var(--text-main); font:700 12px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); cursor:pointer; }
+        .backup-action.primary { color:#100b12; background:var(--accent-color); border-color:transparent; }
+        .backup-action:active { transform:scale(.98); opacity:.88; }
+        body.theme-halloween .backup-panel { background:linear-gradient(145deg,rgba(43,26,42,.75),rgba(18,14,25,.82)); border-color:rgba(255,138,36,.22); }
+        body.theme-halloween .backup-action.primary { background:linear-gradient(110deg,#ff7a18,#ffbe68); }
 
         /* Artist picker opened directly from the currently playing artist line. */
         .artist-trigger {
@@ -1254,6 +1259,18 @@
                 <button class="lib-tab" id="lib-tab-artists" onclick="setFilter('artists', this)">Артисты</button>
             </div>
             
+            <section class="backup-panel" aria-label="Резервная копия музыкальной библиотеки">
+                <div class="backup-panel-copy">
+                    <div class="backup-panel-icon" aria-hidden="true">🛟</div>
+                    <div><strong>Резервная копия музыки</strong><p>Сохрани треки, обложки, плейлисты, аватары и статистику в ZIP-файл. Храни его в «Файлах» или iCloud Drive.</p></div>
+                </div>
+                <div class="backup-panel-actions">
+                    <button type="button" class="backup-action primary" onclick="exportMusicBackup()">Экспортировать</button>
+                    <button type="button" class="backup-action" onclick="document.getElementById('music-backup-file').click()">Восстановить</button>
+                    <input type="file" id="music-backup-file" accept=".zip,application/zip" hidden onchange="importMusicBackup(event)">
+                </div>
+            </section>
+
             <div id="playlist-creator" style="display: none; margin-bottom: 20px;">
                 <div class="form-group">
                     <input type="text" id="new-playlist-name" placeholder="Название плейлиста">
@@ -1935,6 +1952,8 @@
             document.documentElement.style.setProperty('--accent-rgb', rgb);
             document.body.classList.toggle('theme-halloween', mode === 'halloween');
             document.documentElement.classList.toggle('theme-halloween', mode === 'halloween');
+            const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+            if (themeColorMeta) themeColorMeta.setAttribute('content', mode === 'halloween' ? '#100b12' : '#08090d');
             document.querySelectorAll('.color-dot[data-hex]').forEach(dot => {
                 dot.classList.toggle('selected', mode !== 'halloween' && dot.dataset.hex.toLowerCase() === String(hex).toLowerCase());
             });
@@ -2089,6 +2108,88 @@
                 if (event.key === 'Enter' || event.key === ' ') openArtistPicker(event);
             });
         });
+
+        (function markIOSStandaloneMode() {
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            const standalone = navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+            document.documentElement.classList.toggle('ios-standalone-app', !!(isIOS && standalone));
+        })();
+
+        function backupBlobExtension(blob, preferred) {
+            const mime = String(blob && blob.type || '').toLowerCase();
+            const known = { 'audio/mpeg':'mp3', 'audio/mp3':'mp3', 'audio/mp4':'m4a', 'audio/aac':'aac', 'audio/wav':'wav', 'audio/x-wav':'wav', 'audio/ogg':'ogg', 'audio/webm':'webm', 'image/jpeg':'jpg', 'image/jpg':'jpg', 'image/png':'png', 'image/webp':'webp', 'image/gif':'gif', 'image/heic':'heic' };
+            return known[mime] || preferred || 'bin';
+        }
+
+        async function exportMusicBackup() {
+            try {
+                if (!window.JSZip) throw new Error('Не загрузился модуль ZIP. Подключись к интернету и открой приложение заново.');
+                const [storedTracks, storedPlaylists, listeningStats, storedProfiles, savedTheme] = await Promise.all([
+                    localforage.getItem('mi_tracks'), localforage.getItem('mi_playlists'), localforage.getItem('mi_listening_stats'), localforage.getItem('mi_artist_profiles'), localforage.getItem('mi_theme')
+                ]);
+                const sourceTracks = Array.isArray(storedTracks) ? storedTracks : [];
+                if (!sourceTracks.length) {
+                    alert('В этом хранилище сейчас нет треков для копирования. Если в старой иконке была музыка, новая установка не видит прежнее хранилище.');
+                    return;
+                }
+                const zip = new JSZip();
+                const manifest = { format:'MiMusicBackup', schemaVersion:1, exportedAt:new Date().toISOString(), tracks:[], playlists:[], listeningStats:listeningStats || {}, artistProfiles:{}, theme:savedTheme || null };
+                for (let i=0; i<sourceTracks.length; i++) {
+                    const track = sourceTracks[i];
+                    const record = { ...track, audioBlob:undefined, coverBlob:undefined, audioPath:null, coverPath:null, audioMimeType:track.audioBlob && track.audioBlob.type || 'audio/mpeg', coverMimeType:track.coverBlob && track.coverBlob.type || 'image/jpeg' };
+                    const tag = String(i+1).padStart(5,'0');
+                    if (track.audioBlob instanceof Blob) { record.audioPath=`media/track-${tag}-audio.${backupBlobExtension(track.audioBlob,'mp3')}`; zip.file(record.audioPath,track.audioBlob); }
+                    if (track.coverBlob instanceof Blob) { record.coverPath=`media/track-${tag}-cover.${backupBlobExtension(track.coverBlob,'jpg')}`; zip.file(record.coverPath,track.coverBlob); }
+                    manifest.tracks.push(record);
+                }
+                const sourcePlaylists = Array.isArray(storedPlaylists) ? storedPlaylists : [];
+                for (let i=0; i<sourcePlaylists.length; i++) {
+                    const playlist = sourcePlaylists[i];
+                    const record = { ...playlist, coverBlob:undefined, coverPath:null, coverMimeType:playlist.coverBlob && playlist.coverBlob.type || 'image/jpeg' };
+                    if (playlist.coverBlob instanceof Blob) { record.coverPath=`media/playlist-${String(i+1).padStart(5,'0')}-cover.${backupBlobExtension(playlist.coverBlob,'jpg')}`; zip.file(record.coverPath,playlist.coverBlob); }
+                    manifest.playlists.push(record);
+                }
+                for (const [key, profile] of Object.entries(storedProfiles || {})) {
+                    const record = { name:profile && profile.name || key, avatarPath:null, avatarMimeType:profile && profile.avatarBlob && profile.avatarBlob.type || 'image/jpeg' };
+                    if (profile && profile.avatarBlob instanceof Blob) { record.avatarPath=`media/artist-${Object.keys(manifest.artistProfiles).length+1}-avatar.${backupBlobExtension(profile.avatarBlob,'jpg')}`; zip.file(record.avatarPath,profile.avatarBlob); }
+                    manifest.artistProfiles[key]=record;
+                }
+                zip.file('manifest.json',JSON.stringify(manifest,null,2));
+                const backupBlob=await zip.generateAsync({type:'blob',compression:'STORE'});
+                const fileName=`MiMusic-backup-${new Date().toISOString().slice(0,10)}.zip`;
+                const url=URL.createObjectURL(backupBlob);
+                const anchor=document.createElement('a'); anchor.href=url; anchor.download=fileName; anchor.style.display='none'; document.body.appendChild(anchor); anchor.click(); anchor.remove();
+                setTimeout(()=>URL.revokeObjectURL(url),60000);
+                alert(`Резервная копия создана: ${fileName}. Сохрани ZIP в «Файлы» или iCloud Drive. Размер: ${(backupBlob.size/1024/1024).toFixed(1)} МБ.`);
+            } catch (error) {
+                console.error('Ошибка экспорта резервной копии MiMusic:',error);
+                alert(`Не удалось создать резервную копию. ${error && error.message ? error.message : 'Проверь свободное место и подключение к интернету.'}`);
+            }
+        }
+
+        async function importMusicBackup(event) {
+            const input=event && event.target; const file=input && input.files && input.files[0]; if(!file) return;
+            try {
+                if (!window.JSZip) throw new Error('Не загрузился модуль ZIP. Подключись к интернету и открой приложение заново.');
+                const zip=await JSZip.loadAsync(file); const manifestEntry=zip.file('manifest.json');
+                if(!manifestEntry) throw new Error('В ZIP нет manifest.json — это не резервная копия MiMusic.');
+                const manifest=JSON.parse(await manifestEntry.async('string'));
+                if(manifest.format!=='MiMusicBackup' || manifest.schemaVersion!==1 || !Array.isArray(manifest.tracks)) throw new Error('Формат резервной копии не поддерживается.');
+                if(!confirm(`Восстановить резервную копию от ${manifest.exportedAt ? new Date(manifest.exportedAt).toLocaleString() : 'неизвестной даты'}? Текущая библиотека будет заменена содержимым копии.`)) return;
+                const readBlob=async(path,mime)=>{ if(!path) return null; const entry=zip.file(path); if(!entry) throw new Error(`В копии отсутствует файл ${path}.`); return new Blob([await entry.async('uint8array')],{type:mime || 'application/octet-stream'}); };
+                const restoredTracks=await Promise.all(manifest.tracks.map(async track=>({...track,audioBlob:await readBlob(track.audioPath,track.audioMimeType),coverBlob:await readBlob(track.coverPath,track.coverMimeType),audioPath:undefined,coverPath:undefined,audioMimeType:undefined,coverMimeType:undefined})));
+                const restoredPlaylists=await Promise.all((manifest.playlists||[]).map(async playlist=>({...playlist,coverBlob:await readBlob(playlist.coverPath,playlist.coverMimeType),coverPath:undefined,coverMimeType:undefined})));
+                const restoredProfiles={};
+                for(const [key,profile] of Object.entries(manifest.artistProfiles||{})) restoredProfiles[key]={name:profile.name||key,avatarBlob:await readBlob(profile.avatarPath,profile.avatarMimeType)};
+                await localforage.setItem('mi_tracks',restoredTracks); await localforage.setItem('mi_playlists',restoredPlaylists);
+                await localforage.setItem('mi_listening_stats',manifest.listeningStats||{}); await localforage.setItem('mi_artist_profiles',restoredProfiles);
+                if(manifest.theme) await localforage.setItem('mi_theme',manifest.theme);
+                alert(`Восстановлено треков: ${restoredTracks.length}. Приложение перезапустится.`); window.location.reload();
+            } catch(error) {
+                console.error('Ошибка импорта резервной копии MiMusic:',error);
+                alert(`Не удалось восстановить копию. ${error && error.message ? error.message : 'Файл повреждён или имеет неподдерживаемый формат.'}`);
+            } finally { if(input) input.value=''; }
+        }
 
         window.addEventListener('load', () => {
             initVibeCloud();
