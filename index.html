@@ -1155,6 +1155,51 @@
         @keyframes ember-rise { 0%{transform:translate3d(0,0,0) scale(.5);opacity:0}15%{opacity:.8}80%{opacity:.45}100%{transform:translate3d(14px,-65vh,0) scale(1.2);opacity:0} }
         @media (prefers-reduced-motion: reduce) { .halloween-intro-scene *,#halloween-decor * { animation:none !important; } }
 
+    
+
+        /* Final iOS standalone safe-area and bottom navigation correction (v2) */
+        html, body { background-color:#08090d !important; }
+        html.theme-halloween {
+            background-color:#08090d !important;
+            background-image:radial-gradient(ellipse at 50% -12%,rgba(255,111,18,.18),transparent 42%),radial-gradient(ellipse at 90% 85%,rgba(94,44,135,.15),transparent 45%),linear-gradient(180deg,#100b12 0%,#08090d 72%) !important;
+        }
+        body.theme-halloween {
+            background-color:#08090d !important;
+            background-image:radial-gradient(ellipse at 50% -12%,rgba(255,111,18,.18),transparent 42%),radial-gradient(ellipse at 90% 85%,rgba(94,44,135,.15),transparent 45%),linear-gradient(180deg,#100b12 0%,#08090d 72%) !important;
+        }
+        @supports (height: 100lvh) {
+            html.ios-standalone-app { height:100lvh !important; min-height:100lvh !important; }
+            html.ios-standalone-app body {
+                height:100lvh !important; min-height:100lvh !important;
+                max-height:none !important; padding:0 !important; margin:0 !important;
+            }
+        }
+        /* Paint the actual iPhone home-indicator area instead of leaving the OS default canvas visible. */
+        html.ios-standalone-app #viewport-bottom-fill {
+            display:block !important; position:fixed !important; left:0 !important; right:0 !important; bottom:0 !important;
+            width:100vw !important; height:max(52px, calc(env(safe-area-inset-bottom, 0px) + 18px)) !important;
+            background:#08090d !important; z-index:899 !important; pointer-events:none !important;
+        }
+        html.ios-standalone-app.theme-halloween #viewport-bottom-fill,
+        html.ios-standalone-app body.theme-halloween #viewport-bottom-fill {
+            background:linear-gradient(180deg,#100b12 0%,#08090d 72%) !important;
+        }
+        /* On an installed iOS web app, use the large viewport and one safe-area adjustment only. */
+        html.ios-standalone-app #bottom-nav {
+            bottom:max(4px, calc(env(safe-area-inset-bottom, 0px) - 12px)) !important;
+        }
+        html.ios-standalone-app #mini-player {
+            bottom:calc(var(--nav-height) + max(4px, calc(env(safe-area-inset-bottom, 0px) - 12px)) + 12px) !important;
+        }
+        html.ios-standalone-app body.playlist-active #mini-player {
+            bottom:max(4px, calc(env(safe-area-inset-bottom, 0px) - 12px)) !important;
+        }
+        /* Keep the theme background consistent behind the status bar and home indicator. */
+        html.ios-standalone-app, html.ios-standalone-app body { overscroll-behavior:none; }
+        @media (prefers-reduced-motion: reduce) {
+            #bottom-nav { transition:none !important; }
+        }
+
     </style>
 </head>
 <body>
