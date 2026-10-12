@@ -972,9 +972,180 @@
         body.theme-halloween .glass-banner, body.theme-halloween .theme-settings-btn { border-color:rgba(255,134,35,.24); }
         @media (max-width:360px) { .halloween-theme-icons {font-size:20px;} .halloween-theme-button {gap:8px;padding:12px;} }
 
+        /* --- Final mobile viewport correction: no body padding that can expose an unpainted iOS strip. --- */
+        html {
+            position:relative; width:100%; height:100%; min-height:100%; margin:0; padding:0;
+            background:var(--bg-color) !important; overflow:hidden; overscroll-behavior:none;
+        }
+        body {
+            position:fixed !important; inset:0 !important; width:100% !important; height:var(--app-viewport-height, 100dvh) !important;
+            min-height:0 !important; max-height:none !important; margin:0 !important; padding:0 !important;
+            overflow:hidden !important; background-color:var(--bg-color) !important;
+        }
+        #viewport-bottom-fill {
+            position:fixed; left:0; right:0; bottom:0;
+            height:max(36px, env(safe-area-inset-bottom, 0px));
+            background:var(--bg-color); z-index:700; pointer-events:none;
+        }
+        #main-container { min-height:0; height:auto; padding-bottom:calc(var(--player-height) + var(--nav-height) + 72px); }
+        #bottom-nav { bottom:max(12px, env(safe-area-inset-bottom, 0px)); }
+        #mini-player { bottom:calc(max(12px, env(safe-area-inset-bottom, 0px)) + var(--nav-height) + 12px); }
+        body.playlist-active #mini-player { bottom:max(12px, env(safe-area-inset-bottom, 0px)); }
+        #full-player { padding-bottom:max(28px, env(safe-area-inset-bottom, 0px)); }
+        #artist-profile-view { padding-bottom:calc(var(--player-height) + var(--nav-height) + max(45px, env(safe-area-inset-bottom, 0px))); }
+
+        /* Artist picker opened directly from the currently playing artist line. */
+        .artist-trigger {
+            appearance:none; display:block; width:100%; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+            color:inherit; font-family:inherit; font-weight:inherit; text-align:left; border:0; padding:0;
+            background:transparent; cursor:pointer; line-height:1.35; -webkit-appearance:none;
+        }
+        .artist-trigger:active { opacity:.7; }
+        #artist-picker-modal { z-index:4600; }
+        .artist-picker-content { overflow:hidden; padding:23px 18px 18px; }
+        .artist-picker-kicker { color:var(--accent-color); font-size:10px; font-weight:900; letter-spacing:2px; text-align:center; margin:1px 0 9px; }
+        #artist-picker-title { margin-bottom:8px; font-size:22px; letter-spacing:-.5px; }
+        .artist-picker-description { color:var(--text-muted); font-size:12px; text-align:center; line-height:1.5; max-width:290px; margin:0 auto 16px; }
+        .artist-picker-list { display:flex; flex-direction:column; gap:8px; max-height:min(46vh,370px); overflow-y:auto; padding:2px; }
+        .artist-picker-item { appearance:none; display:flex; gap:12px; align-items:center; width:100%; min-width:0; padding:10px 12px; color:var(--text-main); text-align:left; border:1px solid rgba(255,255,255,.075); border-radius:17px; background:linear-gradient(120deg,rgba(255,255,255,.065),rgba(255,255,255,.025)); cursor:pointer; transition:transform .18s,border-color .18s,background .18s; }
+        .artist-picker-item:active { transform:scale(.98); border-color:rgba(var(--accent-rgb),.5); background:rgba(var(--accent-rgb),.10); }
+        .artist-picker-avatar { display:grid; place-items:center; flex-shrink:0; width:47px; height:47px; border-radius:50%; overflow:hidden; color:white; font-size:14px; font-weight:850; background:linear-gradient(140deg,rgba(var(--accent-rgb),.88),#6553c8); border:1px solid rgba(255,255,255,.16); }
+        .artist-picker-avatar img { width:100%; height:100%; object-fit:cover; }
+        .artist-picker-item-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+        .artist-picker-item-copy strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; }
+        .artist-picker-item-copy small { color:var(--text-muted); font-size:10px; }
+        .artist-picker-arrow { color:var(--accent-color); font-size:20px; font-weight:800; padding-left:4px; }
+        .artist-picker-empty { color:var(--text-muted); text-align:center; padding:18px 8px; font-size:13px; }
+        .artist-picker-cancel { margin-top:14px; }
+
+        /* A more editorial listening dashboard: night-sky hero, glowing podium and activity bars. */
+        .artist-dashboard {
+            position:relative; overflow:hidden; isolation:isolate; padding:19px 17px 16px; border-radius:26px;
+            margin:0 0 21px; border:1px solid rgba(var(--accent-rgb),.20);
+            background:radial-gradient(ellipse at 95% 5%,rgba(145,80,255,.20),transparent 45%),radial-gradient(ellipse at 0% 100%,rgba(var(--accent-rgb),.15),transparent 42%),linear-gradient(145deg,#1c2030,#11131b 75%);
+            box-shadow:0 18px 42px rgba(0,0,0,.23),inset 0 1px 0 rgba(255,255,255,.07);
+        }
+        .artist-dashboard-orbit { position:absolute; z-index:-1; border:1px solid rgba(255,255,255,.075); border-radius:50%; pointer-events:none; }
+        .artist-dashboard-orbit.orbit-a { width:215px;height:215px;right:-85px;top:-115px;box-shadow:0 0 45px rgba(136,85,255,.12); }
+        .artist-dashboard-orbit.orbit-b { width:155px;height:155px;right:-56px;top:-85px;border-style:dashed;animation:artist-orbit 38s linear infinite; }
+        .artist-dashboard-top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:9px; color:rgba(236,238,249,.64); letter-spacing:1.25px; font-weight:850; }
+        .artist-dashboard-top b { color:var(--accent-color);padding:0 4px; }
+        .artist-dashboard-live { display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(var(--accent-rgb),.2);border-radius:100px;padding:6px 8px;color:var(--accent-color);letter-spacing:.7px;font-size:8px; }
+        .artist-dashboard-live i { width:5px;height:5px;border-radius:50%;background:var(--accent-color);box-shadow:0 0 9px var(--accent-color);animation:stats-live 1.8s ease-in-out infinite; }
+        .artist-dashboard h3 { margin:20px 0 0; font-size:clamp(27px,7.2vw,34px); line-height:1.02; letter-spacing:-1.15px; font-weight:900; }
+        .artist-dashboard h3 em { font-style:normal;color:var(--accent-color);text-shadow:0 4px 28px rgba(var(--accent-rgb),.23); }
+        .artist-dashboard-subtitle { color:var(--text-muted);font-size:11px;margin-top:10px; }
+        .artist-metrics { display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:7px;margin-top:20px; }
+        .artist-metrics > div { min-width:0;display:flex;flex-direction:column;gap:5px;padding:11px 9px;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.055); }
+        .artist-metrics strong { font-size:clamp(14px,3.7vw,18px);line-height:1.15;letter-spacing:-.35px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere; }
+        .artist-metrics span { font-size:9px;color:var(--text-muted);line-height:1.2; }
+        .artist-leaderboard-heading { display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 12px; }
+        .artist-leaderboard-heading > span { font-size:18px;font-weight:900;letter-spacing:-.4px; }
+        .artist-leaderboard-heading > span i { color:var(--accent-color);font-size:17px;font-style:normal;margin-right:5px; }
+        .artist-leaderboard-heading small,.artist-section-heading small { color:var(--text-muted);font-size:10px;font-weight:550; }
+        .artist-podium { gap:8px;align-items:stretch;margin:0 0 23px; }
+        .artist-podium-card { position:relative;overflow:hidden;padding:14px 6px 13px;border-radius:22px;backdrop-filter:blur(12px); }
+        .artist-podium-sheen { position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,var(--podium-color),transparent);opacity:.85; }
+        .rank-1 { --podium-color:#ffd76a; }
+        .rank-2 { --podium-color:#d7e2f2; }
+        .rank-3 { --podium-color:#d99a75; }
+        .artist-podium-card.rank-1 { min-height:214px;border-color:rgba(255,215,106,.28);background:radial-gradient(ellipse at 50% 0,rgba(255,200,66,.16),transparent 55%),linear-gradient(170deg,rgba(56,44,25,.56),rgba(255,255,255,.025)); }
+        .artist-podium-card.rank-2 { min-height:188px;border-color:rgba(215,226,242,.19);background:radial-gradient(ellipse at 50% 0,rgba(201,215,236,.10),transparent 54%),linear-gradient(170deg,rgba(43,49,61,.5),rgba(255,255,255,.02)); }
+        .artist-podium-card.rank-3 { min-height:174px;border-color:rgba(217,154,117,.21);background:radial-gradient(ellipse at 50% 0,rgba(200,121,75,.10),transparent 54%),linear-gradient(170deg,rgba(52,35,28,.5),rgba(255,255,255,.02)); }
+        .artist-podium-card.rank-1 .artist-medal { font-size:32px; }
+        .artist-podium-card .artist-avatar { position:relative;z-index:1;width:51px;height:51px;border:2px solid color-mix(in srgb,var(--podium-color),transparent 28%);box-shadow:0 6px 15px rgba(0,0,0,.25); }
+        .artist-podium-card.rank-1 .artist-avatar { width:62px;height:62px; }
+        .artist-medal { position:relative;z-index:1;margin-bottom:10px; }
+        .artist-name { margin-top:1px; }
+        .artist-rank-label { color:var(--podium-color);font-size:8px;letter-spacing:1px;font-weight:900;margin-top:5px; }
+        .artist-play-count { margin-top:10px;font-size:clamp(11px,3vw,14px); }
+        .artist-play-caption { font-size:9px; }
+        .artist-progress,.artist-row-progress { display:block;overflow:hidden;height:3px;border-radius:99px;background:rgba(255,255,255,.08); }
+        .artist-progress { width:75%;margin-top:10px; }
+        .artist-progress i,.artist-row-progress i { display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--podium-color,var(--accent-color)),var(--accent-color));box-shadow:0 0 9px rgba(var(--accent-rgb),.22); }
+        .artist-section-heading { display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:17px;font-weight:900;margin:0 2px 12px; }
+        .artist-rest-list { gap:8px; }
+        .artist-row-card { position:relative;gap:10px;padding:11px;border-radius:17px;background:linear-gradient(105deg,rgba(255,255,255,.045),rgba(255,255,255,.018));border-color:rgba(255,255,255,.06); }
+        .artist-row-place { color:var(--text-muted);font-variant-numeric:tabular-nums;font-size:10px;font-weight:850;width:17px;flex-shrink:0; }
+        .artist-row-card .artist-avatar { border:1px solid rgba(255,255,255,.11); }
+        .artist-row-main { display:flex;flex-direction:column;gap:5px; }
+        .artist-row-meta { margin-top:0;font-size:10px; }
+        .artist-row-progress { width:100%;height:2px;margin-top:2px; }
+        .artist-row-count { font-size:11px;max-width:95px;white-space:normal; }
+        .artist-row-count small { font-size:9px; }
+        .artist-stat-note { margin-top:14px;padding:11px 12px;border-radius:13px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.04);font-size:10px; }
+        .artist-single-note { padding:12px;border-radius:15px;background:rgba(255,255,255,.035);color:var(--text-muted);font-size:12px;line-height:1.5; }
+        .artist-empty-hero { position:relative;text-align:center;padding:25px 19px 22px;margin-bottom:15px;overflow:hidden;border-radius:25px;background:radial-gradient(ellipse at 50% 0,rgba(135,90,255,.2),transparent 60%),linear-gradient(155deg,#1c2030,#11131b);border:1px solid rgba(255,255,255,.08); }
+        .artist-empty-art { margin:0 auto 14px;width:74px;height:74px;border-radius:24px;display:grid;place-items:center;font-size:38px;color:var(--accent-color);background:rgba(var(--accent-rgb),.11);border:1px solid rgba(var(--accent-rgb),.2);box-shadow:0 0 40px rgba(var(--accent-rgb),.07); }
+        .artist-empty-hero h3 { font-size:23px;line-height:1.1;letter-spacing:-.65px;margin-top:10px; }
+        .artist-empty-hero p { color:var(--text-muted);font-size:12px;line-height:1.55;margin-top:10px; }
+        @keyframes artist-orbit { to { transform:rotate(360deg); } }
+        @keyframes stats-live { 0%,100%{opacity:.45;transform:scale(.8)} 50%{opacity:1;transform:scale(1.25)} }
+        @media (max-width:360px) {
+            .artist-metrics { gap:5px; }
+            .artist-metrics > div { padding:9px 7px; }
+            .artist-dashboard { padding:16px 13px 13px; }
+            .artist-podium { gap:5px; }
+            .artist-podium-card { padding-left:3px;padding-right:3px; }
+        }
+
+        /* Halloween: animated haunted-night palette, drifting cobwebs, bats, ghost and embers. */
+        #halloween-decor { z-index:850; }
+        #halloween-decor::before { content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 0 0,rgba(255,104,25,.07),transparent 32%),radial-gradient(ellipse at 100% 100%,rgba(123,56,188,.10),transparent 36%); }
+        .halloween-web { opacity:.48;stroke-dasharray:480;stroke-dashoffset:0;animation:web-breathe 7s ease-in-out infinite;filter:drop-shadow(0 0 7px rgba(255,126,24,.13)); }
+        .halloween-web-right { animation-delay:-3.5s; }
+        .halloween-pumpkin { opacity:.75;filter:drop-shadow(0 0 22px rgba(255,109,20,.16));animation:pumpkin-sway 5.5s ease-in-out infinite;transform-origin:bottom center; }
+        .halloween-pumpkin-right { animation-delay:-2.4s; }
+        .halloween-bat-right { opacity:.65;animation:bat-drift 13s ease-in-out infinite; }
+        .halloween-bat-low { position:absolute;left:16%;top:56%;font-size:20px;opacity:.28;animation:bat-drift-low 17s ease-in-out infinite; }
+        .halloween-ghost { position:absolute;left:7%;top:45%;font-size:27px;opacity:.37;animation:ghost-float 8s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(210,223,255,.12)); }
+        .halloween-ember { position:absolute;width:4px;height:4px;border-radius:50%;background:#ff9d45;box-shadow:0 0 12px 3px rgba(255,107,22,.30);opacity:0;animation:ember-rise 9s linear infinite; }
+        .ember-one{left:18%;bottom:13%;animation-delay:-1s}.ember-two{left:35%;bottom:2%;animation-delay:-5s}.ember-three{right:22%;bottom:4%;animation-delay:-3s}.ember-four{right:39%;bottom:12%;animation-delay:-7s}
+        body.theme-halloween { background:radial-gradient(ellipse at 50% -12%,rgba(255,111,18,.18),transparent 42%),radial-gradient(ellipse at 90% 80%,rgba(94,44,135,.15),transparent 45%),linear-gradient(180deg,#100b12 0%,#08090d 62%) !important; }
+        body.theme-halloween .card { background:linear-gradient(145deg,rgba(39,27,42,.94),rgba(20,17,28,.97));border-color:rgba(255,132,32,.15); }
+        body.theme-halloween .artist-dashboard { background:radial-gradient(ellipse at 100% 0,rgba(255,104,15,.17),transparent 38%),radial-gradient(ellipse at 8% 100%,rgba(111,49,159,.18),transparent 44%),linear-gradient(145deg,#251526,#111018 75%); }
+        body.theme-halloween .lib-tab.active { color:#fff6eb;background:linear-gradient(110deg,#ce5416,#7335a5);box-shadow:0 5px 20px rgba(230,91,19,.2); }
+        body.theme-halloween .nav-indicator { background:linear-gradient(110deg,rgba(255,107,23,.31),rgba(116,58,164,.28)); }
+        body.theme-halloween #mini-player,body.theme-halloween #bottom-nav { background:rgba(27,19,32,.91);border-color:rgba(255,136,40,.24); }
+        body.theme-halloween .btn-primary { background:linear-gradient(110deg,#ff7a18,#ffba62);color:#180d08; }
+        body.theme-halloween .vibe-container { filter:saturate(1.08); }
+        body.theme-halloween .intro-mi { background-image:linear-gradient(140deg,#ff7920 10%,#ffd58a 48%,#b15cff 94%); }
+        .halloween-intro-scene { display:none;position:absolute;inset:0;overflow:hidden;pointer-events:none;isolation:isolate; }
+        body.theme-halloween #intro-screen { background:radial-gradient(ellipse at 50% 28%,rgba(112,43,133,.30),transparent 43%),linear-gradient(180deg,#0d0712 0%,#110b17 58%,#06070b 100%) !important; }
+        body.theme-halloween .halloween-intro-scene { display:block; }
+        .halloween-intro-moon { position:absolute;width:clamp(118px,34vw,190px);aspect-ratio:1;right:12%;top:14%;border-radius:50%;background:radial-gradient(circle at 34% 30%,#fff3d9 0%,#ffc46e 32%,#e87736 68%,rgba(187,61,32,.15) 78%);box-shadow:0 0 30px rgba(255,138,48,.22),0 0 100px rgba(190,70,35,.14);animation:moon-haunt 7s ease-in-out infinite; }
+        .halloween-intro-moon::before,.halloween-intro-moon::after,.halloween-intro-moon span,.halloween-intro-moon i { content:"";position:absolute;border-radius:50%;background:rgba(124,49,47,.15); }
+        .halloween-intro-moon::before { width:20%;height:20%;left:24%;top:25%; }.halloween-intro-moon::after{width:12%;height:12%;left:61%;top:52%}.halloween-intro-moon span{width:10%;height:10%;left:38%;top:67%}.halloween-intro-moon i{width:15%;height:15%;right:20%;top:22%}
+        .halloween-intro-bat { position:absolute;z-index:2;font-size:clamp(23px,6vw,39px);filter:drop-shadow(0 5px 8px rgba(0,0,0,.4)); }
+        .halloween-intro-bat.bat-a { top:24%;left:-10%;animation:bat-cross 8s linear infinite; }
+        .halloween-intro-bat.bat-b { top:37%;right:-10%;font-size:25px;animation:bat-cross-back 11s linear infinite -4s; }
+        .halloween-intro-ghost { position:absolute;z-index:2;left:15%;top:37%;font-size:clamp(32px,8vw,49px);animation:ghost-float 5s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(222,232,255,.15)); }
+        .halloween-intro-pumpkin { position:absolute;z-index:2;right:13%;bottom:calc(50% - 172px);font-size:clamp(57px,14vw,86px);filter:drop-shadow(0 0 28px rgba(255,89,17,.28));animation:pumpkin-sway 3.7s ease-in-out infinite; }
+        .halloween-intro-fog { position:absolute;left:-20%;right:-20%;bottom:0;height:39%;background:radial-gradient(ellipse at 20% 80%,rgba(112,52,145,.25),transparent 53%),radial-gradient(ellipse at 70% 100%,rgba(224,88,28,.16),transparent 58%),linear-gradient(180deg,transparent,rgba(20,17,31,.75));filter:blur(10px);animation:fog-drift 10s ease-in-out infinite alternate; }
+        .halloween-intro-ground { position:absolute;left:-10%;right:-10%;height:19%;bottom:-7%;background:linear-gradient(180deg,rgba(7,7,12,0),#050509 55%);border-radius:50% 50% 0 0; }
+        .halloween-intro-embers { position:absolute;inset:30% 0 0;overflow:hidden; }
+        .halloween-intro-embers i { position:absolute;bottom:-10px;width:3px;height:3px;border-radius:50%;background:#ff9c49;box-shadow:0 0 9px 2px rgba(255,107,25,.4);animation:ember-rise 7s linear infinite; }
+        .halloween-intro-embers i:nth-child(1){left:9%;animation-delay:-2s}.halloween-intro-embers i:nth-child(2){left:21%;animation-delay:-5s}.halloween-intro-embers i:nth-child(3){left:38%;animation-delay:-1s}.halloween-intro-embers i:nth-child(4){left:51%;animation-delay:-4s}.halloween-intro-embers i:nth-child(5){left:63%;animation-delay:-6s}.halloween-intro-embers i:nth-child(6){left:76%;animation-delay:-3s}.halloween-intro-embers i:nth-child(7){left:88%;animation-delay:-1.5s}.halloween-intro-embers i:nth-child(8){left:45%;animation-delay:-2.7s}.halloween-intro-embers i:nth-child(9){left:32%;animation-delay:-3.3s}.halloween-intro-embers i:nth-child(10){left:96%;animation-delay:-4.6s}
+        body.theme-halloween .intro-logo { background:linear-gradient(145deg,rgba(255,120,29,.20),rgba(98,44,132,.15));border-color:rgba(255,158,71,.25);box-shadow:0 18px 55px rgba(0,0,0,.4),0 0 70px rgba(242,91,25,.12); }
+        body.theme-halloween .intro-logo .bar { background:linear-gradient(180deg,#ffe1a8 0%,#ff8124 50%,#9e51de 100%);box-shadow:0 0 18px rgba(255,115,30,.35); }
+        body.theme-halloween .intro-subtitle { color:rgba(255,215,176,.76); }
+        body.theme-halloween #intro-screen::before { border-color:rgba(255,130,40,.15);box-shadow:0 0 80px rgba(255,91,24,.13),inset 0 0 50px rgba(130,57,176,.08); }
+        @keyframes pumpkin-sway { 0%,100%{transform:rotate(-7deg) translateY(0)}50%{transform:rotate(7deg) translateY(-8px)} }
+        @keyframes bat-drift { 0%,100%{transform:translate3d(0,0,0) rotate(-12deg)}50%{transform:translate3d(-28px,15px,0) rotate(10deg)} }
+        @keyframes bat-drift-low { 0%,100%{transform:translate3d(0,0,0) scale(.9)}50%{transform:translate3d(42px,-24px,0) scale(1.05)} }
+        @keyframes bat-cross { 0%{transform:translateX(0) translateY(0) rotate(9deg)}45%{transform:translateX(48vw) translateY(-20px) rotate(-5deg)}100%{transform:translateX(120vw) translateY(10px) rotate(7deg)} }
+        @keyframes bat-cross-back { 0%{transform:translateX(0) rotate(6deg)}50%{transform:translateX(-50vw) translateY(18px) rotate(-8deg)}100%{transform:translateX(-125vw) translateY(-10px) rotate(5deg)} }
+        @keyframes ghost-float { 0%,100%{transform:translate3d(0,0,0) rotate(-4deg)}50%{transform:translate3d(14px,-18px,0) rotate(5deg)} }
+        @keyframes fog-drift { from{transform:translateX(-4%) scale(1.05);opacity:.58}to{transform:translateX(5%) scale(1.14);opacity:.95} }
+        @keyframes moon-haunt { 0%,100%{transform:translateY(0) scale(1);filter:brightness(1)}50%{transform:translateY(-7px) scale(1.025);filter:brightness(1.08)} }
+        @keyframes web-breathe { 0%,100%{opacity:.34}50%{opacity:.60} }
+        @keyframes ember-rise { 0%{transform:translate3d(0,0,0) scale(.5);opacity:0}15%{opacity:.8}80%{opacity:.45}100%{transform:translate3d(14px,-65vh,0) scale(1.2);opacity:0} }
+        @media (prefers-reduced-motion: reduce) { .halloween-intro-scene *,#halloween-decor * { animation:none !important; } }
+
     </style>
 </head>
 <body>
+    <div id="viewport-bottom-fill" aria-hidden="true"></div>
     <div id="halloween-decor" aria-hidden="true">
         <svg class="halloween-web halloween-web-left" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -991,9 +1162,23 @@
         <span class="halloween-pumpkin halloween-pumpkin-left">🎃</span>
         <span class="halloween-bat halloween-bat-right">🦇</span>
         <span class="halloween-pumpkin halloween-pumpkin-right">🎃</span>
+        <span class="halloween-ghost halloween-ghost-left">👻</span>
+        <span class="halloween-bat halloween-bat-low">🦇</span>
+        <span class="halloween-ember ember-one"></span><span class="halloween-ember ember-two"></span>
+        <span class="halloween-ember ember-three"></span><span class="halloween-ember ember-four"></span>
     </div>
 
     <div id="intro-screen">
+        <div class="halloween-intro-scene" aria-hidden="true">
+            <div class="halloween-intro-moon"><span></span><i></i></div>
+            <span class="halloween-intro-bat bat-a">🦇</span>
+            <span class="halloween-intro-bat bat-b">🦇</span>
+            <span class="halloween-intro-ghost">👻</span>
+            <span class="halloween-intro-pumpkin">🎃</span>
+            <div class="halloween-intro-fog"></div>
+            <div class="halloween-intro-ground"></div>
+            <div class="halloween-intro-embers"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
         <div class="intro-logo">
             <div class="bar"></div>
             <div class="bar"></div>
@@ -1163,6 +1348,16 @@
         </div>
     </div>
 
+    <div id="artist-picker-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="artist-picker-title">
+        <div class="modal-content artist-picker-content">
+            <div class="artist-picker-kicker">СЕЙЧАС В ЭФИРЕ</div>
+            <div class="modal-title" id="artist-picker-title">Кто исполняет этот трек?</div>
+            <p class="artist-picker-description">Выбери артиста, чтобы открыть его профиль и всю музыку с его участием.</p>
+            <div id="artist-picker-list" class="artist-picker-list"></div>
+            <button type="button" class="btn-primary artist-picker-cancel" onclick="closeModals()">Закрыть</button>
+        </div>
+    </div>
+
     <!-- Модальное окно выбора цвета (темы) -->
     <div id="theme-modal" class="modal-overlay">
         <div class="modal-content">
@@ -1253,7 +1448,7 @@
         <img id="mp-cover" src="" alt="">
         <div id="mp-info">
             <div id="mp-title">Название</div>
-            <div id="mp-author">Автор</div>
+            <button type="button" id="mp-author" class="artist-trigger" onclick="openArtistPicker(event)" aria-label="Выбрать артиста">Автор</button>
         </div>
         <div class="mp-controls">
             <button class="control-btn" id="mp-like-btn" onclick="toggleFavoriteCurrent(event)">
@@ -1285,7 +1480,7 @@
         <div class="fp-info-row">
             <div class="fp-text">
                 <div id="fp-title">Название</div>
-                <div id="fp-author">Автор</div>
+                <button type="button" id="fp-author" class="artist-trigger" onclick="openArtistPicker(event)" aria-label="Выбрать артиста">Автор</button>
             </div>
             <button class="control-btn" id="fp-like-btn" onclick="toggleFavoriteCurrent(event)">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -1485,6 +1680,42 @@
 
         function closeArtistProfile() {
             document.getElementById('artist-profile-view').classList.remove('active');
+        }
+
+        function openArtistPicker(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const track = tracks.find(item => String(item.id) === String(currentTrackId));
+            const artists = track ? getTrackArtists(track) : [];
+            const modal = document.getElementById('artist-picker-modal');
+            const list = document.getElementById('artist-picker-list');
+            if (!artists.length) {
+                list.innerHTML = '<div class="artist-picker-empty">У этого трека пока не указан артист.</div>';
+            } else {
+                list.innerHTML = artists.map((name, index) => {
+                    const profile = getArtistProfile(name);
+                    const image = profile && profile.avatarUrl
+                        ? `<img src="${escapeHTML(profile.avatarUrl)}" alt="" loading="lazy">`
+                        : `<span>${escapeHTML(artistInitials(name))}</span>`;
+                    return `<button type="button" class="artist-picker-item" data-picker-artist="${escapeHTML(name)}">
+                        <span class="artist-picker-avatar">${image}</span>
+                        <span class="artist-picker-item-copy"><strong>${escapeHTML(name)}</strong><small>${index === 0 ? 'Артист трека' : 'Участник'}</small></span>
+                        <span class="artist-picker-arrow" aria-hidden="true">↗</span>
+                    </button>`;
+                }).join('');
+                list.querySelectorAll('[data-picker-artist]').forEach(button => {
+                    button.addEventListener('click', () => openArtistProfileFromPicker(button.dataset.pickerArtist));
+                });
+            }
+            modal.classList.add('active');
+        }
+
+        function openArtistProfileFromPicker(name) {
+            closeModals();
+            closeFullPlayer();
+            openArtistProfile(name);
         }
 
         function changeArtistAvatar() {
@@ -1842,6 +2073,14 @@
 
         window.addEventListener('resize', () => {
             updateNavIndicator(document.querySelector('.nav-item.active'));
+            document.documentElement.style.setProperty('--app-viewport-height', `${window.innerHeight}px`);
+        });
+        document.documentElement.style.setProperty('--app-viewport-height', `${window.innerHeight}px`);
+        ['mp-author', 'fp-author'].forEach(id => {
+            const authorButton = document.getElementById(id);
+            if (authorButton) authorButton.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') openArtistPicker(event);
+            });
         });
 
         window.addEventListener('load', () => {
@@ -2461,45 +2700,66 @@
         function renderArtistsLibrary(list) {
             const stats = getArtistStatistics();
             if (!stats.length) {
-                list.innerHTML = '<div class="empty-state">Артисты появятся здесь автоматически, когда ты добавишь треки. Время прослушивания начнёт накапливаться после обновления.</div>';
+                list.innerHTML = `
+                    <div class="artist-empty-hero">
+                        <div class="artist-empty-art">♫</div>
+                        <span class="artist-eyebrow">MI MUSIC · YOUR UNIVERSE</span>
+                        <h3>Твоя музыкальная вселенная</h3>
+                        <p>Добавляй артистов к трекам, слушай музыку — здесь появятся их профили и рейтинг по времени прослушивания.</p>
+                    </div>
+                    <div class="empty-state">Пока нет артистов для статистики.</div>`;
                 return;
             }
             const podiumItems = stats.slice(0, 3);
             const podiumHTML = podiumItems.map((item, index) => {
                 const rank = index + 1;
                 const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
+                const percent = Math.max(0, Math.min(100, Math.round(item.seconds / Math.max(1, stats[0].seconds) * 100)));
                 return `<button type="button" class="artist-podium-card rank-${rank}" data-artist="${escapeHTML(item.name)}" aria-label="Открыть профиль артиста ${escapeHTML(item.name)}">
+                    <span class="artist-podium-sheen" aria-hidden="true"></span>
                     <span class="artist-medal" aria-hidden="true">${medal}</span>
                     ${artistAvatarHTML(item.name)}
                     <span class="artist-name">${escapeHTML(item.name)}</span>
-                    <span class="artist-rank-label">${rank === 1 ? '1 место' : rank === 2 ? '2 место' : '3 место'}</span>
+                    <span class="artist-rank-label">${rank === 1 ? 'ЛИДЕР' : rank === 2 ? '2 МЕСТО' : '3 МЕСТО'}</span>
                     <span class="artist-play-count">${escapeHTML(formatListeningTime(item.seconds))}</span>
-                    <span class="artist-play-caption">прослушано</span>
+                    <span class="artist-play-caption">в эфире</span>
+                    <span class="artist-progress"><i style="width:${percent}%"></i></span>
                 </button>`;
             }).join('');
 
-            const otherHTML = stats.slice(3).map(item => `
+            const maxSeconds = Math.max(1, ...stats.map(item => item.seconds));
+            const otherHTML = stats.slice(3).map((item, index) => {
+                const percent = Math.max(0, Math.min(100, Math.round(item.seconds / maxSeconds * 100)));
+                return `
                 <button type="button" class="artist-row-card" data-artist="${escapeHTML(item.name)}" aria-label="Открыть профиль артиста ${escapeHTML(item.name)}">
+                    <span class="artist-row-place">${String(index + 4).padStart(2, '0')}</span>
                     ${artistAvatarHTML(item.name)}
                     <span class="artist-row-main">
                         <span class="artist-row-name">${escapeHTML(item.name)}</span>
                         <span class="artist-row-meta">${item.trackCount.toLocaleString('ru-RU')} ${item.trackCount === 1 ? 'трек' : item.trackCount < 5 ? 'трека' : 'треков'}</span>
+                        <span class="artist-row-progress"><i style="width:${percent}%"></i></span>
                     </span>
-                    <span class="artist-row-count">${escapeHTML(formatListeningTime(item.seconds))}<small>прослушано</small></span>
-                </button>`).join('');
+                    <span class="artist-row-count">${escapeHTML(formatListeningTime(item.seconds))}<small>в эфире</small></span>
+                </button>`;
+            }).join('');
 
+            const trackCount = tracks.length;
             list.innerHTML = `
-                <div class="artist-analytics-head">
-                    <span class="artist-eyebrow">MI MUSIC · LISTENING STATS</span>
-                    <div class="artist-heading">Твои артисты</div>
-                </div>
-                <div class="artist-total-line">
-                    <span class="artist-total-label">Общее время прослушивания</span>
-                    <span class="artist-total-value">${escapeHTML(formatListeningTime(totalTrackListeningSeconds()))}</span>
-                </div>
+                <section class="artist-dashboard">
+                    <div class="artist-dashboard-orbit orbit-a"></div><div class="artist-dashboard-orbit orbit-b"></div>
+                    <div class="artist-dashboard-top"><span>MI MUSIC <b>×</b> LISTENING CLUB</span><span class="artist-dashboard-live"><i></i> ТВОЯ СТАТИСТИКА</span></div>
+                    <h3>Твоя музыкальная<br><em>вселенная</em></h3>
+                    <p class="artist-dashboard-subtitle">Артисты, которые звучат чаще всего.</p>
+                    <div class="artist-metrics">
+                        <div><strong>${stats.length.toLocaleString('ru-RU')}</strong><span>артистов</span></div>
+                        <div><strong>${trackCount.toLocaleString('ru-RU')}</strong><span>треков</span></div>
+                        <div><strong>${escapeHTML(formatListeningTime(totalTrackListeningSeconds()))}</strong><span>время в эфире</span></div>
+                    </div>
+                </section>
+                <div class="artist-leaderboard-heading"><span><i>✦</i> Зал славы</span><small>Рейтинг по времени</small></div>
                 <div class="artist-podium" aria-label="Топ три артиста">${podiumHTML}</div>
-                ${otherHTML ? `<div class="artist-section-heading">Остальные артисты</div><div class="artist-rest-list">${otherHTML}</div>` : ''}
-                <div class="artist-stat-note">Учитывается фактическое время воспроизведения на этом устройстве. Совместный трек засчитывает его время каждому указанному артисту. Историю запусков до этого обновления нельзя достоверно преобразовать во время.</div>
+                ${otherHTML ? `<div class="artist-section-heading"><span>Все артисты</span><small>${stats.length - 3} в списке</small></div><div class="artist-rest-list">${otherHTML}</div>` : `<div class="artist-single-note">${stats.length === 1 ? 'Первый артист в твоём зале славы — слушай дальше, чтобы собрать полный рейтинг.' : 'Вот и весь топ — добавляй новые треки, чтобы расширить зал славы.'}</div>`}
+                <div class="artist-stat-note">Считается фактическое время воспроизведения на этом устройстве. Время совместного трека учитывается для каждого его артиста.</div>
             `;
             list.querySelectorAll('[data-artist]').forEach(button => {
                 button.addEventListener('click', () => openArtistProfile(button.dataset.artist));
