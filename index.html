@@ -567,6 +567,356 @@
         .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px;}
 
         .empty-state { text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 14px; }
+
+
+        /* MiMusic visual refresh: animated intro, richer MiВолна and cleaner surfaces */
+        :root {
+            --bg-color: #08090d;
+            --surface-color: #151720;
+            --surface-light: #222633;
+            --text-muted: #969bad;
+            --player-height: 66px;
+            --nav-height: 72px;
+        }
+        body {
+            background:
+                radial-gradient(ellipse at 50% -20%, rgba(var(--accent-rgb), .13), transparent 46%),
+                linear-gradient(180deg, #0b0c12 0%, var(--bg-color) 60%);
+        }
+        .tab-content { padding-top: calc(env(safe-area-inset-top) + 70px); }
+        h2 { letter-spacing: -.7px; }
+        .section-title { letter-spacing: -.25px; }
+        .glass-banner {
+            background: rgba(22, 24, 34, .64);
+            border-color: rgba(255,255,255,.12);
+            box-shadow: 0 8px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06);
+        }
+        .theme-settings-btn {
+            background: rgba(22,24,34,.76);
+            border: 1px solid rgba(255,255,255,.12);
+            backdrop-filter: blur(16px);
+        }
+        #intro-screen {
+            overflow: hidden;
+            isolation: isolate;
+            background:
+                radial-gradient(ellipse at 50% 45%, rgba(var(--accent-rgb),.11), transparent 36%),
+                radial-gradient(ellipse at 15% 15%, rgba(108,84,255,.13), transparent 40%),
+                radial-gradient(ellipse at 85% 85%, rgba(0,202,255,.10), transparent 35%),
+                #08090d;
+        }
+        #intro-screen::before, #intro-screen::after {
+            content: "";
+            position: absolute;
+            width: min(78vw, 440px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid rgba(var(--accent-rgb), .14);
+            box-shadow: 0 0 70px rgba(var(--accent-rgb), .06), inset 0 0 55px rgba(122,96,255,.035);
+            pointer-events: none;
+            z-index: -1;
+        }
+        #intro-screen::before { animation: intro-orbit 18s linear infinite; }
+        #intro-screen::after {
+            width: min(58vw, 330px);
+            border-style: dashed;
+            border-color: rgba(255,255,255,.08);
+            animation: intro-orbit 28s linear infinite reverse;
+        }
+        .intro-logo {
+            position: relative;
+            z-index: 1;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 82px;
+            width: 152px;
+            margin-bottom: 22px;
+            padding: 0 23px;
+            border: 1px solid rgba(255,255,255,.11);
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.025));
+            box-shadow: 0 18px 55px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08), 0 0 60px rgba(var(--accent-rgb),.08);
+            backdrop-filter: blur(18px);
+            animation: intro-card-float 4s ease-in-out infinite;
+        }
+        .intro-logo .bar {
+            width: 8px;
+            flex: 0 0 8px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #fff 0%, var(--accent-color) 44%, #7c5cff 100%);
+            box-shadow: 0 0 20px rgba(var(--accent-rgb), .4);
+            transform-origin: center;
+            animation: eq-bounce 1s ease-in-out infinite alternate;
+        }
+        .intro-logo .bar:nth-child(1) { height: 22px; animation-delay: -.75s; }
+        .intro-logo .bar:nth-child(2) { height: 41px; animation-delay: -.35s; }
+        .intro-logo .bar:nth-child(3) { height: 29px; animation-delay: -.6s; }
+        .intro-logo .bar:nth-child(4) { height: 52px; animation-delay: -.15s; }
+        .intro-logo .bar:nth-child(5) { height: 34px; animation-delay: -.5s; }
+        .intro-logo .bar:nth-child(6) { height: 45px; animation-delay: -.25s; }
+        .intro-logo .bar:nth-child(7) { height: 20px; animation-delay: -.85s; }
+        .intro-title {
+            position: relative;
+            z-index: 1;
+            font-size: clamp(48px, 11vw, 62px);
+            font-weight: 850;
+            letter-spacing: -2.6px;
+            text-shadow: 0 8px 36px rgba(0,0,0,.38);
+        }
+        .intro-mi {
+            background: linear-gradient(135deg, var(--accent-color), #fff 75%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .intro-subtitle {
+            position: relative;
+            z-index: 1;
+            margin-top: 2px;
+            font-size: 11px;
+            letter-spacing: 5px;
+            color: rgba(233,235,246,.62);
+        }
+        @keyframes eq-bounce {
+            from { transform: scaleY(.45); opacity: .68; }
+            to { transform: scaleY(1.12); opacity: 1; }
+        }
+        @keyframes intro-orbit { to { transform: rotate(360deg); } }
+        @keyframes intro-card-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        .vibe-container {
+            height: clamp(245px, 31vh, 340px);
+            margin: -2px -8px 28px;
+            isolation: isolate;
+        }
+        .vibe-glow {
+            width: clamp(220px, 65vw, 290px);
+            height: clamp(220px, 65vw, 290px);
+            background: conic-gradient(from 20deg, #ff4d8d, #ffae45, #f4ed65, #4ce5bb, #3ab7ff, #8265ff, #ff4dcb, #ff4d8d);
+            opacity: .48;
+            filter: blur(44px) saturate(1.05);
+            animation: vibe-glow-pulse 4s ease-in-out infinite alternate, vibe-hue-spin 22s linear infinite;
+        }
+        .vibe-ring {
+            width: clamp(188px, 56vw, 238px);
+            height: clamp(188px, 56vw, 238px);
+            border: 0;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ff4d8d, #ffbb55, #f9f871, #53f4b4, #4ecbff, #8a65ff, #ec5dff, #ff4d8d);
+            -webkit-mask: radial-gradient(circle, transparent 61%, #000 63%, #000 65%, transparent 67%);
+            mask: radial-gradient(circle, transparent 61%, #000 63%, #000 65%, transparent 67%);
+            box-shadow: none;
+            filter: drop-shadow(0 0 12px rgba(108,110,255,.28));
+            animation: vibe-orbit 16s linear infinite;
+        }
+        .vibe-btn {
+            padding: 22px 24px;
+            border-radius: 28px;
+            text-shadow: 0 2px 22px rgba(0,0,0,.5);
+            transition: transform .28s cubic-bezier(.2,.8,.2,1), filter .28s;
+        }
+        .vibe-btn:active { transform: scale(.96); filter: brightness(1.15); }
+        .vibe-btn-top { font-size: clamp(29px, 7vw, 36px); letter-spacing: -1.2px; }
+        .vibe-btn-top > span svg { filter: drop-shadow(0 0 10px rgba(255,255,255,.4)); }
+        .vibe-sub { max-width: 260px; color: rgba(255,255,255,.76); }
+        .vibe-container.is-playing .vibe-glow { animation-duration: 1.65s, 11s; opacity: .72; }
+        .vibe-container.is-playing .vibe-ring { animation-duration: 5s; }
+        @keyframes vibe-orbit { from { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.045); } to { transform: rotate(360deg) scale(1); } }
+        @keyframes vibe-hue-spin { to { transform: rotate(360deg); } }
+        @keyframes vibe-glow-pulse { from { opacity:.38; filter:blur(43px) saturate(.9); } to { opacity:.68; filter:blur(35px) saturate(1.35); } }
+
+        .card {
+            background: linear-gradient(145deg, rgba(32,35,48,.9), rgba(19,21,29,.95));
+            border: 1px solid rgba(255,255,255,.055);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 25px rgba(0,0,0,.1);
+        }
+        .card-icon { border: 1px solid rgba(255,255,255,.055); }
+        .recent-cover, .track-cover, .pv-cover, #fp-cover {
+            box-shadow: 0 8px 24px rgba(0,0,0,.24);
+        }
+        .lib-tabs { gap: 8px; padding: 2px 1px 8px; }
+        .lib-tab {
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,255,255,.045);
+            padding: 10px 15px;
+        }
+        .lib-tab.active {
+            color: #090a0e;
+            background: var(--accent-color);
+            border-color: transparent;
+            box-shadow: 0 5px 18px rgba(var(--accent-rgb),.18);
+        }
+        .track-item { border: 1px solid transparent; }
+        .track-item.playing-active {
+            background: linear-gradient(90deg, rgba(var(--accent-rgb),.13), rgba(var(--accent-rgb),.035));
+            border-color: rgba(var(--accent-rgb),.12);
+        }
+        .track-item.playing-active .track-title { color: var(--accent-color); }
+        .input-glass, .form-group input, .form-group select {
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,255,255,.07);
+        }
+        .btn-primary { background: var(--accent-color); color: #08090d; box-shadow: 0 8px 24px rgba(var(--accent-rgb),.13); }
+        .btn-primary.btn-danger { background: #ff4f68; color: #fff; }
+        .btn-glow { background: linear-gradient(110deg, var(--accent-color), color-mix(in srgb, var(--accent-color), white 18%)); }
+        #mini-player {
+            background: rgba(24,26,35,.91);
+            border-color: rgba(255,255,255,.105);
+            box-shadow: 0 12px 36px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.04);
+        }
+        #bottom-nav {
+            background: rgba(23,25,34,.83);
+            border-color: rgba(255,255,255,.13);
+            box-shadow: 0 16px 42px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.045);
+        }
+        .nav-indicator { background: rgba(var(--accent-rgb),.20); box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb),.12); }
+        .nav-item.active { color: var(--accent-color); }
+        .pv-play-btn { color: #090a0e; box-shadow: 0 5px 22px rgba(var(--accent-rgb),.26); }
+        .pv-play-btn svg { fill: #090a0e; }
+        .modal-content {
+            background: linear-gradient(155deg, #1a1d28, #11131a);
+            border: 1px solid rgba(255,255,255,.09);
+            box-shadow: 0 25px 80px rgba(0,0,0,.48);
+        }
+        .theme-colors-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 15px; }
+        .color-dot {
+            position: relative;
+            appearance: none;
+            padding: 0;
+            outline: none;
+            box-shadow: 0 5px 16px rgba(0,0,0,.24), inset 0 1px 1px rgba(255,255,255,.3);
+        }
+        .color-dot:hover { transform: translateY(-2px) scale(1.04); }
+        .color-dot.selected { border: 3px solid #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.12), 0 0 20px rgba(255,255,255,.12); }
+        .color-dot.selected::after {
+            content: "✓";
+            position: absolute; inset: 0;
+            display: grid; place-items: center;
+            color: #101116; font-size: 19px; font-weight: 900;
+            text-shadow: 0 1px 2px rgba(255,255,255,.2);
+        }
+        .field-hint { color: var(--text-muted); font-size: 11px; font-weight: 500; }
+
+        /* Artist leaderboard and local listening statistics */
+        .artist-analytics-head { display:flex; flex-direction:column; gap:5px; margin: 2px 2px 4px; }
+        .artist-eyebrow { color:var(--accent-color); font-size:10px; letter-spacing:1.8px; font-weight:800; text-transform:uppercase; }
+        .artist-heading { font-size:23px; font-weight:800; letter-spacing:-.6px; }
+        .artist-total-line {
+            display:flex; align-items:center; justify-content:space-between; gap:12px;
+            padding:14px 16px; margin-bottom:6px; border-radius:16px;
+            background:linear-gradient(110deg, rgba(var(--accent-rgb),.12), rgba(255,255,255,.025));
+            border:1px solid rgba(var(--accent-rgb),.12);
+        }
+        .artist-total-label { color:var(--text-muted); font-size:12px; font-weight:600; }
+        .artist-total-value { color:var(--text-main); font-size:20px; font-weight:850; font-variant-numeric:tabular-nums; }
+        .artist-podium { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; align-items:end; margin:5px 0 14px; }
+        .artist-podium-card {
+            appearance:none; min-width:0; width:100%; display:flex; align-items:center; flex-direction:column;
+            border-radius:20px; padding:13px 5px 15px; color:var(--text-main); cursor:pointer; text-align:center;
+            background:linear-gradient(155deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+            border:1px solid rgba(255,255,255,.075); box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+            transition:transform .22s, border-color .22s, filter .22s;
+        }
+        .artist-podium-card:active, .artist-row-card:active { transform:scale(.97); }
+        .artist-podium-card.rank-1 { min-height:205px; padding-top:16px; border-color:rgba(255,213,74,.34); background:linear-gradient(170deg, rgba(255,205,63,.15), rgba(255,255,255,.025) 72%); }
+        .artist-podium-card.rank-2 { min-height:178px; border-color:rgba(205,216,235,.22); background:linear-gradient(170deg, rgba(187,204,231,.10), rgba(255,255,255,.025) 75%); }
+        .artist-podium-card.rank-3 { min-height:160px; border-color:rgba(209,132,91,.24); background:linear-gradient(170deg, rgba(195,119,76,.11), rgba(255,255,255,.025) 76%); }
+        .artist-medal { font-size:29px; line-height:1; margin:0 0 10px; filter:drop-shadow(0 4px 5px rgba(0,0,0,.25)); }
+        .artist-avatar {
+            display:grid; place-items:center; flex-shrink:0; width:54px; height:54px; border-radius:50%;
+            margin-bottom:10px; color:#fff; font-size:16px; font-weight:850; letter-spacing:-.5px;
+            background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), transparent 48%), linear-gradient(140deg, rgba(var(--accent-rgb),.85), #6858d8);
+            border:1px solid rgba(255,255,255,.18); box-shadow:0 6px 18px rgba(0,0,0,.2);
+        }
+        .artist-podium-card.rank-1 .artist-avatar { width:62px; height:62px; font-size:18px; }
+        .artist-name { width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; font-weight:800; }
+        .artist-rank-label { color:var(--text-muted); font-size:10px; margin-top:4px; }
+        .artist-play-count { font-size:14px; font-weight:850; margin-top:9px; font-variant-numeric:tabular-nums; }
+        .artist-play-caption { color:var(--text-muted); font-size:9px; margin-top:2px; }
+        .artist-section-heading { margin:5px 2px 1px; font-size:15px; font-weight:800; }
+        .artist-rest-list { display:flex; flex-direction:column; gap:7px; }
+        .artist-row-card {
+            appearance:none; display:flex; width:100%; min-width:0; align-items:center; gap:12px; padding:11px 12px;
+            border-radius:16px; border:1px solid rgba(255,255,255,.055); background:rgba(255,255,255,.028);
+            color:var(--text-main); cursor:pointer; text-align:left; transition:transform .2s,background .2s;
+        }
+        .artist-row-card .artist-avatar { width:45px; height:45px; margin:0; font-size:14px; }
+        .artist-row-main { flex:1; min-width:0; }
+        .artist-row-name { display:block; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:14px; font-weight:750; }
+        .artist-row-meta { display:block; margin-top:4px; color:var(--text-muted); font-size:11px; }
+        .artist-row-count { flex-shrink:0; text-align:right; font-size:13px; font-weight:850; font-variant-numeric:tabular-nums; }
+        .artist-row-count small { display:block; margin-top:3px; font-size:10px; color:var(--text-muted); font-weight:500; }
+        .artist-stat-note { color:var(--text-muted); font-size:11px; line-height:1.45; padding:5px 3px 0; }
+        @media (max-width: 360px) {
+            .artist-podium { gap:6px; }
+            .artist-podium-card { padding-left:3px; padding-right:3px; }
+            .artist-avatar { width:46px; height:46px; }
+            .artist-podium-card.rank-1 .artist-avatar { width:52px; height:52px; }
+            .artist-name { font-size:11px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+        }
+
+
+        /* MiВолна: динамическое облако, палитра которого извлекается из обложки трека */
+        .vibe-container { position:relative; overflow:visible; }
+        .vibe-glow, .vibe-ring { display:none !important; }
+        .vibe-cloud-canvas {
+            position:absolute; z-index:0; pointer-events:none; left:50%; top:50%;
+            transform:translate(-50%,-53%); width:min(94vw,390px); height:clamp(220px,30vh,300px);
+            overflow:visible; opacity:.96; contain:layout paint;
+        }
+        .vibe-container.is-playing .vibe-cloud-canvas { opacity:1; }
+        .vibe-btn { z-index:2; }
+        .vibe-btn-top { text-shadow:0 3px 16px rgba(0,0,0,.72); }
+        .vibe-sub { text-shadow:0 2px 12px rgba(0,0,0,.78); }
+
+        /* Страница артиста */
+        #artist-profile-view {
+            position:fixed; inset:0; z-index:1600; background:var(--bg-color);
+            transform:translateX(100%); transition:transform .34s cubic-bezier(.2,.8,.2,1);
+            display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden;
+            padding:0 16px calc(var(--player-height) + var(--nav-height) + 45px);
+        }
+        #artist-profile-view.active { transform:translateX(0); }
+        .artist-profile-header {
+            flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:10px;
+            padding:calc(env(safe-area-inset-top) + 12px) 0 12px;
+        }
+        .artist-profile-back, .artist-profile-change {
+            display:inline-flex; align-items:center; justify-content:center; gap:5px;
+            border:1px solid rgba(255,255,255,.085); background:rgba(255,255,255,.055); color:var(--text-main);
+            cursor:pointer; border-radius:999px; min-height:38px; padding:0 12px;
+        }
+        .artist-profile-back { width:40px; padding:0; }
+        .artist-profile-back svg { width:24px; height:24px; fill:currentColor; }
+        .artist-profile-header-label { color:var(--text-muted); font-size:10px; font-weight:800; letter-spacing:1.6px; text-align:center; }
+        .artist-profile-change { font-size:11px; font-weight:700; white-space:nowrap; }
+        .artist-profile-hero { display:flex; flex-direction:column; align-items:center; text-align:center; padding:22px 8px 25px; }
+        .artist-profile-avatar-button {
+            position:relative; width:132px; height:132px; border:1px solid rgba(255,255,255,.13); border-radius:50%;
+            display:grid; place-items:center; overflow:hidden; color:#fff; cursor:pointer; margin:0 0 20px;
+            font-size:42px; font-weight:850; background:linear-gradient(145deg,rgba(var(--accent-rgb),.38),rgba(255,255,255,.055) 48%,rgba(75,86,130,.35));
+            box-shadow:0 12px 34px rgba(0,0,0,.28), inset 0 1px 1px rgba(255,255,255,.12);
+        }
+        .artist-profile-avatar-button > img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+        .artist-avatar-edit-badge { position:absolute; right:9px; bottom:9px; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; background:var(--accent-color); color:#08090d; border:3px solid var(--bg-color); font-size:16px; font-weight:900; }
+        #artist-profile-name { max-width:100%; font-size:clamp(27px,7vw,36px); letter-spacing:-1px; line-height:1.1; overflow-wrap:anywhere; }
+        .artist-profile-meta { display:flex; justify-content:center; flex-wrap:wrap; align-items:center; gap:9px; color:var(--text-muted); font-size:12px; margin-top:11px; font-weight:650; }
+        .artist-profile-meta-dot { opacity:.5; }
+        .artist-profile-hero p { color:var(--text-muted); font-size:12px; line-height:1.5; margin-top:13px; }
+        .artist-profile-section-title { font-size:18px; font-weight:800; margin:0 2px 12px; }
+        .artist-profile-track-list { gap:9px; }
+        .artist-profile-track-list .track-item { background:rgba(255,255,255,.018); border-radius:15px; padding:8px; }
+        .artist-profile-track-list .track-author { font-size:11px; }
+        .artist-avatar img { width:100%; height:100%; object-fit:cover; border-radius:inherit; display:block; }
+        .artist-play-count { font-size:12px; }
+        .artist-play-caption { font-size:9px; }
+        .artist-row-count { max-width:112px; white-space:nowrap; }
+        @media (prefers-reduced-motion: reduce) { .vibe-cloud-canvas { opacity:.8; } }
+
     </style>
 </head>
 <body>
@@ -577,8 +927,11 @@
             <div class="bar"></div>
             <div class="bar"></div>
             <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
         </div>
-        <h1 class="intro-title">MiMusic</h1>
+        <h1 class="intro-title"><span class="intro-mi">Mi</span>Music</h1>
         <p class="intro-subtitle">prod.mifilll</p>
     </div>
 
@@ -595,8 +948,7 @@
     <div id="main-container">
         <div id="tab-home" class="tab-content active">
             <div class="vibe-container">
-                <div class="vibe-glow"></div>
-                <div class="vibe-ring"></div>
+                <canvas id="vibe-cloud-canvas" class="vibe-cloud-canvas" aria-hidden="true"></canvas>
                 <div class="vibe-btn" onclick="playVibe()">
                     <div class="vibe-btn-top">
                         <span id="vibe-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
@@ -631,9 +983,10 @@
         <div id="tab-library" class="tab-content">
             <h2>Библиотека</h2>
             <div class="lib-tabs">
-                <button class="lib-tab active" onclick="setFilter('all', this)">Все треки</button>
+                <button class="lib-tab active" id="lib-tab-all" onclick="setFilter('all', this)">Все треки</button>
                 <button class="lib-tab" id="lib-tab-favorites" onclick="setFilter('favorites', this)">Избранное</button>
                 <button class="lib-tab" id="lib-tab-playlists" onclick="setFilter('playlists', this)">Плейлисты</button>
+                <button class="lib-tab" id="lib-tab-artists" onclick="setFilter('artists', this)">Артисты</button>
             </div>
             
             <div id="playlist-creator" style="display: none; margin-bottom: 20px;">
@@ -671,13 +1024,40 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label style="margin-left: 4px;">Автор</label>
-                    <input type="text" id="track-author-input" class="input-glass" placeholder="Имя артиста">
+                    <label style="margin-left: 4px;">Артисты <span class="field-hint">· несколько через запятую</span></label>
+                    <input type="text" id="track-author-input" class="input-glass" placeholder="Например: MiFilll, Artist 2" autocomplete="off">
                 </div>
 
                 <button class="btn-primary btn-glow" onclick="addTrack()" style="margin-top: 10px;">Загрузить трек</button>
             </div>
         </div>
+    </div>
+
+    <div id="artist-profile-view" aria-label="Профиль артиста">
+        <div class="artist-profile-header">
+            <button type="button" class="artist-profile-back" onclick="closeArtistProfile()" aria-label="Назад">
+                <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+            </button>
+            <span class="artist-profile-header-label">ПРОФИЛЬ АРТИСТА</span>
+            <button type="button" class="artist-profile-change" onclick="changeArtistAvatar()">Изменить фото</button>
+        </div>
+        <div class="artist-profile-hero">
+            <button type="button" class="artist-profile-avatar-button" onclick="changeArtistAvatar()" aria-label="Изменить аватар артиста">
+                <img id="artist-profile-avatar" alt="Аватар артиста" style="display:none">
+                <span id="artist-profile-initials">♪</span>
+                <span class="artist-avatar-edit-badge">✎</span>
+            </button>
+            <input type="file" id="artist-avatar-file" accept="image/*" hidden>
+            <h1 id="artist-profile-name">Артист</h1>
+            <div class="artist-profile-meta">
+                <span id="artist-profile-track-count">0 треков</span>
+                <span class="artist-profile-meta-dot">•</span>
+                <span id="artist-profile-listening-time">0 сек прослушано</span>
+            </div>
+            <p>Треки этого артиста в твоей библиотеке</p>
+        </div>
+        <div class="artist-profile-section-title">Треки артиста</div>
+        <div id="artist-profile-track-list" class="track-list artist-profile-track-list"></div>
     </div>
 
     <div id="playlist-view">
@@ -714,19 +1094,23 @@
     <div id="theme-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title">Выберите цвет</div>
-            <div class="theme-colors-grid">
-                <div class="color-dot" style="background: #ffcc00;" onclick="applyPredefinedTheme('#ffcc00')"></div>
-                <div class="color-dot" style="background: #ff3b30;" onclick="applyPredefinedTheme('#ff3b30')"></div>
-                <div class="color-dot" style="background: #ff9500;" onclick="applyPredefinedTheme('#ff9500')"></div>
-                <div class="color-dot" style="background: #4cd964;" onclick="applyPredefinedTheme('#4cd964')"></div>
-                <div class="color-dot" style="background: #5ac8fa;" onclick="applyPredefinedTheme('#5ac8fa')"></div>
-                <div class="color-dot" style="background: #007aff;" onclick="applyPredefinedTheme('#007aff')"></div>
-                <div class="color-dot" style="background: #5856d6;" onclick="applyPredefinedTheme('#5856d6')"></div>
-                <div class="color-dot" style="background: #ff2d55;" onclick="applyPredefinedTheme('#ff2d55')"></div>
-                <div class="color-dot" style="background: #ffffff;" onclick="applyPredefinedTheme('#ffffff')"></div>
-                <div class="color-dot" style="background: #12c2e9;" onclick="applyPredefinedTheme('#12c2e9')"></div>
-                <div class="color-dot" style="background: #b620e0;" onclick="applyPredefinedTheme('#b620e0')"></div>
-                <div class="color-dot" style="background: #f7b733;" onclick="applyPredefinedTheme('#f7b733')"></div>
+            <div class="theme-colors-grid" aria-label="Палитра цветов">
+                <button type="button" class="color-dot" data-hex="#ffcc00" title="Золотой" aria-label="Золотой" style="background:#ffcc00" onclick="applyPredefinedTheme('#ffcc00')"></button>
+                <button type="button" class="color-dot" data-hex="#ff6b6b" title="Коралловый" aria-label="Коралловый" style="background:#ff6b6b" onclick="applyPredefinedTheme('#ff6b6b')"></button>
+                <button type="button" class="color-dot" data-hex="#ff8a3d" title="Янтарный" aria-label="Янтарный" style="background:#ff8a3d" onclick="applyPredefinedTheme('#ff8a3d')"></button>
+                <button type="button" class="color-dot" data-hex="#f4a7bb" title="Розовый кварц" aria-label="Розовый кварц" style="background:#f4a7bb" onclick="applyPredefinedTheme('#f4a7bb')"></button>
+                <button type="button" class="color-dot" data-hex="#ff2d55" title="Малиновый" aria-label="Малиновый" style="background:#ff2d55" onclick="applyPredefinedTheme('#ff2d55')"></button>
+                <button type="button" class="color-dot" data-hex="#d946ef" title="Фуксия" aria-label="Фуксия" style="background:#d946ef" onclick="applyPredefinedTheme('#d946ef')"></button>
+                <button type="button" class="color-dot" data-hex="#a78bfa" title="Лавандовый" aria-label="Лавандовый" style="background:#a78bfa" onclick="applyPredefinedTheme('#a78bfa')"></button>
+                <button type="button" class="color-dot" data-hex="#7c5cff" title="Электрический фиолетовый" aria-label="Электрический фиолетовый" style="background:#7c5cff" onclick="applyPredefinedTheme('#7c5cff')"></button>
+                <button type="button" class="color-dot" data-hex="#5856d6" title="Индиго" aria-label="Индиго" style="background:#5856d6" onclick="applyPredefinedTheme('#5856d6')"></button>
+                <button type="button" class="color-dot" data-hex="#3478f6" title="Синий" aria-label="Синий" style="background:#3478f6" onclick="applyPredefinedTheme('#3478f6')"></button>
+                <button type="button" class="color-dot" data-hex="#5ac8fa" title="Небесный" aria-label="Небесный" style="background:#5ac8fa" onclick="applyPredefinedTheme('#5ac8fa')"></button>
+                <button type="button" class="color-dot" data-hex="#12c2e9" title="Ледяной голубой" aria-label="Ледяной голубой" style="background:#12c2e9" onclick="applyPredefinedTheme('#12c2e9')"></button>
+                <button type="button" class="color-dot" data-hex="#2dd4bf" title="Бирюзовый" aria-label="Бирюзовый" style="background:#2dd4bf" onclick="applyPredefinedTheme('#2dd4bf')"></button>
+                <button type="button" class="color-dot" data-hex="#34d399" title="Мятный" aria-label="Мятный" style="background:#34d399" onclick="applyPredefinedTheme('#34d399')"></button>
+                <button type="button" class="color-dot" data-hex="#75d66b" title="Зелёный" aria-label="Зелёный" style="background:#75d66b" onclick="applyPredefinedTheme('#75d66b')"></button>
+                <button type="button" class="color-dot" data-hex="#ffffff" title="Белый" aria-label="Белый" style="background:#ffffff" onclick="applyPredefinedTheme('#ffffff')"></button>
             </div>
             <button class="btn-primary" style="background:var(--surface-light); color:#fff; margin-top:20px;" onclick="closeModals()">Отмена</button>
         </div>
@@ -767,8 +1151,8 @@
                 <input type="text" id="edit-tr-title">
             </div>
             <div class="form-group">
-                <label>Автор</label>
-                <input type="text" id="edit-tr-author">
+                <label>Артисты <span class="field-hint">· несколько через запятую</span></label>
+                <input type="text" id="edit-tr-author" placeholder="Имя артиста или несколько через запятую" autocomplete="off">
             </div>
             <div class="modal-actions">
                 <button class="btn-primary" onclick="saveTrackEdit()">Сохранить</button>
@@ -895,6 +1279,20 @@
 
         let isSaving = false;
         let saveQueued = false;
+        let currentEditOriginalArtistsValue = '';
+        let playAttemptToken = 0;
+        let artistProfiles = {};
+        let activeArtistName = '';
+        let listeningTrackId = null;
+        let lastListenMediaTime = 0;
+        let listenSaveAccum = 0;
+        let lastArtistUiRefresh = 0;
+        let cloudCanvas = null;
+        let cloudContext = null;
+        let cloudPalette = ['#d4a6ff', '#77c7ff', '#f4a4c4', '#88e0cd', '#f5d78c'];
+        let cloudPaletteToken = 0;
+        let cloudAnimationFrame = 0;
+        let cloudLastFrame = 0;
 
         const iconPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
         const iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
@@ -913,6 +1311,217 @@
             }
         }, {passive: true});
 
+        function parseArtists(value) {
+            const seen = new Set();
+            return String(value || '').split(/[,;\n]+/).map(name => name.trim()).filter(name => {
+                if (!name) return false;
+                const key = name.toLocaleLowerCase('ru-RU');
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function getTrackArtists(track) {
+            if (!track) return [];
+            const raw = Array.isArray(track.artists) && track.artists.length
+                ? track.artists
+                : (track.author ? [String(track.author)] : []);
+            const seen = new Set();
+            return raw.map(name => String(name || '').trim()).filter(name => {
+                if (!name) return false;
+                const key = name.toLocaleLowerCase('ru-RU');
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function artistLine(track) {
+            return getTrackArtists(track).join(', ') || 'Неизвестный артист';
+        }
+
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[char]));
+        }
+
+        function artistInitials(name) {
+            const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+            return parts.slice(0, 2).map(part => Array.from(part)[0] || '').join('').toLocaleUpperCase('ru-RU') || '♪';
+        }
+
+        function artistKey(name) {
+            return String(name || '').trim().toLocaleLowerCase('ru-RU');
+        }
+
+        function formatListeningTime(seconds, compact = false) {
+            const value = Math.max(0, Math.floor(Number(seconds) || 0));
+            const hours = Math.floor(value / 3600);
+            const minutes = Math.floor((value % 3600) / 60);
+            const secs = value % 60;
+            if (hours) return compact ? `${hours} ч ${minutes} мин` : `${hours} ч ${minutes} мин`;
+            if (minutes) return `${minutes} мин`;
+            return `${secs} сек`;
+        }
+
+        function getArtistProfile(name) {
+            return artistProfiles[artistKey(name)] || null;
+        }
+
+        function artistAvatarHTML(name, additionalClass = '') {
+            const profile = getArtistProfile(name);
+            const image = profile && profile.avatarUrl
+                ? `<img src="${escapeHTML(profile.avatarUrl)}" alt="" loading="lazy">`
+                : escapeHTML(artistInitials(name));
+            return `<span class="artist-avatar ${additionalClass}" aria-hidden="true">${image}</span>`;
+        }
+
+        function getArtistStatistics() {
+            const byArtist = new Map();
+            tracks.forEach(track => {
+                const seconds = Math.max(0, Number(track.listenSeconds) || 0);
+                getTrackArtists(track).forEach(name => {
+                    const key = artistKey(name);
+                    if (!byArtist.has(key)) byArtist.set(key, { name, seconds: 0, trackCount: 0 });
+                    const item = byArtist.get(key);
+                    item.seconds += seconds;
+                    item.trackCount += 1;
+                });
+            });
+            return Array.from(byArtist.values()).sort((a, b) => b.seconds - a.seconds || a.name.localeCompare(b.name, 'ru'));
+        }
+
+        function totalTrackListeningSeconds() {
+            return tracks.reduce((sum, track) => sum + Math.max(0, Number(track.listenSeconds) || 0), 0);
+        }
+
+        function openArtistProfile(name) {
+            const normalizedName = String(name || '').trim();
+            if (!normalizedName) return;
+            activeArtistName = normalizedName;
+            document.getElementById('artist-profile-name').textContent = normalizedName;
+            renderArtistProfile();
+            document.getElementById('artist-profile-view').classList.add('active');
+        }
+
+        function closeArtistProfile() {
+            document.getElementById('artist-profile-view').classList.remove('active');
+        }
+
+        function changeArtistAvatar() {
+            if (!activeArtistName) return;
+            const input = document.getElementById('artist-avatar-file');
+            input.value = '';
+            input.click();
+        }
+
+        async function saveArtistProfiles() {
+            const stored = {};
+            Object.entries(artistProfiles).forEach(([key, profile]) => {
+                stored[key] = { name: profile.name || key, avatarBlob: profile.avatarBlob || null };
+            });
+            try {
+                await localforage.setItem('mi_artist_profiles', stored);
+            } catch (error) {
+                console.error('Не удалось сохранить профили артистов:', error);
+                alert('Не удалось сохранить аватар. Проверьте свободное место в хранилище браузера.');
+            }
+        }
+
+        async function renderArtistProfile() {
+            if (!activeArtistName) return;
+            const artistTracks = tracks.filter(track => getTrackArtists(track).some(name => artistKey(name) === artistKey(activeArtistName)));
+            const profile = getArtistProfile(activeArtistName);
+            const imageEl = document.getElementById('artist-profile-avatar');
+            const initialsEl = document.getElementById('artist-profile-initials');
+            if (profile && profile.avatarUrl) {
+                imageEl.src = profile.avatarUrl;
+                imageEl.style.display = 'block';
+                initialsEl.style.display = 'none';
+            } else {
+                imageEl.removeAttribute('src');
+                imageEl.style.display = 'none';
+                initialsEl.style.display = 'block';
+                initialsEl.textContent = artistInitials(activeArtistName);
+            }
+            document.getElementById('artist-profile-track-count').textContent = `${artistTracks.length} ${artistTracks.length === 1 ? 'трек' : artistTracks.length < 5 ? 'трека' : 'треков'}`;
+            const artistSeconds = artistTracks.reduce((sum, track) => sum + Math.max(0, Number(track.listenSeconds) || 0), 0);
+            document.getElementById('artist-profile-listening-time').textContent = `${formatListeningTime(artistSeconds)} прослушано`;
+
+            const list = document.getElementById('artist-profile-track-list');
+            if (!artistTracks.length) {
+                list.innerHTML = '<div class="empty-state">У этого артиста пока нет треков в библиотеке.</div>';
+                return;
+            }
+            list.innerHTML = '';
+            artistTracks.forEach(track => {
+                const item = document.createElement('div');
+                item.className = `track-item ${track.id === currentTrackId ? 'playing-active' : ''}`;
+                item.dataset.trackId = track.id;
+                item.innerHTML = `
+                    <img src="${escapeHTML(track.coverUrl || defaultCover)}" class="track-cover" alt="">
+                    <div class="track-info">
+                        <div class="track-title">${escapeHTML(track.title || 'Без названия')}</div>
+                        <div class="track-author">Прослушано: ${escapeHTML(formatListeningTime(track.listenSeconds || 0))}</div>
+                    </div>
+                    <div class="track-duration">${track.duration ? formatTime(track.duration) : '--:--'}</div>
+                    <button class="action-btn-small" type="button" aria-label="Настройки трека" data-edit-track="${track.id}"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
+                `;
+                item.addEventListener('click', event => {
+                    if (event.target.closest('[data-edit-track]')) return;
+                    playTrack(track.id, artistTracks.map(t => t.id), `"${activeArtistName}"`);
+                    openFullPlayer();
+                });
+                item.querySelector('[data-edit-track]').addEventListener('click', event => openEditTrackModal(event, track.id));
+                list.appendChild(item);
+            });
+        }
+
+        function updateArtistLiveStats(force = false) {
+            const now = Date.now();
+            if (!force && now - lastArtistUiRefresh < 12000) return;
+            lastArtistUiRefresh = now;
+            const libraryTab = document.getElementById('tab-library');
+            if (currentFilter === 'artists' && libraryTab && libraryTab.classList.contains('active')) updateLibraryUI();
+            if (document.getElementById('artist-profile-view').classList.contains('active')) renderArtistProfile();
+        }
+
+        function recordListeningTime(force = false) {
+            const mediaTime = Number(currentAudio.currentTime) || 0;
+            const ownerId = listeningTrackId || currentTrackId;
+            const delta = mediaTime - lastListenMediaTime;
+            lastListenMediaTime = mediaTime;
+            const canCount = force || (!currentAudio.paused && !currentAudio.seeking);
+            if (!canCount || !ownerId || !(delta > 0) || delta > 15) return;
+            const track = tracks.find(item => item.id === ownerId);
+            if (!track) return;
+            track.listenSeconds = Math.max(0, Number(track.listenSeconds) || 0) + delta;
+            listenSaveAccum += delta;
+            updateArtistLiveStats(false);
+            if (listenSaveAccum >= 8 || force) {
+                listenSaveAccum = 0;
+                saveListeningStats();
+            }
+        }
+
+        function playArtistByName(name) {
+            openArtistProfile(name);
+        }
+
+        async function saveListeningStats() {
+            const stats = {};
+            tracks.forEach(track => {
+                stats[String(track.id)] = Math.max(0, Number(track.listenSeconds) || 0);
+            });
+            try {
+                await localforage.setItem('mi_listening_stats', stats);
+            } catch (error) {
+                console.error('Ошибка при сохранении времени прослушивания:', error);
+            }
+        }
+
         async function saveData() {
             if (isSaving) {
                 saveQueued = true;
@@ -921,13 +1530,23 @@
             isSaving = true;
             try {
                 await localforage.setItem('mi_tracks', tracks.map(t => ({
-                    id: t.id, title: t.title, author: t.author, 
-                    audioBlob: t.audioBlob, coverBlob: t.coverBlob, isFavorite: t.isFavorite, duration: t.duration
+                    id: t.id, title: t.title, author: t.author,
+                    artists: getTrackArtists(t), playCount: Math.max(0, Number(t.playCount) || 0),
+                    listenSeconds: Math.max(0, Number(t.listenSeconds) || 0),
+                    audioBlob: t.audioBlob, coverBlob: t.coverBlob, isFavorite: !!t.isFavorite, duration: t.duration
                 })));
                 await localforage.setItem('mi_playlists', playlists.map(p => ({
                     id: p.id, name: p.name, author: p.author, 
                     coverBlob: p.coverBlob, tracks: p.tracks
                 })));
+                const listeningStats = {};
+                tracks.forEach(t => { listeningStats[String(t.id)] = Math.max(0, Number(t.listenSeconds) || 0); });
+                await localforage.setItem('mi_listening_stats', listeningStats);
+                const profileStore = {};
+                Object.entries(artistProfiles).forEach(([key, profile]) => {
+                    profileStore[key] = { name: profile.name || key, avatarBlob: profile.avatarBlob || null };
+                });
+                await localforage.setItem('mi_artist_profiles', profileStore);
             } catch (err) {
                 console.error("Ошибка при сохранении данных:", err);
             } finally {
@@ -948,13 +1567,36 @@
 
                 const storedTracks = await localforage.getItem('mi_tracks');
                 const storedPlaylists = await localforage.getItem('mi_playlists');
+                const storedArtistProfiles = await localforage.getItem('mi_artist_profiles');
+                const storedListeningStats = await localforage.getItem('mi_listening_stats');
+
+                if (storedArtistProfiles && typeof storedArtistProfiles === 'object') {
+                    Object.entries(storedArtistProfiles).forEach(([key, profile]) => {
+                        if (!profile) return;
+                        const avatarBlob = profile.avatarBlob || null;
+                        artistProfiles[key] = {
+                            name: profile.name || key,
+                            avatarBlob,
+                            avatarUrl: avatarBlob ? URL.createObjectURL(avatarBlob) : null
+                        };
+                    });
+                }
 
                 if (storedTracks) {
-                    tracks = storedTracks.map(t => ({
-                        ...t,
-                        audioUrl: t.audioBlob ? URL.createObjectURL(t.audioBlob) : null,
-                        coverUrl: t.coverBlob ? URL.createObjectURL(t.coverBlob) : defaultCover
-                    }));
+                    tracks = storedTracks.map(t => {
+                        const savedStat = Array.isArray(storedListeningStats)
+                            ? (storedListeningStats.find(item => String(item.id) === String(t.id)) || {}).seconds
+                            : (storedListeningStats && storedListeningStats[String(t.id)]);
+                        return {
+                            ...t,
+                            // Legacy tracks have no artists/playCount; preserve their existing credit as one artist.
+                            artists: Array.isArray(t.artists) && t.artists.length ? t.artists : (t.author ? [String(t.author)] : []),
+                            playCount: Math.max(0, Number(t.playCount) || 0),
+                            listenSeconds: Math.max(0, Number(t.listenSeconds) || 0, Number(savedStat) || 0),
+                            audioUrl: t.audioBlob ? URL.createObjectURL(t.audioBlob) : null,
+                            coverUrl: t.coverBlob ? URL.createObjectURL(t.coverBlob) : defaultCover
+                        };
+                    });
                 }
                 
                 if (storedPlaylists) {
@@ -975,6 +1617,9 @@
         async function setTheme(hex, rgb) {
             document.documentElement.style.setProperty('--accent-color', hex);
             document.documentElement.style.setProperty('--accent-rgb', rgb);
+            document.querySelectorAll('.color-dot[data-hex]').forEach(dot => {
+                dot.classList.toggle('selected', dot.dataset.hex.toLowerCase() === String(hex).toLowerCase());
+            });
             await localforage.setItem('mi_theme', { hex, rgb });
         }
 
@@ -1115,7 +1760,25 @@
         });
 
         window.addEventListener('load', () => {
-            initApp(); 
+            initVibeCloud();
+            initApp();
+
+            const artistAvatarInput = document.getElementById('artist-avatar-file');
+            artistAvatarInput.addEventListener('change', async event => {
+                const file = event.target.files && event.target.files[0];
+                if (!file || !activeArtistName) return;
+                const key = artistKey(activeArtistName);
+                const previous = artistProfiles[key];
+                if (previous && previous.avatarUrl) URL.revokeObjectURL(previous.avatarUrl);
+                artistProfiles[key] = {
+                    name: activeArtistName,
+                    avatarBlob: file,
+                    avatarUrl: URL.createObjectURL(file)
+                };
+                await saveArtistProfiles();
+                renderArtistProfile();
+                if (currentFilter === 'artists') updateLibraryUI();
+            });
 
             setTimeout(() => {
                 const intro = document.getElementById('intro-screen');
@@ -1149,6 +1812,7 @@
             });
 
             currentAudio.addEventListener('timeupdate', () => {
+                recordListeningTime(false);
                 if(currentAudio.duration && !isDraggingProgress) {
                     const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
                     progressEl.value = percent;
@@ -1161,9 +1825,28 @@
                 document.getElementById('fp-time-total').innerText = formatTime(currentAudio.duration);
             });
 
+            currentAudio.addEventListener('pause', () => {
+                recordListeningTime(true);
+                saveListeningStats();
+                updateArtistLiveStats(true);
+            });
+            currentAudio.addEventListener('seeking', () => {
+                // seeking fires after currentTime has jumped; reset baseline rather than counting the skipped interval
+                lastListenMediaTime = Number(currentAudio.currentTime) || 0;
+            });
+            currentAudio.addEventListener('seeked', () => {
+                lastListenMediaTime = Number(currentAudio.currentTime) || 0;
+            });
             currentAudio.addEventListener('ended', () => {
+                recordListeningTime(true);
+                saveListeningStats();
                 if(!isRepeat) playNext();
             });
+        });
+
+        window.addEventListener('pagehide', () => {
+            recordListeningTime(true);
+            saveListeningStats();
         });
 
         function formatTime(seconds) {
@@ -1171,6 +1854,168 @@
             const m = Math.floor(seconds / 60);
             const s = Math.floor(seconds % 60);
             return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function initVibeCloud() {
+            cloudCanvas = document.getElementById('vibe-cloud-canvas');
+            if (!cloudCanvas) return;
+            cloudContext = cloudCanvas.getContext('2d');
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#d4a6ff';
+            cloudPalette = [accent, tintHex(accent, 0.23), tintHex(accent, -0.15), '#74d8c8', '#f0adcb'];
+            const render = timestamp => {
+                if (!cloudCanvas || !cloudContext) return;
+                if (timestamp - cloudLastFrame < 28) { cloudAnimationFrame = requestAnimationFrame(render); return; }
+                cloudLastFrame = timestamp;
+                const rect = cloudCanvas.getBoundingClientRect();
+                if (!rect.width || !rect.height) { cloudAnimationFrame = requestAnimationFrame(render); return; }
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                const backingWidth = Math.max(1, Math.round(rect.width * dpr));
+                const backingHeight = Math.max(1, Math.round(rect.height * dpr));
+                if (cloudCanvas.width !== backingWidth || cloudCanvas.height !== backingHeight) {
+                    cloudCanvas.width = backingWidth;
+                    cloudCanvas.height = backingHeight;
+                }
+                const ctx = cloudContext;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, rect.width, rect.height);
+                const t = timestamp / 1000;
+                const playingNow = !!currentTrackId && !currentAudio.paused;
+                const motion = playingNow ? 1.42 : 0.34;
+                const cx = rect.width / 2;
+                const cy = rect.height * 0.52;
+                const scale = Math.min(rect.width / 340, 1.1);
+                const blobs = [
+                    { x:-76, y:7, rx:63, ry:48, p:.2, c:0 },
+                    { x:-37, y:-7, rx:66, ry:58, p:1.7, c:1 },
+                    { x:4, y:8, rx:73, ry:65, p:3.1, c:2 },
+                    { x:49, y:-2, rx:67, ry:57, p:4.4, c:3 },
+                    { x:82, y:12, rx:57, ry:43, p:5.1, c:4 },
+                    { x:-3, y:35, rx:82, ry:42, p:2.4, c:1 }
+                ];
+                ctx.globalCompositeOperation = 'source-over';
+                blobs.forEach((blob, index) => {
+                    const pulse = Math.sin(t * (playingNow ? 2.05 : .56) + blob.p) * 0.135 * motion;
+                    const driftX = Math.sin(t * (.82 + index * .045) + blob.p) * 15 * motion;
+                    const driftY = Math.cos(t * (.94 + index * .055) + blob.p * 1.4) * 15 * motion;
+                    const rx = blob.rx * scale * (1 + pulse);
+                    const ry = blob.ry * scale * (1 - pulse * .65);
+                    const x = cx + blob.x * scale + driftX;
+                    const y = cy + blob.y * scale + driftY;
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(Math.sin(t * .24 + blob.p) * .11 * motion);
+                    const points = 36;
+                    ctx.beginPath();
+                    for (let i = 0; i < points; i++) {
+                        const angle = (i / points) * Math.PI * 2;
+                        const wave = 1 + .15 * Math.sin(angle * 3 + t * 1.15 * motion + blob.p) + .075 * Math.cos(angle * 5 - t * .92 * motion + blob.p);
+                        const px = Math.cos(angle) * rx * wave;
+                        const py = Math.sin(angle) * ry * wave;
+                        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath();
+                    const color = cloudPalette[blob.c % cloudPalette.length] || '#b8c7ff';
+                    const grad = ctx.createRadialGradient(-rx * .13, -ry * .17, 2, 0, 0, Math.max(rx, ry) * 1.12);
+                    grad.addColorStop(0, colorWithAlpha(color, playingNow ? .72 : .55));
+                    grad.addColorStop(.32, colorWithAlpha(color, playingNow ? .56 : .40));
+                    grad.addColorStop(.62, colorWithAlpha(color, .25));
+                    grad.addColorStop(.88, colorWithAlpha(color, .045));
+                    grad.addColorStop(1, colorWithAlpha(color, 0));
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                    ctx.restore();
+                });
+                cloudAnimationFrame = requestAnimationFrame(render);
+            };
+            if (!cloudAnimationFrame) cloudAnimationFrame = requestAnimationFrame(render);
+        }
+
+        function colorWithAlpha(color, alpha) {
+            const value = String(color || '#ffffff');
+            if (value.startsWith('rgb')) {
+                const nums = value.match(/[\d.]+/g) || [255,255,255];
+                return `rgba(${nums[0]},${nums[1]},${nums[2]},${alpha})`;
+            }
+            const rgb = hexToRgbTriplet(value);
+            return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+        }
+
+        function hexToRgbTriplet(hex) {
+            let value = String(hex || '#ffffff').replace('#','').trim();
+            if (value.length === 3) value = value.split('').map(ch => ch + ch).join('');
+            if (!/^[0-9a-fA-F]{6}$/.test(value)) return [255,255,255];
+            return [parseInt(value.slice(0,2),16), parseInt(value.slice(2,4),16), parseInt(value.slice(4,6),16)];
+        }
+
+        function tintHex(hex, amount) {
+            const rgb = hexToRgbTriplet(hex).map(value => Math.max(0, Math.min(255, Math.round(amount >= 0 ? value + (255-value)*amount : value*(1+amount)))));
+            return '#' + rgb.map(value => value.toString(16).padStart(2,'0')).join('');
+        }
+
+        function colorToHslHue(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r,g,b), min = Math.min(r,g,b), delta = max-min;
+            if (!delta) return 0;
+            let hue;
+            if (max === r) hue = ((g-b)/delta) % 6;
+            else if (max === g) hue = (b-r)/delta + 2;
+            else hue = (r-g)/delta + 4;
+            return (hue * 60 + 360) % 360;
+        }
+
+        function updateVibeCloudFromTrack(track) {
+            if (!track) return;
+            const token = ++cloudPaletteToken;
+            const src = track.coverUrl || defaultCover;
+            const image = new Image();
+            image.onload = () => {
+                if (token !== cloudPaletteToken) return;
+                try {
+                    const sampleCanvas = document.createElement('canvas');
+                    sampleCanvas.width = 24; sampleCanvas.height = 24;
+                    const sampleContext = sampleCanvas.getContext('2d', { willReadFrequently: true });
+                    sampleContext.drawImage(image, 0, 0, 24, 24);
+                    const pixels = sampleContext.getImageData(0, 0, 24, 24).data;
+                    const candidates = [];
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
+                        const high = Math.max(r,g,b), low = Math.min(r,g,b), sat = high ? (high-low)/high : 0;
+                        const luminance = .2126*r + .7152*g + .0722*b;
+                        if (luminance > 35 && luminance < 246 && (sat > .2 || high-low > 28)) {
+                            candidates.push({ r, g, b, sat, luminance, hue: colorToHslHue(r,g,b), score: sat * .75 + Math.min(luminance,220)/500 });
+                        }
+                    }
+                    candidates.sort((a,b) => b.score-a.score);
+                    const chosen = [];
+                    for (const candidate of candidates) {
+                        if (chosen.every(item => {
+                            const diff = Math.abs(item.hue-candidate.hue);
+                            return Math.min(diff,360-diff) > 24;
+                        })) chosen.push(candidate);
+                        if (chosen.length >= 5) break;
+                    }
+                    for (const candidate of candidates) {
+                        if (chosen.length >= 3) break;
+                        if (!chosen.includes(candidate)) chosen.push(candidate);
+                    }
+                    if (!chosen.length) {
+                        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#d4a6ff';
+                        cloudPalette = [accent, tintHex(accent,.3), tintHex(accent,-.2), tintHex(accent,.12), '#ffffff'];
+                    } else {
+                        cloudPalette = chosen.map(item => `rgb(${item.r},${item.g},${item.b})`);
+                        while (cloudPalette.length < 5) cloudPalette.push(cloudPalette[cloudPalette.length % chosen.length]);
+                    }
+                } catch (error) {
+                    console.warn('Не удалось извлечь цвета обложки для MiВолны:', error);
+                }
+            };
+            image.onerror = () => {
+                if (token === cloudPaletteToken) {
+                    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#d4a6ff';
+                    cloudPalette = [accent, tintHex(accent,.3), tintHex(accent,-.2), tintHex(accent,.12), '#ffffff'];
+                }
+            };
+            image.src = src;
         }
 
         function switchTab(tabId, element) {
@@ -1188,14 +2033,18 @@
         function goToLibrary(filter) {
             const navLib = document.getElementById('nav-library');
             switchTab('library', navLib);
-            const tabBtn = document.getElementById('lib-tab-' + filter);
-            if(tabBtn) setFilter(filter, tabBtn);
+            const tabBtn = document.getElementById('lib-tab-' + filter) || document.getElementById('lib-tab-all');
+            if (tabBtn) setFilter(filter, tabBtn);
         }
 
         function setFilter(filter, btn) {
             currentFilter = filter;
             document.querySelectorAll('.lib-tab').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            const activeBtn = btn || document.getElementById('lib-tab-all');
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+            }
             document.getElementById('playlist-creator').style.display = (filter === 'playlists') ? 'block' : 'none';
             updateLibraryUI();
         }
@@ -1261,7 +2110,7 @@
                             <img src="${track.coverUrl}" class="track-cover">
                             <div class="track-info">
                                 <div class="track-title">${track.title}</div>
-                                <div class="track-author">${track.author}</div>
+                                <div class="track-author">${artistLine(track)}</div>
                             </div>
                             <div class="track-duration">${durText}</div>
                             <button class="action-btn-small" onclick="removeTrackFromPlaylist(event, ${pl.id}, ${track.id})">
@@ -1331,7 +2180,8 @@
             if(!track) return;
             
             document.getElementById('edit-tr-title').value = track.title;
-            document.getElementById('edit-tr-author').value = track.author;
+            document.getElementById('edit-tr-author').value = artistLine(track);
+            currentEditOriginalArtistsValue = artistLine(track);
             document.getElementById('edit-tr-cover').value = '';
             document.getElementById('edit-track-modal').classList.add('active');
         }
@@ -1341,11 +2191,15 @@
             if(!track) return;
 
             const newTitle = document.getElementById('edit-tr-title').value.trim();
-            const newAuthor = document.getElementById('edit-tr-author').value.trim();
+            const authorInput = document.getElementById('edit-tr-author').value.trim();
+            const newArtists = authorInput === currentEditOriginalArtistsValue ? getTrackArtists(track) : parseArtists(authorInput);
             const newCoverFile = document.getElementById('edit-tr-cover').files[0];
 
             if(newTitle) track.title = newTitle;
-            if(newAuthor) track.author = newAuthor;
+            if(newArtists.length) {
+                track.artists = newArtists;
+                track.author = newArtists.join(', ');
+            }
             if(newCoverFile) {
                 track.coverBlob = newCoverFile;
                 track.coverUrl = URL.createObjectURL(newCoverFile);
@@ -1358,15 +2212,16 @@
             
             if (currentTrackId === track.id) {
                 document.getElementById('mp-title').innerText = track.title;
-                document.getElementById('mp-author').innerText = track.author;
+                document.getElementById('mp-author').innerText = artistLine(track);
                 document.getElementById('mp-cover').src = track.coverUrl;
                 document.getElementById('fp-title').innerText = track.title;
-                document.getElementById('fp-author').innerText = track.author;
+                document.getElementById('fp-author').innerText = artistLine(track);
                 document.getElementById('fp-cover').src = track.coverUrl;
                 document.getElementById('fp-bg').style.backgroundImage = `url(${track.coverUrl})`;
+                updateVibeCloudFromTrack(track);
                 if ('mediaSession' in navigator) {
                     navigator.mediaSession.metadata.title = track.title;
-                    navigator.mediaSession.metadata.artist = track.author;
+                    navigator.mediaSession.metadata.artist = artistLine(track);
                     navigator.mediaSession.metadata.artwork = [{ src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' }];
                 }
             }
@@ -1415,7 +2270,7 @@
                         <img src="${track.coverUrl}" class="track-cover" style="width:40px; height:40px;">
                         <div class="track-info">
                             <div class="track-title" style="font-size:14px;">${track.title}</div>
-                            <div class="track-author" style="font-size:12px;">${track.author}</div>
+                            <div class="track-author" style="font-size:12px;">${artistLine(track)}</div>
                         </div>
                         <button class="action-btn-small" onclick="addExistingTrackToPlaylist(${track.id})">
                             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -1442,17 +2297,20 @@
             const audioFile = document.getElementById('track-file').files[0];
             const coverFile = document.getElementById('track-cover-file').files[0];
             const title = document.getElementById('track-title-input').value.trim();
-            const author = document.getElementById('track-author-input').value.trim();
+            const artistInput = document.getElementById('track-author-input').value.trim();
+            const artists = parseArtists(artistInput);
 
-            if(!audioFile || !title || !author) return alert('Добавьте аудио, название и автора!');
+            if(!audioFile || !title || artists.length === 0) return alert('Добавьте аудио, название и хотя бы одного артиста!');
 
             const url = URL.createObjectURL(audioFile);
             const duration = await fetchDuration(url);
 
             const track = { 
-                id: Date.now(), 
-                title, 
-                author, 
+                id: Date.now(),
+                title,
+                author: artists.join(', '),
+                artists,
+                playCount: 0,
                 audioBlob: audioFile,
                 coverBlob: coverFile || null,
                 isFavorite: false,
@@ -1494,14 +2352,67 @@
                 div.innerHTML = `
                     <img src="${track.coverUrl}" class="recent-cover">
                     <div class="recent-title">${track.title}</div>
-                    <div class="recent-author">${track.author}</div>
+                    <div class="recent-author">${artistLine(track)}</div>
                 `;
                 recentContainer.appendChild(div);
             });
         }
 
+        function renderArtistsLibrary(list) {
+            const stats = getArtistStatistics();
+            if (!stats.length) {
+                list.innerHTML = '<div class="empty-state">Артисты появятся здесь автоматически, когда ты добавишь треки. Время прослушивания начнёт накапливаться после обновления.</div>';
+                return;
+            }
+            const podiumItems = stats.slice(0, 3);
+            const podiumHTML = podiumItems.map((item, index) => {
+                const rank = index + 1;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉';
+                return `<button type="button" class="artist-podium-card rank-${rank}" data-artist="${escapeHTML(item.name)}" aria-label="Открыть профиль артиста ${escapeHTML(item.name)}">
+                    <span class="artist-medal" aria-hidden="true">${medal}</span>
+                    ${artistAvatarHTML(item.name)}
+                    <span class="artist-name">${escapeHTML(item.name)}</span>
+                    <span class="artist-rank-label">${rank === 1 ? '1 место' : rank === 2 ? '2 место' : '3 место'}</span>
+                    <span class="artist-play-count">${escapeHTML(formatListeningTime(item.seconds))}</span>
+                    <span class="artist-play-caption">прослушано</span>
+                </button>`;
+            }).join('');
+
+            const otherHTML = stats.slice(3).map(item => `
+                <button type="button" class="artist-row-card" data-artist="${escapeHTML(item.name)}" aria-label="Открыть профиль артиста ${escapeHTML(item.name)}">
+                    ${artistAvatarHTML(item.name)}
+                    <span class="artist-row-main">
+                        <span class="artist-row-name">${escapeHTML(item.name)}</span>
+                        <span class="artist-row-meta">${item.trackCount.toLocaleString('ru-RU')} ${item.trackCount === 1 ? 'трек' : item.trackCount < 5 ? 'трека' : 'треков'}</span>
+                    </span>
+                    <span class="artist-row-count">${escapeHTML(formatListeningTime(item.seconds))}<small>прослушано</small></span>
+                </button>`).join('');
+
+            list.innerHTML = `
+                <div class="artist-analytics-head">
+                    <span class="artist-eyebrow">MI MUSIC · LISTENING STATS</span>
+                    <div class="artist-heading">Твои артисты</div>
+                </div>
+                <div class="artist-total-line">
+                    <span class="artist-total-label">Общее время прослушивания</span>
+                    <span class="artist-total-value">${escapeHTML(formatListeningTime(totalTrackListeningSeconds()))}</span>
+                </div>
+                <div class="artist-podium" aria-label="Топ три артиста">${podiumHTML}</div>
+                ${otherHTML ? `<div class="artist-section-heading">Остальные артисты</div><div class="artist-rest-list">${otherHTML}</div>` : ''}
+                <div class="artist-stat-note">Учитывается фактическое время воспроизведения на этом устройстве. Совместный трек засчитывает его время каждому указанному артисту. Историю запусков до этого обновления нельзя достоверно преобразовать во время.</div>
+            `;
+            list.querySelectorAll('[data-artist]').forEach(button => {
+                button.addEventListener('click', () => openArtistProfile(button.dataset.artist));
+            });
+        }
+
         function updateLibraryUI() {
             const list = document.getElementById('track-list');
+
+            if(currentFilter === 'artists') {
+                renderArtistsLibrary(list);
+                return;
+            }
             
             if(currentFilter === 'playlists') {
                 if(playlists.length === 0) {
@@ -1551,7 +2462,7 @@
                     <img src="${track.coverUrl}" class="track-cover">
                     <div class="track-info">
                         <div class="track-title">${track.title}</div>
-                        <div class="track-author">${track.author}</div>
+                        <div class="track-author">${artistLine(track)}</div>
                     </div>
                     <div class="track-duration">${durText}</div>
                     <button class="action-btn-small" onclick="openEditTrackModal(event, ${track.id})">
@@ -1600,22 +2511,35 @@
             }
 
             if(currentTrackId !== id) {
+                recordListeningTime(true);
+                listeningTrackId = id;
+                lastListenMediaTime = 0;
                 currentTrackId = id;
                 currentAudio.src = track.audioUrl;
+                updateVibeCloudFromTrack(track);
             }
-            
-            currentAudio.play();
+
+            const playAttempt = currentAudio.play();
             isPlaying = true;
+            if (playAttempt && typeof playAttempt.catch === 'function') {
+                playAttempt.catch(error => {
+                    if (currentTrackId === id && currentAudio.paused) {
+                        isPlaying = false;
+                        updatePlayPauseIcon();
+                    }
+                    console.warn('Не удалось начать воспроизведение:', error);
+                });
+            }
 
             document.getElementById('mini-player').classList.add('visible');
             document.getElementById('mp-cover').src = track.coverUrl;
             document.getElementById('mp-title').innerText = track.title;
-            document.getElementById('mp-author').innerText = track.author;
+            document.getElementById('mp-author').innerText = artistLine(track);
 
             document.getElementById('fp-cover').src = track.coverUrl;
             document.getElementById('fp-bg').style.backgroundImage = `url(${track.coverUrl})`;
             document.getElementById('fp-title').innerText = track.title;
-            document.getElementById('fp-author').innerText = track.author;
+            document.getElementById('fp-author').innerText = artistLine(track);
 
             updatePlayPauseIcon();
             updateLikeIcons();
@@ -1626,7 +2550,7 @@
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: track.title,
-                    artist: track.author,
+                    artist: artistLine(track),
                     album: 'MiMusic',
                     artwork: [
                         { src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' }
@@ -1660,8 +2584,17 @@
             if(e) e.stopPropagation();
             if(!currentTrackId) return;
             
-            isPlaying ? currentAudio.pause() : currentAudio.play();
-            isPlaying = !isPlaying;
+            if (isPlaying) {
+                currentAudio.pause();
+                recordListeningTime(true);
+                saveListeningStats();
+                isPlaying = false;
+            } else {
+                listeningTrackId = currentTrackId;
+                lastListenMediaTime = Number(currentAudio.currentTime) || 0;
+                currentAudio.play();
+                isPlaying = true;
+            }
             updatePlayPauseIcon();
             if(isQueueOpen) renderQueue();
         }
@@ -1745,6 +2678,8 @@
                     vibeIconBtn.innerHTML = iconPlay;
                 }
             }
+            const vibeContainer = document.querySelector('.vibe-container');
+            if (vibeContainer) vibeContainer.classList.toggle('is-playing', isPlaying && currentContextName === '"MiВолна"');
         }
 
         function toggleRepeat() {
@@ -1790,7 +2725,7 @@
                         <img src="${track.coverUrl}" class="track-cover" style="width: 44px; height: 44px;">
                         <div class="track-info">
                             <div class="track-title" style="color: ${isCurrent ? 'var(--accent-color)' : '#fff'};">${track.title}</div>
-                            <div class="track-author">${track.author}</div>
+                            <div class="track-author">${artistLine(track)}</div>
                         </div>
                         ${isCurrent ? `<svg class="qp-playing-icon" viewBox="0 0 24 24"><path d="${qpIconPath}"/></svg>` : ''}
                     `;
