@@ -1575,6 +1575,53 @@
             #full-player:has(#fp-play-btn path[d^="M8 5v14"]) #fp-cover { transform: none; }
         }
     </style>
+
+    <style id="dj-mix-styles">
+        /* Beat-matched DJ transition indicator */
+        .dj-mix-mini {
+            display:none; position:absolute; left:8px; right:8px; bottom:calc(100% + 9px); z-index:5;
+            padding:9px 12px 8px; border:1px solid rgba(var(--accent-rgb),.28); border-radius:15px;
+            background:linear-gradient(120deg,rgba(24,27,39,.97),rgba(12,14,21,.96));
+            box-shadow:0 12px 30px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.07);
+            -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px); pointer-events:none;
+        }
+        .dj-mix-mini.active { display:block; animation:dj-mix-pop .28s cubic-bezier(.2,.8,.2,1) both; }
+        .dj-mix-mini-head,.dj-mix-full-head { display:flex;align-items:center;justify-content:space-between;gap:8px; }
+        .dj-mix-mini-head { color:var(--accent-color);font-size:9px;letter-spacing:1.35px;font-weight:850;margin-bottom:5px; }
+        .dj-mix-live-dot { display:inline-block;width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#6cf0c2;box-shadow:0 0 10px rgba(108,240,194,.8);animation:dj-mix-pulse 1s ease-in-out infinite; }
+        .dj-mix-mini-head strong { flex:1; }
+        .dj-mix-mini-flow { display:flex;align-items:center;gap:7px;min-width:0;font-size:11px;font-weight:700;color:#fff; }
+        .dj-mix-mini-flow span:not(.dj-mix-arrow) { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0; }
+        .dj-mix-mini-flow span:first-child { flex:1; }
+        .dj-mix-mini-flow span:last-child { flex:1;text-align:right; }
+        .dj-mix-arrow { color:var(--accent-color);font-size:13px; }
+        .dj-mix-mini-track,.dj-mix-full-track { height:3px;border-radius:99px;background:rgba(255,255,255,.13);overflow:hidden; }
+        .dj-mix-mini-track { margin-top:7px; }
+        .dj-mix-mini-track i,.dj-mix-full-track i { display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#55e6c1,var(--accent-color));box-shadow:0 0 10px rgba(var(--accent-rgb),.5);transition:width .08s linear; }
+        .dj-mix-full { display:none;margin:-15px 0 22px;padding:12px 14px 10px;border-radius:17px;border:1px solid rgba(var(--accent-rgb),.2);background:linear-gradient(120deg,rgba(255,255,255,.075),rgba(255,255,255,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.045); }
+        .dj-mix-full.active { display:block;animation:dj-mix-pop .3s cubic-bezier(.2,.8,.2,1) both; }
+        .dj-mix-full-head { margin-bottom:10px; }
+        .dj-mix-full-status { display:flex;align-items:center;gap:7px;color:var(--accent-color);font-size:9px;font-weight:900;letter-spacing:1.45px; }
+        .dj-mix-bpm { color:rgba(255,255,255,.65);font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap; }
+        .dj-mix-full-flow { display:grid;grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr);align-items:center;gap:8px;margin-bottom:10px; }
+        .dj-mix-track-name { min-width:0;display:flex;flex-direction:column;gap:3px; }
+        .dj-mix-track-name small { color:rgba(255,255,255,.42);font-size:8px;font-weight:800;letter-spacing:1.2px; }
+        .dj-mix-track-name strong { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:11px;font-weight:750; }
+        .dj-mix-track-next { text-align:right; }
+        .dj-mix-wave { height:26px;display:flex;align-items:center;justify-content:center;gap:3px; }
+        .dj-mix-wave i { width:3px;height:8px;border-radius:4px;background:var(--accent-color);opacity:.85;transform:scaleY(.55); }
+        .dj-mix-full.active .dj-mix-wave i { animation:dj-mix-wave .65s ease-in-out infinite alternate; }
+        .dj-mix-wave i:nth-child(2n) { animation-delay:-.24s!important; }
+        .dj-mix-wave i:nth-child(3n) { animation-delay:-.43s!important; }
+        .dj-mix-wave i:nth-child(4n) { animation-delay:-.12s!important; }
+        .dj-mix-full-track { height:4px; }
+        @keyframes dj-mix-wave { from{transform:scaleY(.45);opacity:.45}to{transform:scaleY(1.7);opacity:1} }
+        @keyframes dj-mix-pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.72)} }
+        @keyframes dj-mix-pop { from{opacity:0;transform:translateY(7px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)} }
+        @media (max-width:380px) { .dj-mix-full { margin-bottom:16px;padding:10px 11px 9px; } .dj-mix-full-flow { grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);gap:5px; } }
+        @media (prefers-reduced-motion:reduce) { .dj-mix-live-dot,.dj-mix-full.active .dj-mix-wave i { animation:none!important; } }
+    </style>
+
 </head>
 <body>
     <div id="viewport-bottom-fill" aria-hidden="true"></div>
@@ -1894,6 +1941,11 @@
             <div id="mp-title">Название</div>
             <button type="button" id="mp-author" class="artist-trigger" onclick="openArtistPicker(event)" aria-label="Выбрать артиста">Автор</button>
         </div>
+        <div id="dj-mix-mini" class="dj-mix-mini" aria-live="polite">
+            <div class="dj-mix-mini-head"><span class="dj-mix-live-dot"></span><strong id="dj-mix-mini-label">МИКСУЕМ</strong></div>
+            <div class="dj-mix-mini-flow"><span id="dj-mix-mini-from"></span><span class="dj-mix-arrow">→</span><span id="dj-mix-mini-to"></span></div>
+            <div class="dj-mix-mini-track"><i id="dj-mix-mini-progress"></i></div>
+        </div>
         <div class="mp-controls">
             <button class="control-btn" id="mp-like-btn" onclick="toggleFavoriteCurrent(event)">
                 <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -1941,6 +1993,19 @@
             </div>
         </div>
 
+        <div id="dj-mix-full" class="dj-mix-full" aria-live="polite">
+            <div class="dj-mix-full-head">
+                <span class="dj-mix-full-status"><i class="dj-mix-live-dot"></i><strong id="dj-mix-full-label">АНАЛИЗ РИТМА</strong></span>
+                <span id="dj-mix-bpm" class="dj-mix-bpm"></span>
+            </div>
+            <div class="dj-mix-full-flow">
+                <div class="dj-mix-track-name"><small>ИГРАЕТ</small><strong id="dj-mix-from">—</strong></div>
+                <div class="dj-mix-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="dj-mix-track-name dj-mix-track-next"><small>ВХОДИТ</small><strong id="dj-mix-to">—</strong></div>
+            </div>
+            <div class="dj-mix-full-track"><i id="dj-mix-progress"></i></div>
+        </div>
+
         <div class="fp-controls-row">
             <button id="fp-repeat-btn" onclick="toggleRepeat()"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
             <button onclick="playPrev()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
@@ -1980,6 +2045,21 @@
         let tracks = [];
         let playlists = [];
         let currentAudio = new Audio();
+        let spareAudio = new Audio();
+        const audioDeck = [currentAudio, spareAudio];
+        let audioContext = null;
+        const audioGainNodes = new WeakMap();
+        let crossfadeFrameId = 0;
+        let crossfadeTimeoutId = 0;
+        let pendingMixTimeoutId = 0;
+        let crossfadeToken = 0;
+        let isCrossfading = false;
+        let autoCrossfadeStartedForTrackId = null;
+        let djMixHideTimeout = 0;
+        const rhythmAnalysisCache = new Map();
+        const CROSSFADE_BARS = 2;
+        const CROSSFADE_MIN_SECONDS = 2.4;
+        const CROSSFADE_MAX_SECONDS = 8.5;
         let currentTrackId = null;
         let currentQueue = []; 
         let isPlaying = false;
@@ -2489,6 +2569,7 @@
                 miniPlayer.style.transform = `translateX(${diffX > 0 ? window.innerWidth : -window.innerWidth}px)`;
                 miniPlayer.style.opacity = '0';
                 
+                cancelAudioCrossfade();
                 currentAudio.pause();
                 isPlaying = false;
                 currentTrackId = null;
@@ -2676,36 +2757,45 @@
                 isDraggingProgress = false;
             });
 
-            currentAudio.addEventListener('timeupdate', () => {
-                recordListeningTime(false);
-                if(currentAudio.duration && !isDraggingProgress) {
-                    const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
-                    progressEl.value = percent;
-                    progressEl.style.background = `linear-gradient(to right, #fff ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
-                    document.getElementById('fp-time-current').innerText = formatTime(currentAudio.currentTime);
-                }
-            });
+            audioDeck.forEach(audio => {
+                audio.addEventListener('timeupdate', () => {
+                    if (audio !== currentAudio) return;
+                    recordListeningTime(false);
+                    if(currentAudio.duration && !isDraggingProgress) {
+                        const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+                        progressEl.value = percent;
+                        progressEl.style.background = `linear-gradient(to right, #fff ${percent}%, rgba(255,255,255,0.2) ${percent}%)`;
+                        document.getElementById('fp-time-current').innerText = formatTime(currentAudio.currentTime);
+                    }
+                    maybeStartAutomaticCrossfade();
+                });
 
-            currentAudio.addEventListener('loadedmetadata', () => {
-                document.getElementById('fp-time-total').innerText = formatTime(currentAudio.duration);
-            });
+                audio.addEventListener('loadedmetadata', () => {
+                    if (audio !== currentAudio) return;
+                    document.getElementById('fp-time-total').innerText = formatTime(currentAudio.duration);
+                });
 
-            currentAudio.addEventListener('pause', () => {
-                recordListeningTime(true);
-                saveListeningStats();
-                updateArtistLiveStats(true);
-            });
-            currentAudio.addEventListener('seeking', () => {
-                // seeking fires after currentTime has jumped; reset baseline rather than counting the skipped interval
-                lastListenMediaTime = Number(currentAudio.currentTime) || 0;
-            });
-            currentAudio.addEventListener('seeked', () => {
-                lastListenMediaTime = Number(currentAudio.currentTime) || 0;
-            });
-            currentAudio.addEventListener('ended', () => {
-                recordListeningTime(true);
-                saveListeningStats();
-                if(!isRepeat) playNext();
+                audio.addEventListener('pause', () => {
+                    if (audio !== currentAudio) return;
+                    recordListeningTime(true);
+                    saveListeningStats();
+                    updateArtistLiveStats(true);
+                });
+                audio.addEventListener('seeking', () => {
+                    if (audio !== currentAudio) return;
+                    // seeking fires after currentTime has jumped; reset baseline rather than counting the skipped interval
+                    lastListenMediaTime = Number(currentAudio.currentTime) || 0;
+                });
+                audio.addEventListener('seeked', () => {
+                    if (audio !== currentAudio) return;
+                    lastListenMediaTime = Number(currentAudio.currentTime) || 0;
+                });
+                audio.addEventListener('ended', () => {
+                    if (audio !== currentAudio) return;
+                    recordListeningTime(true);
+                    saveListeningStats();
+                    if(!isRepeat) playNext();
+                });
             });
         });
 
@@ -3110,6 +3200,7 @@
             updateHomeUI();
             
             if (currentTrackId === currentEditTrackId) {
+                cancelAudioCrossfade();
                 currentAudio.pause();
                 currentTrackId = null;
                 isPlaying = false;
@@ -3373,14 +3464,459 @@
             });
         }
 
+        function ensureAudioMixing() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return false;
+
+            if (!audioContext) {
+                try {
+                    const context = new AudioContextClass();
+                    audioDeck.forEach(audio => {
+                        const source = context.createMediaElementSource(audio);
+                        const gain = context.createGain();
+                        gain.gain.value = audio === currentAudio ? 1 : 0;
+                        source.connect(gain);
+                        gain.connect(context.destination);
+                        audioGainNodes.set(audio, gain);
+                    });
+                    audioContext = context;
+                } catch (error) {
+                    console.warn('Микширование через Web Audio недоступно, используется плавное изменение громкости:', error);
+                    return false;
+                }
+            }
+
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(error => console.warn('Не удалось активировать аудиоконтекст:', error));
+            }
+            return true;
+        }
+
+        function setDeckGain(audio, value) {
+            const gain = audioGainNodes.get(audio);
+            if (audioContext && gain) {
+                const now = audioContext.currentTime;
+                gain.gain.cancelScheduledValues(now);
+                gain.gain.setValueAtTime(value, now);
+            } else {
+                audio.volume = value;
+            }
+        }
+
+        function setDjMixUI(state) {
+            const mini = document.getElementById('dj-mix-mini');
+            const full = document.getElementById('dj-mix-full');
+            if (!mini || !full) return;
+            if (djMixHideTimeout) clearTimeout(djMixHideTimeout);
+            djMixHideTimeout = 0;
+            if (!state) {
+                mini.classList.remove('active');
+                full.classList.remove('active');
+                return;
+            }
+            const labels = {
+                analyze: 'АНАЛИЗ РИТМА',
+                align: 'СОВМЕЩАЕМ БИТЫ',
+                mix: 'МИКСУЕМ ТРЕКИ',
+                done: 'МИКС ЗАВЕРШЁН'
+            };
+            const label = labels[state.phase] || 'МИКСУЕМ ТРЕКИ';
+            const from = String(state.from || 'Текущий трек');
+            const to = String(state.to || 'Следующий трек');
+            document.getElementById('dj-mix-mini-label').textContent = label;
+            document.getElementById('dj-mix-mini-from').textContent = from;
+            document.getElementById('dj-mix-mini-to').textContent = to;
+            document.getElementById('dj-mix-full-label').textContent = label;
+            document.getElementById('dj-mix-from').textContent = from;
+            document.getElementById('dj-mix-to').textContent = to;
+            document.getElementById('dj-mix-bpm').textContent = state.bpmLabel || '';
+            const progress = Math.max(0, Math.min(1, Number(state.progress) || 0)) * 100;
+            document.getElementById('dj-mix-mini-progress').style.width = `${progress}%`;
+            document.getElementById('dj-mix-progress').style.width = `${progress}%`;
+            mini.classList.add('active');
+            full.classList.add('active');
+        }
+
+        function setDjMixProgress(progress) {
+            const value = `${Math.max(0, Math.min(1, progress)) * 100}%`;
+            const miniProgress = document.getElementById('dj-mix-mini-progress');
+            const fullProgress = document.getElementById('dj-mix-progress');
+            if (miniProgress) miniProgress.style.width = value;
+            if (fullProgress) fullProgress.style.width = value;
+        }
+
+        function hideDjMixUI(delay = 700) {
+            if (djMixHideTimeout) clearTimeout(djMixHideTimeout);
+            djMixHideTimeout = setTimeout(() => setDjMixUI(null), delay);
+        }
+
+        function cancelAudioCrossfade() {
+            crossfadeToken++;
+            isCrossfading = false;
+            if (crossfadeFrameId) cancelAnimationFrame(crossfadeFrameId);
+            if (crossfadeTimeoutId) clearTimeout(crossfadeTimeoutId);
+            if (pendingMixTimeoutId) clearTimeout(pendingMixTimeoutId);
+            if (djMixHideTimeout) clearTimeout(djMixHideTimeout);
+            crossfadeFrameId = 0;
+            crossfadeTimeoutId = 0;
+            pendingMixTimeoutId = 0;
+
+            if (spareAudio) spareAudio.pause();
+            setDeckGain(currentAudio, 1);
+            setDeckGain(spareAudio, 0);
+            if (spareAudio) spareAudio.playbackRate = 1;
+            setDjMixUI(null);
+        }
+
+        function finishAudioCrossfade(token, outgoingAudio, incomingAudio) {
+            if (token !== crossfadeToken) return;
+            if (crossfadeFrameId) cancelAnimationFrame(crossfadeFrameId);
+            if (crossfadeTimeoutId) clearTimeout(crossfadeTimeoutId);
+            crossfadeFrameId = 0;
+            crossfadeTimeoutId = 0;
+
+            outgoingAudio.pause();
+            try { outgoingAudio.currentTime = 0; } catch (error) {}
+            outgoingAudio.removeAttribute('src');
+            outgoingAudio.load();
+            outgoingAudio.playbackRate = 1;
+            setDeckGain(outgoingAudio, 0);
+            setDeckGain(incomingAudio, 1);
+            incomingAudio.volume = 1;
+            isCrossfading = false;
+            setDjMixUI({ phase: 'done', from: lastDjMixFrom, to: lastDjMixTo, bpmLabel: lastDjMixBpmLabel, progress: 1 });
+            hideDjMixUI(950);
+        }
+
+        let lastDjMixFrom = '';
+        let lastDjMixTo = '';
+        let lastDjMixBpmLabel = '';
+
+        function startAudioCrossfade(outgoingAudio, incomingAudio, duration, token) {
+            const fadeDuration = Math.max(0.8, duration);
+            isCrossfading = true;
+            const outgoingGain = audioGainNodes.get(outgoingAudio);
+            const incomingGain = audioGainNodes.get(incomingAudio);
+            const curveLength = 128;
+            const outgoingCurve = new Float32Array(curveLength);
+            const incomingCurve = new Float32Array(curveLength);
+            for (let i = 0; i < curveLength; i++) {
+                const angle = (i / (curveLength - 1)) * Math.PI / 2;
+                outgoingCurve[i] = Math.cos(angle);
+                incomingCurve[i] = Math.sin(angle);
+            }
+            let curveScheduled = false;
+            if (audioContext && outgoingGain && incomingGain && typeof outgoingGain.gain.setValueCurveAtTime === 'function') {
+                try {
+                    const now = audioContext.currentTime;
+                    outgoingGain.gain.cancelScheduledValues(now);
+                    incomingGain.gain.cancelScheduledValues(now);
+                    outgoingGain.gain.setValueAtTime(1, now);
+                    incomingGain.gain.setValueAtTime(0, now);
+                    outgoingGain.gain.setValueCurveAtTime(outgoingCurve, now, fadeDuration);
+                    incomingGain.gain.setValueCurveAtTime(incomingCurve, now, fadeDuration);
+                    curveScheduled = true;
+                } catch (error) {
+                    console.warn('Не удалось запланировать кривую DJ-микса, используется плавная синхронизация:', error);
+                }
+            }
+            const startedAt = performance.now();
+            const fadeFrame = timestamp => {
+                if (token !== crossfadeToken) return;
+                const progress = Math.min(1, (timestamp - startedAt) / (fadeDuration * 1000));
+                if (!curveScheduled) {
+                    const angle = progress * Math.PI / 2;
+                    setDeckGain(outgoingAudio, Math.cos(angle));
+                    setDeckGain(incomingAudio, Math.sin(angle));
+                }
+                setDjMixProgress(progress);
+                if (progress < 1) crossfadeFrameId = requestAnimationFrame(fadeFrame);
+                else crossfadeFrameId = 0;
+            };
+            crossfadeFrameId = requestAnimationFrame(fadeFrame);
+            crossfadeTimeoutId = setTimeout(() => finishAudioCrossfade(token, outgoingAudio, incomingAudio), fadeDuration * 1000 + 100);
+        }
+
+        async function analyzeTrackRhythm(track) {
+            if (!track || !track.audioUrl) return null;
+            const key = String(track.id ?? track.audioUrl);
+            if (rhythmAnalysisCache.has(key)) return rhythmAnalysisCache.get(key);
+            const analysisPromise = (async () => {
+                try {
+                    if (!ensureAudioMixing() || !audioContext || typeof audioContext.decodeAudioData !== 'function') return null;
+                    let audioData;
+                    if (track.audioBlob instanceof Blob) audioData = await track.audioBlob.arrayBuffer();
+                    else {
+                        const response = await fetch(track.audioUrl);
+                        if (!response.ok) throw new Error(`Не удалось прочитать аудио (${response.status})`);
+                        audioData = await response.arrayBuffer();
+                    }
+                    const decoded = await audioContext.decodeAudioData(audioData.slice(0));
+                    const sampleRate = decoded.sampleRate;
+                    const frameSize = Math.max(128, Math.round(sampleRate / 100));
+                    const frameCount = Math.min(3200, Math.floor(decoded.length / frameSize));
+                    if (frameCount < 400) return null;
+                    const channelA = decoded.getChannelData(0);
+                    const channelB = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : null;
+                    const energy = new Float32Array(frameCount);
+                    for (let frame = 0; frame < frameCount; frame++) {
+                        const start = frame * frameSize;
+                        const end = Math.min(start + frameSize, decoded.length);
+                        let sum = 0;
+                        for (let sample = start; sample < end; sample += 4) {
+                            const a = channelA[sample] || 0;
+                            const b = channelB ? (channelB[sample] || 0) : a;
+                            const mono = (a + b) * 0.5;
+                            sum += mono * mono;
+                        }
+                        energy[frame] = Math.sqrt(sum / Math.max(1, Math.ceil((end - start) / 4)));
+                    }
+                    const onset = new Float32Array(frameCount);
+                    let onsetMean = 0;
+                    for (let i = 2; i < frameCount; i++) {
+                        const baseline = energy[i - 1] * 0.65 + energy[i - 2] * 0.35;
+                        const value = Math.max(0, energy[i] - baseline);
+                        onset[i] = value;
+                        onsetMean += value;
+                    }
+                    onsetMean /= frameCount;
+                    if (onsetMean < 0.00005) return null;
+                    for (let i = 0; i < frameCount; i++) onset[i] = Math.max(0, onset[i] - onsetMean * 0.12);
+
+                    const minLag = 38; // около 158 BPM
+                    const maxLag = 86; // около 70 BPM
+                    let bestLag = 0;
+                    let bestScore = -1;
+                    for (let lag = minLag; lag <= maxLag; lag++) {
+                        let dot = 0, left = 0, right = 0;
+                        for (let i = lag; i < frameCount; i++) {
+                            const a = onset[i];
+                            const b = onset[i - lag];
+                            dot += a * b;
+                            left += a * a;
+                            right += b * b;
+                        }
+                        const score = dot / Math.sqrt(Math.max(1e-12, left * right));
+                        // Mildly prefer musically common 90–145 BPM, without forcing a tempo.
+                        const bpm = 6000 / lag;
+                        const preference = bpm >= 90 && bpm <= 145 ? 1.025 : 1;
+                        if (score * preference > bestScore) {
+                            bestScore = score * preference;
+                            bestLag = lag;
+                        }
+                    }
+                    if (!bestLag || bestScore < 0.025) return null;
+                    let bestPhase = 0;
+                    let phaseScore = -1;
+                    const phaseWindow = Math.min(frameCount, 2400);
+                    for (let phase = 0; phase < bestLag; phase++) {
+                        let score = 0;
+                        for (let i = phase; i < phaseWindow; i += bestLag) {
+                            score += onset[i] + (onset[i - 1] || 0) * 0.25 + (onset[i + 1] || 0) * 0.25;
+                        }
+                        if (score > phaseScore) { phaseScore = score; bestPhase = phase; }
+                    }
+                    const period = bestLag / 100;
+                    return { bpm: 60 / period, period, offset: bestPhase / 100, confidence: Math.min(1, bestScore * 2.5) };
+                } catch (error) {
+                    console.warn('Не удалось определить ритм трека:', error);
+                    return null;
+                }
+            })();
+            rhythmAnalysisCache.set(key, analysisPromise);
+            const result = await analysisPromise;
+            rhythmAnalysisCache.set(key, result);
+            return result;
+        }
+
+        function waitForAudioMetadata(audio, timeout = 9000) {
+            if (audio.readyState >= 1 && Number.isFinite(audio.duration)) return Promise.resolve(true);
+            return new Promise(resolve => {
+                let settled = false;
+                const finish = value => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(timer);
+                    audio.removeEventListener('loadedmetadata', onReady);
+                    audio.removeEventListener('canplay', onReady);
+                    audio.removeEventListener('error', onError);
+                    resolve(value);
+                };
+                const onReady = () => finish(true);
+                const onError = () => finish(false);
+                const timer = setTimeout(() => finish(false), timeout);
+                audio.addEventListener('loadedmetadata', onReady, { once: true });
+                audio.addEventListener('canplay', onReady, { once: true });
+                audio.addEventListener('error', onError, { once: true });
+            });
+        }
+
+        function nextBeatDelay(audio, rhythm) {
+            if (!rhythm || !rhythm.period || !Number.isFinite(audio.currentTime)) return 0;
+            const beat = rhythm.period;
+            const position = audio.currentTime - rhythm.offset;
+            const nextBeatIndex = Math.floor(position / beat) + 1;
+            const nextBeatTime = rhythm.offset + nextBeatIndex * beat;
+            return Math.max(0, nextBeatTime - audio.currentTime);
+        }
+
+        function updateNowPlayingUI(track) {
+            document.getElementById('mini-player').classList.add('visible');
+            document.getElementById('mp-cover').src = track.coverUrl;
+            document.getElementById('mp-title').innerText = track.title;
+            document.getElementById('mp-author').innerText = artistLine(track);
+            document.getElementById('fp-cover').src = track.coverUrl;
+            document.getElementById('fp-bg').style.backgroundImage = `url(${track.coverUrl})`;
+            document.getElementById('fp-title').innerText = track.title;
+            document.getElementById('fp-author').innerText = artistLine(track);
+            updatePlayPauseIcon();
+            updateLikeIcons();
+            updateActiveTrackHighlight();
+            if (isQueueOpen) renderQueue();
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: track.title,
+                    artist: artistLine(track),
+                    album: 'MiMusic',
+                    artwork: [{ src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' }]
+                });
+                navigator.mediaSession.setActionHandler('play', () => togglePlay());
+                navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+                navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
+                navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
+            }
+        }
+
+        function warmNextTrackRhythm() {
+            const current = tracks.find(item => item.id === currentTrackId);
+            if (!current) return;
+            analyzeTrackRhythm(current).then(() => {
+                let queue = currentQueue;
+                let index = queue.indexOf(currentTrackId);
+                if (index === -1) { queue = tracks.map(item => item.id); index = queue.indexOf(currentTrackId); }
+                if (index < 0 || queue.length < 2) return;
+                const nextTrack = tracks.find(item => item.id === queue[(index + 1) % queue.length]);
+                if (nextTrack) analyzeTrackRhythm(nextTrack).catch(() => {});
+            }).catch(() => {});
+        }
+
+        async function prepareDjMixTransition(track, outgoingTrack, outgoingAudio, incomingAudio, token) {
+            isCrossfading = true;
+            const fromTitle = outgoingTrack ? outgoingTrack.title : 'Текущий трек';
+            const toTitle = track.title;
+            lastDjMixFrom = fromTitle;
+            lastDjMixTo = toTitle;
+            lastDjMixBpmLabel = '';
+            setDjMixUI({ phase: 'analyze', from: fromTitle, to: toTitle, progress: 0 });
+
+            incomingAudio.pause();
+            incomingAudio.src = track.audioUrl;
+            incomingAudio.loop = isRepeat;
+            incomingAudio.playbackRate = 1;
+            if ('preservesPitch' in incomingAudio) incomingAudio.preservesPitch = true;
+            if ('webkitPreservesPitch' in incomingAudio) incomingAudio.webkitPreservesPitch = true;
+            if ('mozPreservesPitch' in incomingAudio) incomingAudio.mozPreservesPitch = true;
+            setDeckGain(incomingAudio, 0);
+            incomingAudio.load();
+            const silentStartPromise = incomingAudio.play();
+            if (silentStartPromise && typeof silentStartPromise.then === 'function') {
+                await silentStartPromise;
+            }
+            if (token !== crossfadeToken) return;
+
+            const analysis = await Promise.race([
+                Promise.all([analyzeTrackRhythm(outgoingTrack), analyzeTrackRhythm(track), waitForAudioMetadata(incomingAudio)]),
+                new Promise(resolve => setTimeout(() => resolve([null, null, false]), 6500))
+            ]);
+            if (token !== crossfadeToken) return;
+            const [outRhythm, inRhythm, metadataReady] = analysis;
+            if (!metadataReady && incomingAudio.readyState < 1) {
+                console.warn('Не удалось подготовить трек для микса, переключаем без beatmatch.');
+            }
+
+            let playbackRate = 1;
+            if (outRhythm && inRhythm) {
+                playbackRate = Math.max(0.92, Math.min(1.08, (outRhythm.bpm * (outgoingAudio.playbackRate || 1)) / inRhythm.bpm));
+            }
+            incomingAudio.playbackRate = playbackRate;
+            if ('preservesPitch' in incomingAudio) incomingAudio.preservesPitch = true;
+            const startOffset = inRhythm ? inRhythm.offset : 0;
+            const beatWait = outRhythm ? nextBeatDelay(outgoingAudio, outRhythm) / Math.max(0.5, outgoingAudio.playbackRate || 1) : 0;
+            const outBpm = outRhythm ? Math.round(outRhythm.bpm) : null;
+            const inBpm = inRhythm ? Math.round(inRhythm.bpm) : null;
+            const matchedInBpm = inBpm ? Math.round(inBpm * playbackRate) : null;
+            const effectiveOutBpm = outBpm ? Math.round(outBpm * (outgoingAudio.playbackRate || 1)) : null;
+            lastDjMixBpmLabel = effectiveOutBpm && matchedInBpm
+                ? `${effectiveOutBpm} BPM · ${inBpm} → ${matchedInBpm} · ${playbackRate.toFixed(2)}×`
+                : outRhythm
+                    ? 'ВХОД ПО ДОЛЕ · BPM НЕ НАЙДЕН'
+                    : 'BPM НЕ ОПРЕДЕЛЁН · DJ-МИКС';
+            setDjMixUI({ phase: 'align', from: fromTitle, to: toTitle, bpmLabel: lastDjMixBpmLabel, progress: 0 });
+
+            const beatSeconds = outRhythm ? outRhythm.period / Math.max(0.5, outgoingAudio.playbackRate || 1) : 0.5;
+            let mixDuration = Math.max(CROSSFADE_MIN_SECONDS, Math.min(CROSSFADE_MAX_SECONDS, beatSeconds * 4 * CROSSFADE_BARS));
+            const remaining = Number(outgoingAudio.duration) - Number(outgoingAudio.currentTime);
+            if (Number.isFinite(remaining) && remaining > 0) {
+                mixDuration = Math.max(1.0, Math.min(mixDuration, remaining - beatWait));
+            }
+            const delayMs = Math.max(0, Math.min(beatWait, 1.2)) * 1000;
+            pendingMixTimeoutId = setTimeout(() => {
+                if (token !== crossfadeToken) return;
+                try {
+                    incomingAudio.currentTime = Math.min(Math.max(0, startOffset), Number.isFinite(incomingAudio.duration) ? Math.max(0, incomingAudio.duration - 0.25) : startOffset);
+                } catch (error) {}
+                setDeckGain(incomingAudio, 0);
+                const finalPlay = incomingAudio.play();
+                if (finalPlay && typeof finalPlay.catch === 'function') {
+                    finalPlay.catch(error => console.warn('Не удалось запустить входящий трек:', error));
+                }
+                recordListeningTime(true);
+                currentTrackId = track.id;
+                listeningTrackId = track.id;
+                lastListenMediaTime = Number(incomingAudio.currentTime) || 0;
+                currentAudio = incomingAudio;
+                spareAudio = outgoingAudio;
+                autoCrossfadeStartedForTrackId = null;
+                updateVibeCloudFromTrack(track);
+                updateNowPlayingUI(track);
+                warmNextTrackRhythm();
+                setDjMixUI({ phase: 'mix', from: fromTitle, to: toTitle, bpmLabel: lastDjMixBpmLabel, progress: 0 });
+                startAudioCrossfade(outgoingAudio, incomingAudio, mixDuration, token);
+                pendingMixTimeoutId = 0;
+            }, delayMs);
+        }
+
+        function maybeStartAutomaticCrossfade() {
+            if (!isPlaying || isRepeat || isCrossfading || !currentTrackId || !Number.isFinite(currentAudio.duration)) return;
+            if (autoCrossfadeStartedForTrackId === currentTrackId) return;
+            let queue = currentQueue;
+            let index = queue.indexOf(currentTrackId);
+            if (index === -1) {
+                queue = tracks.map(track => track.id);
+                index = queue.indexOf(currentTrackId);
+            }
+            if (queue.length < 2 || index === -1) return;
+            const nextId = queue[(index + 1) % queue.length];
+            if (!nextId || nextId === currentTrackId) return;
+            const cachedRhythm = rhythmAnalysisCache.get(String(currentTrackId));
+            const rhythm = cachedRhythm && typeof cachedRhythm.then !== 'function' ? cachedRhythm : null;
+            const beatSeconds = rhythm && rhythm.period ? rhythm.period / Math.max(0.5, currentAudio.playbackRate || 1) : 0.5;
+            const autoMixWindow = rhythm
+                ? Math.max(CROSSFADE_MIN_SECONDS, Math.min(CROSSFADE_MAX_SECONDS, beatSeconds * 4 * CROSSFADE_BARS))
+                : CROSSFADE_MAX_SECONDS;
+            if (currentAudio.paused || currentAudio.duration - currentAudio.currentTime > autoMixWindow + 0.3) return;
+            autoCrossfadeStartedForTrackId = currentTrackId;
+            playNext();
+        }
+
         function playTrack(id, queue = null, contextName = undefined, playlistId = undefined) {
             const track = tracks.find(t => t.id === id);
-            if(!track) return;
+            if (!track) return;
 
             if (queue) {
                 currentQueue = queue;
                 originalQueue = [...queue];
-                if(isShuffle) {
+                if (isShuffle) {
                     let remaining = currentQueue.filter(tid => tid !== id);
                     remaining.sort(() => Math.random() - 0.5);
                     remaining.unshift(id);
@@ -3390,23 +3926,62 @@
                 currentQueue = tracks.map(t => t.id);
                 originalQueue = [...currentQueue];
             }
-
             if (playlistId !== undefined) currentPlayingPlaylistId = playlistId;
             if (contextName !== undefined) {
                 currentContextName = contextName;
                 document.getElementById('fp-playlist-name').innerText = currentContextName;
             }
 
-            if(currentTrackId !== id) {
-                recordListeningTime(true);
-                listeningTrackId = id;
-                lastListenMediaTime = 0;
-                currentTrackId = id;
-                currentAudio.src = track.audioUrl;
-                updateVibeCloudFromTrack(track);
+            ensureAudioMixing();
+            if (currentTrackId === id) {
+                cancelAudioCrossfade();
+                if (currentAudio.ended) currentAudio.currentTime = 0;
+                currentAudio.loop = isRepeat;
+                const sameTrackPlay = currentAudio.play();
+                isPlaying = true;
+                if (sameTrackPlay && typeof sameTrackPlay.catch === 'function') sameTrackPlay.catch(() => {});
+                updatePlayPauseIcon();
+                return;
             }
 
+            const wasPlaying = !!currentTrackId && isPlaying && !currentAudio.paused && !currentAudio.ended;
+            cancelAudioCrossfade();
+            const token = crossfadeToken;
+            if (wasPlaying) {
+                const outgoingTrack = tracks.find(t => t.id === currentTrackId);
+                const outgoingAudio = currentAudio;
+                const incomingAudio = spareAudio;
+                isPlaying = true;
+                prepareDjMixTransition(track, outgoingTrack, outgoingAudio, incomingAudio, token).catch(error => {
+                    console.warn('Не удалось выполнить DJ-микс:', error);
+                    if (token !== crossfadeToken) return;
+                    cancelAudioCrossfade();
+                    currentAudio.src = track.audioUrl;
+                    currentAudio.loop = isRepeat;
+                    setDeckGain(currentAudio, 1);
+                    currentAudio.play().catch(() => {});
+                    currentTrackId = track.id;
+                    listeningTrackId = track.id;
+                    lastListenMediaTime = 0;
+                    isPlaying = true;
+                    updateVibeCloudFromTrack(track);
+                    updateNowPlayingUI(track);
+                    warmNextTrackRhythm();
+                });
+                return;
+            }
+
+            currentAudio.pause();
+            currentAudio.src = track.audioUrl;
+            currentAudio.loop = isRepeat;
+            currentAudio.playbackRate = 1;
+            setDeckGain(currentAudio, 1);
             const playAttempt = currentAudio.play();
+            currentTrackId = id;
+            listeningTrackId = id;
+            lastListenMediaTime = 0;
+            autoCrossfadeStartedForTrackId = null;
+            updateVibeCloudFromTrack(track);
             isPlaying = true;
             if (playAttempt && typeof playAttempt.catch === 'function') {
                 playAttempt.catch(error => {
@@ -3417,38 +3992,8 @@
                     console.warn('Не удалось начать воспроизведение:', error);
                 });
             }
-
-            document.getElementById('mini-player').classList.add('visible');
-            document.getElementById('mp-cover').src = track.coverUrl;
-            document.getElementById('mp-title').innerText = track.title;
-            document.getElementById('mp-author').innerText = artistLine(track);
-
-            document.getElementById('fp-cover').src = track.coverUrl;
-            document.getElementById('fp-bg').style.backgroundImage = `url(${track.coverUrl})`;
-            document.getElementById('fp-title').innerText = track.title;
-            document.getElementById('fp-author').innerText = artistLine(track);
-
-            updatePlayPauseIcon();
-            updateLikeIcons();
-            updateActiveTrackHighlight(); 
-
-            if(isQueueOpen) renderQueue();
-
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: track.title,
-                    artist: artistLine(track),
-                    album: 'MiMusic',
-                    artwork: [
-                        { src: track.coverUrl, sizes: '512x512', type: 'image/jpeg' }
-                    ]
-                });
-                
-                navigator.mediaSession.setActionHandler('play', () => togglePlay());
-                navigator.mediaSession.setActionHandler('pause', () => togglePlay());
-                navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
-                navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
-            }
+            updateNowPlayingUI(track);
+            warmNextTrackRhythm();
         }
 
         function togglePlaylistPlay() {
@@ -3472,11 +4017,13 @@
             if(!currentTrackId) return;
             
             if (isPlaying) {
+                cancelAudioCrossfade();
                 currentAudio.pause();
                 recordListeningTime(true);
                 saveListeningStats();
                 isPlaying = false;
             } else {
+                ensureAudioMixing();
                 listeningTrackId = currentTrackId;
                 lastListenMediaTime = Number(currentAudio.currentTime) || 0;
                 currentAudio.play();
