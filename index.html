@@ -2106,7 +2106,7 @@
         body.theme-kid .playback-settings-close { color: #fff !important; background: #111 !important; border: 1px solid #111 !important; border-radius: 2px !important; }
         body.theme-kid .playback-setting { border-top: 1px solid rgba(0,0,0,.22) !important; }
         body.theme-kid .playback-setting-value { background: #ece9e0 !important; border: 1px solid #111 !important; border-radius: 2px !important; }
-        body.theme-kid .playback-setting input[type="range"] { background: linear-gradient(to right,#111 50%,#d1cec5 50%) !important; box-shadow: none !important; }
+        body.theme-kid .playback-setting input[type="range"] { background: linear-gradient(to right,#eee var(--range-progress, 50%),#444 var(--range-progress, 50%)) !important; box-shadow: none !important; }
         body.theme-kid .playback-setting input[type="range"]::-webkit-slider-thumb { background: #111 !important; border: 2px solid #fff !important; box-shadow: 0 0 0 1px #111 !important; }
         body.theme-kid .playback-setting input[type="range"]::-moz-range-thumb { background: #111 !important; border: 2px solid #fff !important; box-shadow: 0 0 0 1px #111 !important; }
         body.theme-kid .playback-setting-scale,
@@ -2601,7 +2601,7 @@
         body.theme-kid .playback-settings-summary,
         body.theme-kid .dj-mix-track-name,
         body.theme-kid .dj-mix-bpm { background:#292929 !important; border:1px solid #ddd !important; }
-        body.theme-kid .playback-setting input[type="range"] { background:linear-gradient(to right,#eee 50%,#444 50%) !important; }
+        body.theme-kid .playback-setting input[type="range"] { background:linear-gradient(to right,#eee var(--range-progress, 50%),#444 var(--range-progress, 50%)) !important; }
         body.theme-kid .playback-setting input[type="range"]::-webkit-slider-thumb,
         body.theme-kid .playback-setting input[type="range"]::-moz-range-thumb { background:#eee !important; border:2px solid #111 !important; box-shadow:0 0 0 1px #eee !important; }
         body.theme-kid .playback-setting-scale,
@@ -2721,7 +2721,7 @@
         <div class="kid-intro-scene" aria-hidden="true">
             <div class="kid-intro-panel"></div>
             <span class="kid-intro-sfx">KID!</span>
-            <span class="kid-intro-caption">MANGA SOUND / MUSIC MODE</span>
+            
             <span class="kid-intro-number">NO. 01</span>
         </div>
         <div class="halloween-intro-scene" aria-hidden="true">
@@ -2932,7 +2932,7 @@
             <p class="theme-modal-subtitle">Выбери характер приложения</p>
             <button type="button" id="kid-theme-button" class="kid-theme-button" onclick="applyKidTheme()" aria-label="Выбрать тему KID">
                 <span class="kid-theme-art" aria-hidden="true"><b>KID</b><i>01</i></span>
-                <span class="kid-theme-copy"><small>НОВАЯ MANGA-ТЕМА</small><strong>KID</strong><span>Белая бумага · чёрная тушь</span></span>
+                <span class="kid-theme-copy"><small>НОВАЯ MANGA-ТЕМА</small><strong>KID</strong><span>Чёрная бумага · белая тушь</span></span>
                 <span class="kid-theme-check" aria-hidden="true">✓</span>
             </button>
             <div class="theme-palette-heading"><span>ЦВЕТОВЫЕ АКЦЕНТЫ</span><small>Настрой обычный стиль</small></div>
@@ -3593,7 +3593,7 @@
             document.body.classList.toggle('theme-kid', themeMode === 'kid');
             document.documentElement.classList.toggle('theme-kid', themeMode === 'kid');
             const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-            if (themeColorMeta) themeColorMeta.setAttribute('content', themeMode === 'halloween' ? '#100b12' : themeMode === 'kid' ? '#f1eee5' : '#080808');
+            if (themeColorMeta) themeColorMeta.setAttribute('content', themeMode === 'halloween' ? '#100b12' : themeMode === 'kid' ? '#08090d' : '#080808');
             document.querySelectorAll('.color-dot[data-hex]').forEach(dot => {
                 dot.classList.toggle('selected', themeMode === 'standard' && dot.dataset.hex.toLowerCase() === String(hex).toLowerCase());
             });
@@ -3939,7 +3939,7 @@
                     if (audio !== currentAudio) return;
                     recordListeningTime(true);
                     saveListeningStats();
-                    if(!isRepeat) playNext();
+                    if(!isRepeat && !isCrossfading) playNext();
                 });
             });
         });
@@ -4647,12 +4647,14 @@
             const effectiveRate = document.getElementById('playback-effective-rate');
             if (speedRange) {
                 speedRange.value = String(playbackSpeedSetting);
-                const percent = ((playbackSpeedSetting - 0.5) / 1.5) * 100;
+                const percent = Math.max(0, Math.min(100, ((playbackSpeedSetting - 0.5) / 1.5) * 100));
+                speedRange.style.setProperty('--range-progress', `${percent}%`);
                 speedRange.style.background = `linear-gradient(to right,var(--accent-color) ${percent}%,rgba(255,255,255,.16) ${percent}%)`;
             }
             if (tempoRange) {
                 tempoRange.value = String(playbackTempoPercent);
-                const percent = ((playbackTempoPercent - 80) / 40) * 100;
+                const percent = Math.max(0, Math.min(100, ((playbackTempoPercent - 80) / 40) * 100));
+                tempoRange.style.setProperty('--range-progress', `${percent}%`);
                 tempoRange.style.background = `linear-gradient(to right,var(--accent-color) ${percent}%,rgba(255,255,255,.16) ${percent}%)`;
             }
             if (speedValue) speedValue.textContent = `${playbackSpeedSetting.toFixed(2)}×`;
@@ -5158,7 +5160,21 @@
             incomingAudio.load();
             const silentStartPromise = incomingAudio.play();
             if (silentStartPromise && typeof silentStartPromise.then === 'function') {
-                await silentStartPromise;
+                let startTimeoutId = 0;
+                let startResult;
+                try {
+                    startResult = await Promise.race([
+                        silentStartPromise.then(() => 'started'),
+                        new Promise(resolve => {
+                            startTimeoutId = setTimeout(() => resolve('timeout'), 2800);
+                        })
+                    ]);
+                } finally {
+                    if (startTimeoutId) clearTimeout(startTimeoutId);
+                }
+                if (startResult === 'timeout') {
+                    throw new Error('Входящий трек не подтвердил запуск DJ-микса вовремя.');
+                }
             }
             if (token !== crossfadeToken) return;
 
