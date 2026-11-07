@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="apple-touch-icon.png?v=2">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
     <meta name="theme-color" content="#08090d">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4795,6 +4795,9 @@
         // ───── Web Audio для DJ-микса, безопасный для iOS Safari ─────
         // Главное правило: аудиоэлементы подключаются к графу ТОЛЬКО когда контекст уже "running".
         // Иначе Safari маршрутизирует трек в приостановленный контекст — и звука нет вообще.
+        // На iPhone/iPad DJ-микс отключён: Safari не даёт надёжно переключать <audio> через Web Audio,
+        // из-за чего следующий трек после микса молчал. Там используется обычное воспроизведение.
+        const MIX_UNSUPPORTED = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         let mixGraphReady = false;
         let mixGraphPromise = null;
         let decodeContext = null;
@@ -4852,6 +4855,7 @@
         }
 
         function ensureAudioMixing() {
+            if (MIX_UNSUPPORTED) return false;
             unlockSpareAudio();
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             if (!AudioContextClass) return false;
@@ -4894,7 +4898,7 @@
 
         // DJ-микс возможен только при живом графе Web Audio; иначе — обычное переключение треков.
         function djMixAvailable() {
-            return !!(mixGraphReady && audioContext && audioContext.state === 'running'
+            return !!(!MIX_UNSUPPORTED && mixGraphReady && audioContext && audioContext.state === 'running'
                 && audioGainNodes.get(currentAudio) && audioGainNodes.get(spareAudio));
         }
 
