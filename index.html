@@ -2724,6 +2724,223 @@
         .dj-mix-mini-track i, body.theme-kid .dj-mix-mini-track i { border-radius:2px !important; box-shadow:none !important; background:var(--accent-color) !important; }
         body.theme-kid .dj-mix-mini-track i { background:#f3f3f3 !important; }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+    <style id="mimusic-player-v4">
+        /* ═════ Кнопки шапки плеера ═════ */
+        .fp-header > button { width:40px; height:40px; padding:0; display:grid; place-items:center; border-radius:50%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); }
+        .fp-header-actions { gap:0; padding:3px; border-radius:16px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+        .fp-header-actions button { position:relative; width:38px; height:38px; padding:0; border:0; border-radius:12px; background:transparent; color:rgba(255,255,255,.88); }
+        .fp-header-actions button + button::before { content:""; position:absolute; left:-1px; top:10px; bottom:10px; width:1px; background:rgba(255,255,255,.12); }
+        .fp-header-actions button svg { width:21px; height:21px; }
+        #fp-audio-settings-btn.active { background:var(--accent-color); color:#08090d; border:0; box-shadow:0 4px 16px rgba(var(--accent-rgb),.4); }
+        #fp-audio-settings-btn.active::before, #fp-audio-settings-btn.active + button::before { opacity:0; }
+        body.theme-kid .fp-header > button { border:1.5px solid #eee !important; border-radius:8px !important; background:#171717 !important; }
+        body.theme-kid .fp-header-actions { border:1.5px solid #eee; border-radius:9px; background:#171717; box-shadow:3px 3px 0 rgba(0,0,0,.6); -webkit-backdrop-filter:none; backdrop-filter:none; }
+        body.theme-kid .fp-header-actions button { border-radius:5px !important; background:transparent !important; border:0 !important; }
+        body.theme-kid #fp-audio-settings-btn.active { background:#eee !important; color:#111 !important; box-shadow:none; }
+
+        /* ═════ Кнопки управления ═════ */
+        .fp-controls-row { gap:4px; padding:8px 10px; margin:0 0 16px; border-radius:46px; border:1px solid rgba(255,255,255,.1);
+            background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03)); box-shadow:0 16px 36px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.08);
+            -webkit-backdrop-filter:blur(22px) saturate(1.4); backdrop-filter:blur(22px) saturate(1.4); }
+        .fp-controls-row button { display:grid; place-items:center; flex:0 0 auto; border-radius:50%; opacity:1; }
+        .fp-controls-row svg { width:24px; height:24px; }
+        #fp-repeat-btn, #fp-shuffle-btn { width:40px; height:40px; opacity:.55; }
+        #fp-repeat-btn svg, #fp-shuffle-btn svg { width:19px; height:19px; }
+        .fp-controls-row button:nth-child(2), .fp-controls-row button:nth-child(4) { width:52px; height:52px; background:rgba(255,255,255,.075); border:1px solid rgba(255,255,255,.09); }
+        .fp-controls-row button:nth-child(2):active, .fp-controls-row button:nth-child(4):active { background:rgba(255,255,255,.16); }
+        .fp-controls-row button.active { opacity:1; background:rgba(var(--accent-rgb),.15); }
+        .fp-controls-row button.active::after { bottom:4px; width:4px; height:4px; margin-left:-2px; }
+        .fp-controls-row .btn-play-large { width:72px; height:72px; border:0; background:linear-gradient(160deg,rgba(255,255,255,.38),rgba(255,255,255,0) 58%),var(--accent-color);
+            box-shadow:0 12px 30px rgba(var(--accent-rgb),.4),0 0 0 6px rgba(var(--accent-rgb),.1),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -3px 8px rgba(0,0,0,.12); }
+        .fp-controls-row .btn-play-large svg { width:34px; height:34px; }
+        @media (max-width:340px) { .fp-controls-row { padding:6px; } .fp-controls-row button:nth-child(2), .fp-controls-row button:nth-child(4) { width:46px; height:46px; } .fp-controls-row .btn-play-large { width:64px; height:64px; } }
+        body.theme-kid .fp-controls-row { border:2px solid #eee !important; border-radius:10px !important; gap:6px; background:radial-gradient(circle,rgba(255,255,255,.07) 1px,transparent 1.6px) 0 0/6px 6px,#151515 !important; box-shadow:5px 5px 0 rgba(0,0,0,.65) !important; -webkit-backdrop-filter:none; backdrop-filter:none; }
+        body.theme-kid .fp-controls-row button { border-radius:6px !important; }
+        body.theme-kid .fp-controls-row button:nth-child(2), body.theme-kid .fp-controls-row button:nth-child(4) { background:#1d1d1d !important; border:1.5px solid #eee !important; box-shadow:2px 2px 0 rgba(0,0,0,.55); }
+        body.theme-kid #fp-repeat-btn, body.theme-kid #fp-shuffle-btn { border:1.5px dashed rgba(255,255,255,.5) !important; background:transparent !important; }
+        body.theme-kid .fp-controls-row button.active { background:#eee !important; color:#111 !important; border:1.5px solid #fff !important; opacity:1; }
+        body.theme-kid .fp-controls-row button.active::after { display:none; }
+        body.theme-kid .fp-controls-row .btn-play-large { border-radius:6px !important; box-shadow:4px 4px 0 rgba(0,0,0,.65) !important; }
+
+        /* ═════ Мини-плеер: избранное и пауза читаются в любой теме ═════ */
+        #mp-like-btn svg, #fp-like-btn svg { fill:none; stroke:currentColor; stroke-width:2; stroke-linejoin:round; }
+        #mp-like-btn.active svg, #fp-like-btn.active svg { fill:currentColor; }
+        body.theme-kid #mini-player #mp-play-btn { background:#eee !important; color:#111 !important; border:2px solid #fff !important; box-shadow:2px 2px 0 rgba(0,0,0,.6) !important; }
+        body.theme-kid #mini-player #mp-play-btn svg { fill:#111 !important; }
+        body.theme-kid #mini-player #mp-like-btn { color:#f3f3f3 !important; }
+        body.theme-kid #mini-player #mp-like-btn.active, body.theme-kid #fp-like-btn.active { color:#fff !important; }
+
+        /* ═════ Панель скорости и темпа ═════ */
+        .playback-settings-panel { --ps-rate:1; padding:18px 15px 13px; border-radius:28px; border:1px solid rgba(255,255,255,.11); max-height:min(70vh,540px); scrollbar-width:none;
+            background:radial-gradient(ellipse at 100% 0,rgba(var(--accent-rgb),.22),transparent 52%),linear-gradient(160deg,rgba(30,33,48,.985),rgba(9,10,16,.992));
+            box-shadow:0 28px 80px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.1); }
+        .playback-settings-panel::-webkit-scrollbar { display:none; }
+        .ps-head-left { display:flex; align-items:center; gap:12px; min-width:0; }
+        .ps-vinyl { position:relative; flex:0 0 44px; width:44px; height:44px; border-radius:50%; background:repeating-radial-gradient(circle,#171822 0 2px,#0a0b10 2px 4px);
+            box-shadow:0 0 0 1px rgba(255,255,255,.14),0 8px 22px rgba(var(--accent-rgb),.32); animation:ps-spin calc(2.8s / var(--ps-rate,1)) linear infinite; }
+        .ps-vinyl::before { content:""; position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg,transparent 0 18%,rgba(255,255,255,.26) 24%,transparent 31% 68%,rgba(255,255,255,.16) 75%,transparent 82%); }
+        .ps-vinyl i { position:absolute; inset:15px; border-radius:50%; background:var(--accent-color); box-shadow:0 0 0 3px #0a0b10; }
+        @keyframes ps-spin { to { transform:rotate(360deg); } }
+        .playback-setting { padding:13px 14px 12px; margin-bottom:10px; border:1px solid rgba(255,255,255,.075); border-radius:20px; background:linear-gradient(150deg,rgba(255,255,255,.065),rgba(255,255,255,.02)); }
+        .playback-setting-top { align-items:flex-end; margin-bottom:11px; }
+        .playback-setting-value { font-size:24px; line-height:1; font-weight:850; letter-spacing:-.8px; color:#fff; }
+        #pitch-mode-label { font-size:15px; letter-spacing:0; color:var(--accent-color); }
+        .speed-presets { margin:0 0 14px; order:-1; }
+        .playback-setting { display:flex; flex-direction:column; }
+        .playback-setting-top { order:-2; }
+        .playback-setting-scale { order:1; }
+        .playback-setting > .playback-setting-hint { order:2; }
+        .speed-preset, .tempo-preset { border-radius:11px; transition:transform .25s, background .2s, color .2s; }
+        .speed-preset.active, .tempo-preset.active { background:var(--accent-color); border-color:transparent; color:#08090d; box-shadow:0 5px 16px rgba(var(--accent-rgb),.38); }
+        .tempo-presets { margin:0 0 14px; order:-1; }
+        .pitch-modes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-bottom:6px; }
+        .playback-setting input[type="range"] { height:8px; border-radius:10px; }
+        .playback-setting input[type="range"]::-webkit-slider-thumb { width:24px; height:24px; border:6px solid var(--accent-color); background:#fff; box-shadow:0 0 0 5px rgba(var(--accent-rgb),.17),0 4px 14px rgba(0,0,0,.55); }
+        .playback-settings-summary { flex-direction:column; align-items:stretch; gap:10px; padding:13px 14px; margin:0; border-radius:20px; background:linear-gradient(135deg,rgba(var(--accent-rgb),.2),rgba(var(--accent-rgb),.05)); border:1px solid rgba(var(--accent-rgb),.28); }
+        .ps-sum-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .playback-settings-summary strong { font-size:24px; font-weight:850; letter-spacing:-.8px; }
+        .ps-gauge { position:relative; height:6px; border-radius:6px; background:rgba(0,0,0,.35); }
+        .ps-gauge i { display:block; height:100%; width:30%; border-radius:inherit; background:linear-gradient(90deg,rgba(var(--accent-rgb),.5),var(--accent-color)); transition:width .25s; }
+        .ps-gauge b { position:absolute; left:30%; top:-4px; width:2px; height:14px; border-radius:2px; background:rgba(255,255,255,.55); }
+        .playback-settings-footer { justify-content:center; }
+        .playback-settings-reset { padding:8px 16px; border-radius:99px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); }
+        body.theme-kid .playback-settings-panel { border:2px solid #eee !important; border-radius:18px !important; box-shadow:6px 6px 0 rgba(0,0,0,.7) !important; }
+        body.theme-kid .playback-setting { border:1.5px solid rgba(255,255,255,.3); border-radius:12px; background:rgba(255,255,255,.03); }
+        body.theme-kid .playback-settings-summary { border:1.5px solid #eee; border-radius:12px; background:rgba(255,255,255,.06); }
+        body.theme-kid .ps-vinyl { box-shadow:0 0 0 2px #eee; }
+        body.theme-kid .ps-vinyl i, body.theme-kid .ps-gauge i { background:#eee; box-shadow:none; }
+        body.theme-kid .playback-setting-value, body.theme-kid #pitch-mode-label { color:#f3f3f3 !important; }
+        body.theme-kid .speed-preset.active, body.theme-kid .tempo-preset.active { background:#eee !important; color:#111 !important; border-color:#fff !important; box-shadow:2px 2px 0 rgba(0,0,0,.6) !important; }
+
+        /* ═════ Режим «Вайб» ═════ */
+        .fp-stage { display:contents; }
+        .fp-vibe-row { display:flex; justify-content:center; margin:2px 0 14px; }
+        .fp-vibe-btn { display:inline-flex; align-items:center; gap:7px; padding:8px 16px 8px 12px; border-radius:99px; cursor:pointer; border:1px solid rgba(255,255,255,.14);
+            background:rgba(255,255,255,.07); color:rgba(255,255,255,.8); font:800 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; letter-spacing:1.6px; text-transform:uppercase;
+            -webkit-tap-highlight-color:transparent; transition:transform .3s var(--ease-spring,ease),background .25s,color .25s,box-shadow .25s; }
+        .fp-vibe-btn:active { transform:scale(.93); }
+        .fp-vibe-btn svg { width:15px; height:15px; fill:currentColor; }
+        .fp-vibe-btn.active { background:var(--accent-color); border-color:transparent; color:#08090d; box-shadow:0 6px 22px rgba(var(--accent-rgb),.45); }
+        .fp-vibe-btn.active svg { animation:vibe-twinkle 1.8s ease-in-out infinite; }
+        @keyframes vibe-twinkle { 0%,100%{transform:scale(1) rotate(0)} 50%{transform:scale(1.18) rotate(14deg)} }
+        body.theme-kid .fp-vibe-btn { border:1.5px solid #eee !important; border-radius:6px; background:#171717 !important; color:#f3f3f3 !important; box-shadow:2px 2px 0 rgba(0,0,0,.6); }
+        body.theme-kid .fp-vibe-btn.active { background:#eee !important; color:#111 !important; }
+
+        #fp-vibe { position:absolute; inset:0; z-index:-1; overflow:hidden; opacity:0; visibility:hidden; pointer-events:none; background:#050806; transition:opacity .6s ease,visibility .6s; }
+        #full-player.vibe #fp-vibe { opacity:1; visibility:visible; }
+        #full-player.vibe .fp-bg { opacity:0; }
+        #fp-vibe * { animation-play-state:paused; }
+        #full-player.vibe #fp-vibe * { animation-play-state:running; }
+        .vibe-bg, .vibe-bg2 { position:absolute; background:var(--vibe-img,none) center/cover no-repeat; will-change:transform; }
+        .vibe-bg { inset:-25%; filter:blur(36px) saturate(1.8) brightness(.66); animation:vibe-drift 26s ease-in-out infinite alternate; }
+        .vibe-bg2 { inset:-8%; filter:blur(12px) brightness(.4) saturate(1.4); mix-blend-mode:screen; opacity:.5; animation:vibe-drift2 34s ease-in-out infinite alternate; }
+        @keyframes vibe-drift { from{transform:translate3d(-4%,-3%,0) scale(1.05) rotate(0)} to{transform:translate3d(5%,4%,0) scale(1.25) rotate(6deg)} }
+        @keyframes vibe-drift2 { from{transform:translate3d(5%,2%,0) scale(1.1)} to{transform:translate3d(-5%,-4%,0) scale(1.3)} }
+        .vibe-flare { position:absolute; left:-30%; width:80%; height:34px; border-radius:50%; filter:blur(16px); opacity:.85; mix-blend-mode:screen;
+            background:linear-gradient(90deg,transparent,rgba(255,168,48,.9),rgba(255,70,40,.8),transparent); }
+        .vibe-flare-a { top:22%; transform:rotate(-8deg); animation:vibe-flare 11s ease-in-out infinite alternate; }
+        .vibe-flare-b { bottom:18%; left:auto; right:-35%; transform:rotate(-6deg); animation:vibe-flare 14s ease-in-out infinite alternate-reverse; }
+        @keyframes vibe-flare { from{translate:-6% 0; opacity:.3} to{translate:22% 22px; opacity:.9} }
+        .vibe-particles span { position:absolute; bottom:-14px; border-radius:50%; background:rgba(255,255,255,.9); box-shadow:0 0 9px rgba(255,255,255,.75); opacity:0; animation:vibe-rise linear infinite; }
+        @keyframes vibe-rise { 0%{transform:translate3d(0,0,0);opacity:0} 12%{opacity:.95} 85%{opacity:.7} 100%{transform:translate3d(var(--dx,0),-112vh,0);opacity:0} }
+        .vibe-mirror { position:absolute; left:0; right:0; bottom:calc(env(safe-area-inset-bottom,0px) + 2px); height:56px; overflow:hidden; opacity:.6;
+            -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent); mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent); }
+        .vibe-mirror span { display:inline-block; white-space:nowrap; transform:scaleY(-1); transform-origin:center; font:900 44px/56px Impact,"Arial Black","Haettenschweiler",sans-serif; letter-spacing:1px; color:#f4b73a; text-shadow:0 0 18px rgba(244,183,58,.5); animation:vibe-marquee 32s linear infinite; }
+        @keyframes vibe-marquee { from{transform:translateX(0) scaleY(-1)} to{transform:translateX(-50%) scaleY(-1)} }
+        .vibe-vignette { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 42%,transparent 30%,rgba(0,0,0,.68) 100%); }
+
+        #full-player.vibe .fp-stage { display:flex; flex-direction:column; flex:1; min-height:0; margin:2px 0 14px; padding:18px 18px 10px; border-radius:30px; border:1px solid rgba(255,255,255,.15);
+            background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(0,0,0,.3)); -webkit-backdrop-filter:blur(26px) saturate(1.25); backdrop-filter:blur(26px) saturate(1.25);
+            box-shadow:0 24px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.2); }
+        #full-player.vibe .fp-cover-wrapper { padding:0; }
+        #full-player.vibe #fp-cover { max-width:min(64%,250px); border-radius:18px; }
+        #full-player.vibe .fp-vibe-row { margin:12px 0 12px; }
+        #full-player.vibe .fp-info-row { margin-bottom:14px; }
+        #full-player.vibe .fp-progress-row { margin-bottom:6px; }
+        .fp-signature { display:none; text-align:center; padding:6px 0 4px; font:400 24px/1 "Pirata One","UnifrakturCook","Old English Text MT",Georgia,serif; letter-spacing:3px; color:rgba(236,241,230,.58); text-shadow:0 1px 0 rgba(0,0,0,.65),0 0 14px rgba(0,0,0,.45); }
+        #full-player.vibe .fp-signature { display:block; }
+        body.theme-kid #full-player.vibe .vibe-bg, body.theme-kid #full-player.vibe .vibe-bg2 { filter:grayscale(1) blur(30px) brightness(.55) contrast(1.25); }
+        body.theme-kid .vibe-flare { background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent); }
+        body.theme-kid .vibe-mirror span { color:#eee; text-shadow:none; }
+        body.theme-kid #full-player.vibe .fp-stage { border:2px solid #eee; border-radius:14px; background:rgba(16,16,16,.55); box-shadow:6px 6px 0 rgba(0,0,0,.65); }
+        @media (prefers-reduced-motion:reduce) { #fp-vibe * { animation:none !important; } }
+    </style>
+    <style id="mimusic-liquid-v5">
+        @property --lg-a { syntax:'<angle>'; inherits:false; initial-value:200deg; }
+        /* ═════ Живой фон: «капли» обложки, как в Apple Music ═════ */
+        .vibe-bg { filter:blur(40px) saturate(1.9) brightness(.55); }
+        .vibe-blob { position:absolute; width:85vmax; height:85vmax; border-radius:50%; background:var(--vibe-img,none) center/cover no-repeat;
+            filter:blur(48px) saturate(2.2) brightness(.85); opacity:.72; mix-blend-mode:screen; will-change:transform; }
+        .vibe-blob-a { left:-42vmax; top:-34vmax; animation:vb-a 17s ease-in-out infinite alternate; }
+        .vibe-blob-b { right:-48vmax; top:6vmax; animation:vb-b 21s ease-in-out infinite alternate; }
+        .vibe-blob-c { left:-14vmax; bottom:-54vmax; animation:vb-c 25s ease-in-out infinite alternate; }
+        @keyframes vb-a { from{transform:translate3d(0,0,0) rotate(0) scale(1)} to{transform:translate3d(40vmax,28vmax,0) rotate(90deg) scale(1.3)} }
+        @keyframes vb-b { from{transform:translate3d(0,0,0) rotate(0) scale(1.15)} to{transform:translate3d(-38vmax,24vmax,0) rotate(-110deg) scale(.9)} }
+        @keyframes vb-c { from{transform:translate3d(0,0,0) rotate(20deg) scale(.95)} to{transform:translate3d(34vmax,-30vmax,0) rotate(150deg) scale(1.25)} }
+        .vibe-particles span.big { background:rgba(255,255,255,.4); box-shadow:0 0 22px rgba(255,255,255,.5); filter:blur(2.5px); }
+        .vibe-flare { opacity:.55; }
+
+        /* ═════ Бегущий перевёрнутый заголовок: всегда заполнен ═════ */
+        .vibe-mirror { height:64px; bottom:calc(env(safe-area-inset-bottom,0px) + 6px); opacity:.85; }
+        .vibe-mirror .vibe-mirror-track { display:inline-flex; white-space:pre; transform:scaleY(-1); animation:vibe-marquee var(--vm-dur,30s) linear infinite; will-change:translate; }
+        .vibe-mirror .vm-group { display:inline-block; transform:none; animation:none; font:900 46px/64px Impact,"Arial Black","Haettenschweiler",sans-serif; letter-spacing:1px;
+            color:rgba(255,255,255,.1); -webkit-text-stroke:1.5px rgba(255,255,255,.5); text-shadow:0 0 22px rgba(255,255,255,.18); }
+        @keyframes vibe-marquee { from{translate:0 0} to{translate:-50% 0} }
+
+        /* ═════ Жидкое стекло (iOS) ═════ */
+        #full-player.vibe .fp-stage { position:relative; isolation:isolate; border:0; border-radius:36px; padding:20px 18px 12px;
+            background:linear-gradient(155deg,rgba(255,255,255,.17),rgba(255,255,255,.05) 38%,rgba(255,255,255,.02) 62%,rgba(255,255,255,.11));
+            -webkit-backdrop-filter:blur(20px) saturate(2) brightness(1.08); backdrop-filter:blur(20px) saturate(2) brightness(1.08);
+            box-shadow:inset 0 1.5px 2px rgba(255,255,255,.6),inset 0 -1.5px 2px rgba(255,255,255,.2),inset 1.5px 0 2px rgba(255,255,255,.14),inset -1.5px 0 2px rgba(255,255,255,.14),inset 0 0 38px rgba(255,255,255,.08),0 32px 72px rgba(0,0,0,.45),0 2px 10px rgba(0,0,0,.25);
+            animation:lg-in .95s cubic-bezier(.2,.9,.3,1) both,lg-float 9s ease-in-out .95s infinite alternate,lg-morph 12s ease-in-out infinite alternate; }
+        #full-player.vibe .fp-stage::before, #full-player.vibe .fp-controls-row::before { content:""; position:absolute; inset:0; z-index:3; border-radius:inherit; padding:1.5px; pointer-events:none;
+            background:conic-gradient(from var(--lg-a),rgba(255,255,255,.95),rgba(255,255,255,.07) 17%,rgba(255,255,255,.03) 48%,rgba(255,255,255,.62) 72%,rgba(255,255,255,.08) 89%,rgba(255,255,255,.95));
+            -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+            animation:lg-rim 16s linear infinite; }
+        #full-player.vibe .fp-stage::after { content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none; overflow:hidden;
+            background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.2) 48%,rgba(255,255,255,.06) 54%,transparent 62%) 0 0/260% 100% no-repeat; animation:lg-sheen 8s ease-in-out infinite; }
+        @keyframes lg-rim { to { --lg-a:560deg; } }
+        @keyframes lg-sheen { 0%{background-position:130% 0} 55%,100%{background-position:-70% 0} }
+        @keyframes lg-in { from{opacity:0;transform:translateY(34px) scale(.93)} to{opacity:1;transform:translateY(0) scale(1)} }
+        @keyframes lg-float { from{translate:0 -3px} to{translate:0 4px} }
+        @keyframes lg-morph { 0%{border-radius:36px 34px 38px 34px / 34px 38px 34px 38px} 50%{border-radius:34px 40px 34px 38px / 38px 34px 40px 34px} 100%{border-radius:40px 34px 36px 40px / 34px 38px 36px 34px} }
+        #full-player.vibe .fp-stage > * { animation:vibe-up .85s cubic-bezier(.2,.9,.3,1) both; }
+        #full-player.vibe .fp-stage > :nth-child(1) { animation-delay:.18s; } #full-player.vibe .fp-stage > :nth-child(2) { animation-delay:.28s; }
+        #full-player.vibe .fp-stage > :nth-child(3) { animation-delay:.38s; } #full-player.vibe .fp-stage > :nth-child(4) { animation-delay:.48s; } #full-player.vibe .fp-stage > :nth-child(5) { animation-delay:.58s; }
+        @keyframes vibe-up { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        #full-player.vibe #fp-cover { border-radius:26px; border:1px solid rgba(255,255,255,.34);
+            box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 24px 54px rgba(0,0,0,.5),0 0 70px rgba(var(--accent-rgb),.2); animation:lg-bob 7s ease-in-out infinite alternate; }
+        @keyframes lg-bob { from{translate:0 -4px; rotate:-.7deg} to{translate:0 5px; rotate:.7deg} }
+        #full-player.vibe .fp-signature { opacity:.8; animation:vibe-up .85s cubic-bezier(.2,.9,.3,1) .58s both,lg-glow 4.5s ease-in-out 1.5s infinite alternate; }
+        @keyframes lg-glow { from{text-shadow:0 1px 0 rgba(0,0,0,.65),0 0 10px rgba(255,255,255,.1)} to{text-shadow:0 1px 0 rgba(0,0,0,.65),0 0 18px rgba(255,255,255,.45)} }
+
+        /* кнопка «Вайб», шапка и кнопки управления — тоже стекло */
+        #full-player.vibe .fp-vibe-btn { background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.06)); border:1px solid rgba(255,255,255,.3);
+            box-shadow:inset 0 1px 1.5px rgba(255,255,255,.6),0 8px 22px rgba(0,0,0,.25); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+        #full-player.vibe .fp-vibe-btn.active { background:linear-gradient(160deg,rgba(255,255,255,.55),rgba(255,255,255,.05) 55%),rgba(var(--accent-rgb),.8); color:#08090d;
+            box-shadow:inset 0 1.5px 2px rgba(255,255,255,.8),0 8px 26px rgba(var(--accent-rgb),.5); }
+        #full-player.vibe .fp-header > button, #full-player.vibe .fp-header-actions { background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.05)); border:1px solid rgba(255,255,255,.26);
+            box-shadow:inset 0 1px 1.5px rgba(255,255,255,.55),0 8px 22px rgba(0,0,0,.22); -webkit-backdrop-filter:blur(16px) saturate(1.8); backdrop-filter:blur(16px) saturate(1.8); }
+        #full-player.vibe .fp-controls-row { position:relative; isolation:isolate; border:0; animation:vibe-up .9s cubic-bezier(.2,.9,.3,1) .45s both;
+            background:linear-gradient(155deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 45%,rgba(255,255,255,.1));
+            -webkit-backdrop-filter:blur(20px) saturate(2) brightness(1.06); backdrop-filter:blur(20px) saturate(2) brightness(1.06);
+            box-shadow:inset 0 1.5px 2px rgba(255,255,255,.55),inset 0 -1.5px 2px rgba(255,255,255,.16),0 22px 46px rgba(0,0,0,.36); }
+        #full-player.vibe .fp-controls-row button:nth-child(2), #full-player.vibe .fp-controls-row button:nth-child(4) {
+            background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.05)); border:1px solid rgba(255,255,255,.26); box-shadow:inset 0 1px 1.5px rgba(255,255,255,.55),0 6px 16px rgba(0,0,0,.2); }
+        #full-player.vibe .fp-controls-row .btn-play-large { background:linear-gradient(160deg,rgba(255,255,255,.6),rgba(255,255,255,.04) 56%),rgba(var(--accent-rgb),.82);
+            box-shadow:inset 0 2px 2.5px rgba(255,255,255,.85),inset 0 -4px 10px rgba(0,0,0,.2),0 14px 34px rgba(var(--accent-rgb),.5),0 0 0 1px rgba(255,255,255,.28); }
+        #full-player.vibe .fp-controls-row button:active { transition-duration:.12s; }
+
+        /* KID: стекло отключено, остаётся «тушь» */
+        body.theme-kid #full-player.vibe .fp-stage { animation:lg-in .9s cubic-bezier(.2,.9,.3,1) both; border:2px solid #eee; border-radius:14px; box-shadow:6px 6px 0 rgba(0,0,0,.65); -webkit-backdrop-filter:none; backdrop-filter:none; }
+        body.theme-kid #full-player.vibe .fp-stage::before, body.theme-kid #full-player.vibe .fp-stage::after, body.theme-kid #full-player.vibe .fp-controls-row::before { display:none; }
+        body.theme-kid .vibe-blob { filter:grayscale(1) blur(48px) brightness(.8); }
+        body.theme-kid #full-player.vibe #fp-cover { border:3px solid #eee; border-radius:3px; box-shadow:7px 8px 0 rgba(0,0,0,.62); }
+        @media (prefers-reduced-motion:reduce) { #full-player.vibe .fp-stage, #full-player.vibe .fp-stage > *, #full-player.vibe #fp-cover, #full-player.vibe .fp-controls-row { animation:none !important; } .vibe-blob, .vibe-mirror-track { animation:none !important; } }
+    </style>
 </head>
 <body>
     <div id="viewport-bottom-fill" aria-hidden="true"></div>
@@ -3068,6 +3285,14 @@
 
     <div id="full-player">
         <div class="fp-bg" id="fp-bg"></div>
+        <div id="fp-vibe" aria-hidden="true">
+            <div class="vibe-bg"></div><div class="vibe-bg2"></div>
+            <div class="vibe-blob vibe-blob-a"></div><div class="vibe-blob vibe-blob-b"></div><div class="vibe-blob vibe-blob-c"></div>
+            <div class="vibe-flare vibe-flare-a"></div><div class="vibe-flare vibe-flare-b"></div>
+            <div class="vibe-particles" id="vibe-particles"></div>
+            <div class="vibe-mirror"><div class="vibe-mirror-track" id="vibe-mirror-track"></div></div>
+            <div class="vibe-vignette"></div>
+        </div>
         <div class="fp-header">
             <button onclick="closeFullPlayer()">
                 <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
@@ -3078,16 +3303,23 @@
             </div>
             <div class="fp-header-actions">
                 <button type="button" id="fp-audio-settings-btn" onclick="togglePlaybackSettings(event)" aria-label="Настройки скорости и темпа" aria-expanded="false">
-                    <svg viewBox="0 0 24 24"><path d="M4 7h9v2H4V7zm13 0h3v2h-3V7zM9 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM4 15h3v2H4v-2zm7 0h9v2h-9v-2zm-2-1a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44zm-9.79 6.84a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"/></svg>
                 </button>
-                <button type="button" onclick="toggleQueue()" aria-label="Очередь"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+                <button type="button" onclick="toggleQueue()" aria-label="Очередь"><svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg></button>
             </div>
         </div>
         
+        <div class="fp-stage">
         <div class="fp-cover-wrapper">
             <img id="fp-cover" src="" alt="">
         </div>
         
+        <div class="fp-vibe-row">
+                <button type="button" id="fp-vibe-btn" class="fp-vibe-btn" onclick="toggleVibeMode(event)" aria-pressed="false" aria-label="Режим вайб">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                    <span>Вайб</span>
+                </button>
+            </div>
         <div class="fp-info-row">
             <div class="fp-text">
                 <div id="fp-title">Название</div>
@@ -3106,6 +3338,8 @@
                 <span id="fp-time-current">0:00</span>
                 <span id="fp-time-total">0:00</span>
             </div>
+        </div>
+            <div class="fp-signature" aria-hidden="true">MIFILLL</div>
         </div>
 
         <div id="dj-mix-full" class="dj-mix-full" aria-live="polite">
@@ -3133,7 +3367,7 @@
 
         <div id="playback-settings-panel" class="playback-settings-panel" role="dialog" aria-label="Настройки скорости и темпа" aria-hidden="true" onclick="event.stopPropagation()">
             <div class="playback-settings-head">
-                <div><small>ЗВУК И ВОСПРОИЗВЕДЕНИЕ</small><strong>Скорость и темп</strong></div>
+                <div class="ps-head-left"><span class="ps-vinyl" aria-hidden="true"><i></i></span><div><small>ЗВУК И ВОСПРОИЗВЕДЕНИЕ</small><strong>Скорость и темп</strong></div></div>
                 <button type="button" class="playback-settings-close" onclick="closePlaybackSettings()" aria-label="Закрыть настройки">×</button>
             </div>
             <div class="playback-setting">
@@ -3168,8 +3402,22 @@
                 </div>
                 <small id="playback-tempo-hint" class="playback-setting-hint">Темп будет рассчитан после анализа ритма текущего трека.</small>
             </div>
-            <div class="playback-settings-summary"><span>Итоговый множитель</span><strong id="playback-effective-rate">1.00×</strong></div>
-            <small class="playback-setting-hint">Скорость и темп применяются вместе. Высота тона сохраняется, когда это поддерживает браузер.</small>
+            <div class="playback-setting">
+                <div class="playback-setting-top">
+                    <label>Высота тона</label>
+                    <strong id="pitch-mode-label" class="playback-setting-value">Авто</strong>
+                </div>
+                <div class="pitch-modes" aria-label="Режим высоты тона">
+                    <button type="button" class="tempo-preset pitch-mode" data-mode="auto" onclick="setPitchMode('auto')">Авто</button>
+                    <button type="button" class="tempo-preset pitch-mode" data-mode="keep" onclick="setPitchMode('keep')">Сохранять</button>
+                    <button type="button" class="tempo-preset pitch-mode" data-mode="free" onclick="setPitchMode('free')">Меняется</button>
+                </div>
+                <small class="playback-setting-hint">«Авто» убирает шипение: при сильном ускорении тон слегка растёт, как на пластинке. «Сохранять» — тон не меняется, но возможны артефакты.</small>
+            </div>
+            <div class="playback-settings-summary">
+                <div class="ps-sum-row"><span>Итоговый множитель</span><strong id="playback-effective-rate">1.00×</strong></div>
+                <div class="ps-gauge"><i id="playback-gauge-fill"></i><b></b></div>
+            </div>
             <div class="playback-settings-footer"><button type="button" class="playback-settings-reset" onclick="resetPlaybackSettings()">Сбросить настройки</button></div>
         </div>
 
@@ -4652,17 +4900,37 @@
             return Number.isFinite(value) && value > 0 ? value : 1;
         }
 
-        function setPitchPreservation(audio) {
+        let pitchMode = 'auto';
+        try { const savedPitch = localStorage.getItem('mimusic_pitch_mode'); if (['auto', 'keep', 'free'].includes(savedPitch)) pitchMode = savedPitch; } catch (error) {}
+
+        // Сохранение тона = растяжение звука алгоритмом; при заметном ускорении он даёт шипение и «воду».
+        // В режиме «Авто» тон сохраняется только при небольших отклонениях скорости.
+        function shouldPreservePitch(rate) {
+            if (pitchMode === 'keep') return true;
+            if (pitchMode === 'free') return false;
+            return Math.abs(rate - 1) <= 0.1;
+        }
+
+        function setPitchPreservation(audio, rate) {
             if (!audio) return;
-            if ('preservesPitch' in audio) audio.preservesPitch = true;
-            if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = true;
-            if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = true;
+            const keep = shouldPreservePitch(Number.isFinite(rate) ? rate : (Number(audio.playbackRate) || 1));
+            if ('preservesPitch' in audio) audio.preservesPitch = keep;
+            if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = keep;
+            if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = keep;
         }
 
         function applyPlaybackRate(audio) {
             if (!audio) return;
-            setPitchPreservation(audio);
-            audio.playbackRate = Math.max(0.4, Math.min(2.8, getManualPlaybackRate() * getDjRateMultiplier(audio)));
+            const rate = Math.max(0.4, Math.min(2.8, getManualPlaybackRate() * getDjRateMultiplier(audio)));
+            setPitchPreservation(audio, rate);
+            audio.playbackRate = rate;
+        }
+
+        function setPitchMode(mode) {
+            if (!['auto', 'keep', 'free'].includes(mode)) return;
+            pitchMode = mode;
+            try { localStorage.setItem('mimusic_pitch_mode', mode); } catch (error) {}
+            applyPlaybackSettingsToDecks();
         }
 
         function savePlaybackSettings() {
@@ -4682,13 +4950,13 @@
                 speedRange.value = String(playbackSpeedSetting);
                 const percent = Math.max(0, Math.min(100, ((playbackSpeedSetting - 0.5) / 1.5) * 100));
                 speedRange.style.setProperty('--range-progress', `${percent}%`);
-                speedRange.style.background = `linear-gradient(to right,var(--accent-color) ${percent}%,rgba(255,255,255,.16) ${percent}%)`;
+                speedRange.style.background = `linear-gradient(to right,rgba(var(--accent-rgb),.45),var(--accent-color) ${percent}%,rgba(255,255,255,.14) ${percent}%)`;
             }
             if (tempoRange) {
                 tempoRange.value = String(playbackTempoPercent);
                 const percent = Math.max(0, Math.min(100, ((playbackTempoPercent - 80) / 40) * 100));
                 tempoRange.style.setProperty('--range-progress', `${percent}%`);
-                tempoRange.style.background = `linear-gradient(to right,var(--accent-color) ${percent}%,rgba(255,255,255,.16) ${percent}%)`;
+                tempoRange.style.background = `linear-gradient(to right,rgba(var(--accent-rgb),.45),var(--accent-color) ${percent}%,rgba(255,255,255,.14) ${percent}%)`;
             }
             if (speedValue) speedValue.textContent = `${playbackSpeedSetting.toFixed(2)}×`;
             if (tempoValue) tempoValue.textContent = `${playbackTempoPercent}%`;
@@ -4699,6 +4967,16 @@
                 button.classList.toggle('active', Number(button.dataset.tempo) === playbackTempoPercent);
             });
             if (effectiveRate) effectiveRate.textContent = `${getManualPlaybackRate().toFixed(2)}×`;
+            const psPanel = document.getElementById('playback-settings-panel');
+            if (psPanel) {
+                const rate = getManualPlaybackRate();
+                psPanel.style.setProperty('--ps-rate', rate.toFixed(3));
+                const gauge = document.getElementById('playback-gauge-fill');
+                if (gauge) gauge.style.width = `${Math.max(2, Math.min(100, (rate - 0.4) / 2 * 100))}%`;
+                psPanel.querySelectorAll('.pitch-mode').forEach(button => button.classList.toggle('active', button.dataset.mode === pitchMode));
+                const pitchLabel = document.getElementById('pitch-mode-label');
+                if (pitchLabel) pitchLabel.textContent = { auto: 'Авто', keep: 'Сохранять', free: 'Меняется' }[pitchMode];
+            }
             if (tempoHint) {
                 if (currentTrackBaseBpm) {
                     const resultingBpm = Math.round(currentTrackBaseBpm * getManualPlaybackRate());
@@ -4740,6 +5018,87 @@
             savePlaybackSettings();
             applyPlaybackSettingsToDecks();
         }
+
+        // ───── Режим «Вайб» ─────
+        let vibeMode = false;
+        try { vibeMode = localStorage.getItem('mimusic_vibe') === '1'; } catch (error) {}
+
+        function syncVibe() {
+            const player = document.getElementById('full-player');
+            const cover = document.getElementById('fp-cover');
+            const title = document.getElementById('fp-title');
+            if (!player) return;
+            const src = cover ? cover.getAttribute('src') : '';
+            player.style.setProperty('--vibe-img', src ? `url(${JSON.stringify(src)})` : 'none');
+            buildVibeMarquee(((title && title.textContent) || '').trim().toUpperCase() || 'MIMUSIC');
+        }
+
+        // Строка собирается из двух одинаковых половин, каждая шире экрана,
+        // поэтому нижняя полоса заполнена с первого кадра и без разрывов.
+        function buildVibeMarquee(text) {
+            const track = document.getElementById('vibe-mirror-track');
+            if (!track) return;
+            const width = (track.parentElement && track.parentElement.clientWidth) || window.innerWidth || 400;
+            const unit = `${text}  ·  `;
+            const probe = document.createElement('span');
+            probe.className = 'vm-group';
+            probe.textContent = unit;
+            track.replaceChildren(probe);
+            const unitWidth = probe.getBoundingClientRect().width || 320;
+            const repeats = Math.max(1, Math.ceil(width / unitWidth) + 1);
+            const groupText = unit.repeat(repeats);
+            track.replaceChildren();
+            for (let i = 0; i < 2; i++) {
+                const group = document.createElement('span');
+                group.className = 'vm-group';
+                group.textContent = groupText;
+                track.appendChild(group);
+            }
+            const duration = Math.max(14, (unitWidth * repeats) / 55);
+            track.style.setProperty('--vm-dur', `${duration.toFixed(1)}s`);
+            track.style.animationDelay = `-${(Math.random() * duration).toFixed(1)}s`;
+        }
+
+        function setVibeMode(on) {
+            vibeMode = !!on;
+            const player = document.getElementById('full-player');
+            const button = document.getElementById('fp-vibe-btn');
+            if (player) player.classList.toggle('vibe', vibeMode);
+            if (button) { button.classList.toggle('active', vibeMode); button.setAttribute('aria-pressed', vibeMode ? 'true' : 'false'); }
+            try { localStorage.setItem('mimusic_vibe', vibeMode ? '1' : '0'); } catch (error) {}
+            if (vibeMode) syncVibe();
+        }
+
+        function toggleVibeMode(event) {
+            if (event) event.stopPropagation();
+            setVibeMode(!vibeMode);
+        }
+
+        function initVibeMode() {
+            const box = document.getElementById('vibe-particles');
+            if (box && !box.children.length) {
+                for (let i = 0; i < 26; i++) {
+                    const dot = document.createElement('span');
+                    const large = i % 5 === 0;
+                    const size = large ? 12 + Math.random() * 18 : 2 + Math.random() * 4;
+                    if (large) dot.className = 'big';
+                    dot.style.cssText = `left:${(Math.random() * 100).toFixed(1)}%;width:${size.toFixed(1)}px;height:${size.toFixed(1)}px;--dx:${((Math.random() - .5) * 90).toFixed(0)}px;animation-duration:${(9 + Math.random() * 13).toFixed(1)}s;animation-delay:${(-Math.random() * 20).toFixed(1)}s;`;
+                    box.appendChild(dot);
+                }
+            }
+            const cover = document.getElementById('fp-cover');
+            const title = document.getElementById('fp-title');
+            if (window.MutationObserver) {
+                const observer = new MutationObserver(syncVibe);
+                if (cover) observer.observe(cover, { attributes: true, attributeFilter: ['src'] });
+                if (title) observer.observe(title, { childList: true, characterData: true, subtree: true });
+            }
+            let resizeTimer = 0;
+            window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (vibeMode) syncVibe(); }, 200); });
+            if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (vibeMode) syncVibe(); });
+            setVibeMode(vibeMode);
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initVibeMode); else initVibeMode();
 
         function togglePlaybackSettings(event) {
             if (event) event.stopPropagation();
